@@ -32,7 +32,7 @@
 | T001 | done | [项目初始化](./tasks/task-001-project-initialization.md) |
 | T002 | done | [模型与 DAG 校验](./tasks/task-002-models-and-dag-validation.md) |
 | T003 | done | [状态存储与依赖解析](./tasks/task-003-state-store-and-dependency-resolver.md) |
-| T004 | todo | [Wave 调度与冲突检测](./tasks/task-004-wave-scheduling-and-conflict-detection.md) |
+| T004 | done | [Wave 调度与冲突检测](./tasks/task-004-wave-scheduling-and-conflict-detection.md) |
 | T005 | todo | [Worker 分配、结果收集与 ReviewGate](./tasks/task-005-worker-result-review.md) |
 | T006 | todo | [MessageBus 与 Mailbox](./tasks/task-006-message-bus-and-mailbox.md) |
 | T007 | todo | [恢复机制与端到端验收](./tasks/task-007-recovery-and-e2e.md) |
@@ -45,7 +45,8 @@
 - 已完成初始 git 提交：`01aff57 chore: initialize task graph scheduler project`。
 - 已完成 T002：模型与 DAG 校验。
 - 已完成 T003：状态存储与依赖解析。
-- 下一步进入 T004：Wave 调度与冲突检测。
+- 已完成 T004：Wave 调度与冲突检测。
+- 下一步进入 T005：Worker 分配、结果收集与 ReviewGate。
 
 ## 阶段完成标准
 

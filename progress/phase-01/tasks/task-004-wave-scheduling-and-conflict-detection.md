@@ -2,7 +2,29 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 实现 `detectFileConflicts(...)`。
+- 实现 `hasFileConflict(...)`。
+- 实现 `generateNextWave(...)`。
+- 支持 `max_parallel_tasks`。
+- 支持 `max_agents`。
+- 支持 `can_parallel=false` 串行约束。
+- 支持同文件 `expected_files` 冲突串行化。
+- 支持高风险任务串行化。
+- 输出 skipped ready task reason。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -33,4 +55,3 @@
 - `src/scheduler/conflict_detector.ts`
 - `src/scheduler/scheduler.ts`
 - `tests/scheduler.test.ts`
-
