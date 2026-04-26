@@ -30,7 +30,7 @@
 | ID | 状态 | 任务 |
 |---|---|---|
 | T001 | done | [项目初始化](./tasks/task-001-project-initialization.md) |
-| T002 | todo | [模型与 DAG 校验](./tasks/task-002-models-and-dag-validation.md) |
+| T002 | done | [模型与 DAG 校验](./tasks/task-002-models-and-dag-validation.md) |
 | T003 | todo | [状态存储与依赖解析](./tasks/task-003-state-store-and-dependency-resolver.md) |
 | T004 | todo | [Wave 调度与冲突检测](./tasks/task-004-wave-scheduling-and-conflict-detection.md) |
 | T005 | todo | [Worker 分配、结果收集与 ReviewGate](./tasks/task-005-worker-result-review.md) |
@@ -43,7 +43,8 @@
 - 已完成 TypeScript 项目初始化。
 - 已建立源码、测试、fixtures 和文档目录骨架。
 - 已完成初始 git 提交：`01aff57 chore: initialize task graph scheduler project`。
-- 下一步进入 T002：模型与 DAG 校验。
+- 已完成 T002：模型与 DAG 校验。
+- 下一步进入 T003：状态存储与依赖解析。
 
 ## 阶段完成标准
 
@@ -57,4 +58,3 @@
 8. 可以持久化 state、mailbox 和 audit log。
 9. 可以从中断状态恢复。
 10. 可以通过 e2e fixture 复现 PRD 中的完整执行过程。
-

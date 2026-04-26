@@ -2,7 +2,25 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 实现 `validateDag(input)`。
+- 实现 `loadPlan(input)` 与 `loadPlanFile(path)`。
+- 实现 `createInitialWorkflowState(...)`。
+- 补充非法 plan fixtures。
+- 补充 DAG 校验与 plan loader 单元测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -33,4 +51,3 @@
 - `src/validation/dag_validator.ts`
 - `tests/dag_validator.test.ts`
 - `tests/fixtures/*`
-

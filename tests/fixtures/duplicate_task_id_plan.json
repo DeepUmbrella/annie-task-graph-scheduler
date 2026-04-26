@@ -1,0 +1,15 @@
+{
+  "plan_id": "plan_duplicate",
+  "plan_type": "dag",
+  "execution_policy": {},
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Task 1"
+    },
+    {
+      "id": "T1",
+      "title": "Task 1 duplicate"
+    }
+  ]
+}

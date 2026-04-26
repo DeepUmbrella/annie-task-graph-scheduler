@@ -1,0 +1,14 @@
+{
+  "plan_id": "plan_missing_dependency",
+  "plan_type": "dag",
+  "execution_policy": {},
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Task 1",
+      "depends_on": [
+        "T0"
+      ]
+    }
+  ]
+}

@@ -5,3 +5,5 @@ export * from "./models/plan.js";
 export * from "./models/task.js";
 export * from "./models/wave.js";
 export * from "./models/workflow.js";
+export * from "./validation/dag_validator.js";
+export * from "./validation/plan_loader.js";

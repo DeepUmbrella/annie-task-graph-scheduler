@@ -1,0 +1,6 @@
+{
+  "plan_id": "plan_empty",
+  "plan_type": "dag",
+  "execution_policy": {},
+  "tasks": []
+}

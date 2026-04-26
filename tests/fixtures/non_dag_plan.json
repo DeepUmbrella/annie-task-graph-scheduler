@@ -1,0 +1,11 @@
+{
+  "plan_id": "plan_linear",
+  "plan_type": "linear",
+  "execution_policy": {},
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Task 1"
+    }
+  ]
+}
