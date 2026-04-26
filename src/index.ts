@@ -7,3 +7,5 @@ export * from "./models/wave.js";
 export * from "./models/workflow.js";
 export * from "./validation/dag_validator.js";
 export * from "./validation/plan_loader.js";
+export * from "./scheduler/dependency_resolver.js";
+export * from "./storage/state_store.js";

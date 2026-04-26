@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 实现文件型 `StateStore`。
+- 支持 workflow state 原子写入与读取。
+- 支持 `audit.jsonl` 追加。
+- 实现任务状态流转校验。
+- 实现 `transitionTaskStatus(...)` 并写入 audit event。
+- 实现 `resolveDependencies(...)`。
+- 支持 ready 计算和 blocked 向下游传播。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -33,4 +53,3 @@
 - `src/scheduler/dependency_resolver.ts`
 - `tests/state_store.test.ts`
 - `tests/dependency_resolver.test.ts`
-
