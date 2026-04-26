@@ -1,0 +1,27 @@
+{
+  "plan_id": "plan_cyclic",
+  "plan_type": "dag",
+  "execution_policy": {
+    "max_parallel_tasks": 2,
+    "max_agents": 2,
+    "same_file_conflict_policy": "serialize",
+    "review_after_each_wave": true,
+    "stop_on_critical_failure": true
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Task 1",
+      "depends_on": [
+        "T2"
+      ]
+    },
+    {
+      "id": "T2",
+      "title": "Task 2",
+      "depends_on": [
+        "T1"
+      ]
+    }
+  ]
+}

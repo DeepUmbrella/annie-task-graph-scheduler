@@ -1,0 +1,32 @@
+{
+  "name": "annie-task-graph-scheduler",
+  "version": "0.1.0",
+  "description": "Task DAG scheduler for Annie Workflow System Phase 1 MVP.",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "annie-tgs": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "node --test dist/tests/**/*.test.js",
+    "test:e2e": "node --test dist/tests/e2e_mvp_flow.test.js",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "annie",
+    "task-graph",
+    "scheduler",
+    "dag",
+    "workflow"
+  ],
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

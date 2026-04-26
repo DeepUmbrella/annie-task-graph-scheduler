@@ -1,0 +1,53 @@
+{
+  "plan_id": "plan_2026_04_26_001",
+  "plan_type": "dag",
+  "execution_policy": {
+    "max_parallel_tasks": 3,
+    "max_agents": 3,
+    "same_file_conflict_policy": "serialize",
+    "review_after_each_wave": true,
+    "stop_on_critical_failure": true
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "定义协议",
+      "description": "定义客户端与服务端通信所需的消息协议。",
+      "depends_on": [],
+      "can_parallel": false,
+      "risk": "medium",
+      "expected_files": [
+        "Unity/Assets/Scripts/Model/Message/TeamMessage.cs"
+      ],
+      "preferred_agent": "backend-agent"
+    },
+    {
+      "id": "T2",
+      "title": "实现服务端 Handler",
+      "description": "实现队伍创建请求的服务端处理逻辑。",
+      "depends_on": [
+        "T1"
+      ],
+      "can_parallel": true,
+      "risk": "medium",
+      "expected_files": [
+        "Server/Hotfix/Team/CreateTeamHandler.cs"
+      ],
+      "preferred_agent": "backend-agent"
+    },
+    {
+      "id": "T3",
+      "title": "实现客户端 UI",
+      "description": "实现创建队伍按钮和队伍列表刷新逻辑。",
+      "depends_on": [
+        "T1"
+      ],
+      "can_parallel": true,
+      "risk": "medium",
+      "expected_files": [
+        "Unity/Assets/Scripts/HotfixView/UI/DlgTeamMain.cs"
+      ],
+      "preferred_agent": "frontend-agent"
+    }
+  ]
+}
