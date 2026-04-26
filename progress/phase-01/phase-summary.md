@@ -34,7 +34,7 @@
 | T003 | done | [状态存储与依赖解析](./tasks/task-003-state-store-and-dependency-resolver.md) |
 | T004 | done | [Wave 调度与冲突检测](./tasks/task-004-wave-scheduling-and-conflict-detection.md) |
 | T005 | done | [Worker 分配、结果收集与 ReviewGate](./tasks/task-005-worker-result-review.md) |
-| T006 | todo | [MessageBus 与 Mailbox](./tasks/task-006-message-bus-and-mailbox.md) |
+| T006 | done | [MessageBus 与 Mailbox](./tasks/task-006-message-bus-and-mailbox.md) |
 | T007 | todo | [恢复机制与端到端验收](./tasks/task-007-recovery-and-e2e.md) |
 | T008 | todo | [OpenClaw Adapter 集成](./tasks/task-008-openclaw-adapter.md) |
 
@@ -47,7 +47,8 @@
 - 已完成 T003：状态存储与依赖解析。
 - 已完成 T004：Wave 调度与冲突检测。
 - 已完成 T005：Worker 分配、结果收集与 ReviewGate。
-- 下一步进入 T006：MessageBus 与 Mailbox。
+- 已完成 T006：MessageBus 与 Mailbox。
+- 下一步进入 T007：恢复机制与端到端验收。
 
 ## 阶段完成标准
 

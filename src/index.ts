@@ -14,3 +14,7 @@ export * from "./storage/state_store.js";
 export * from "./execution/worker_pool.js";
 export * from "./execution/result_collector.js";
 export * from "./execution/review_gate.js";
+export * from "./communication/mailbox_store.js";
+export * from "./communication/message_bus.js";
+export * from "./communication/protocol_validator.js";
+export * from "./communication/openclaw_adapter.js";

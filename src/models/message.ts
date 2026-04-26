@@ -5,6 +5,7 @@ export const messageTypes = [
   "TASK_COMPLETED",
   "TASK_FAILED",
   "HELP_REQUESTED",
+  "QUESTION_ASKED",
   "ANSWER_PROVIDED",
   "REVIEW_REQUESTED",
   "REVIEW_COMMENT",

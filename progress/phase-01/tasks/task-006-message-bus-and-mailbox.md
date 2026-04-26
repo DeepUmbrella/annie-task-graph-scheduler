@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 实现 JSONL `MailboxStore`。
+- 实现 `ProtocolValidator`。
+- 实现 `MessageBus`。
+- 支持消息创建、发送、ACK、processed 标记和投递重试。
+- 支持 MockAdapter。
+- 补充 `QUESTION_ASKED` 消息类型。
+- 补充 MessageBus 单元测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -33,4 +53,3 @@
 - `src/communication/protocol_validator.ts`
 - `src/communication/openclaw_adapter.ts`
 - `tests/message_bus.test.ts`
-
