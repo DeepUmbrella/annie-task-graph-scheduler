@@ -25,6 +25,12 @@ export interface Task {
   risk: TaskRisk;
   expected_files: string[];
   changed_files: string[];
+  tests_run: string[];
+  risks_found: string[];
+  result_summary: string | null;
+  failure_type: string | null;
+  failure_reason: string | null;
+  next_recommendation: string | null;
   preferred_agent: string | null;
   assigned_to: string | null;
   retry_count: number;

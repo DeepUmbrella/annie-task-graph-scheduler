@@ -11,3 +11,6 @@ export * from "./scheduler/dependency_resolver.js";
 export * from "./scheduler/conflict_detector.js";
 export * from "./scheduler/scheduler.js";
 export * from "./storage/state_store.js";
+export * from "./execution/worker_pool.js";
+export * from "./execution/result_collector.js";
+export * from "./execution/review_gate.js";
