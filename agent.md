@@ -32,6 +32,28 @@ Read these first:
 
 Progress files are part of the product process, not optional notes. Keep them updated with code changes.
 
+## When To Update This File
+
+`agent.md` is a cross-client handoff guide. It should stay stable and high signal.
+
+Update this file when:
+
+- A new phase starts or finishes.
+- The current project status changes at a phase level.
+- Important directories, modules, commands, or architecture rules change.
+- The validation baseline changes, such as the expected test count.
+- New collaboration rules are added.
+- A repeated agent/editor pitfall is discovered and should be documented.
+
+Do not update this file for:
+
+- Every ordinary task completion.
+- Small bug fixes.
+- Routine test additions.
+- Internal implementation details that do not change how agents should work.
+
+Use `progress/` for fine-grained task progress. Use `agent.md` for stable handoff rules and phase-level project state.
+
 ## Current Progress
 
 Completed:
@@ -248,4 +270,3 @@ npm run typecheck: pass
 npm run build: pass
 npm test: 57 passed
 ```
-
