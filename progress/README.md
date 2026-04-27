@@ -35,7 +35,7 @@ progress/
 
 当前下一阶段：
 
-Phase 05 Cross-project Scheduling 正在推进。T028-T029 已完成，下一步进入 T030。
+Phase 05 Cross-project Scheduling 正在推进。T028-T030 已完成，下一步进入 T031。
 
 ## 更新规则
 
@@ -85,5 +85,5 @@ npm test
 当前基线：
 
 ```txt
-80 passed
+83 passed
 ```

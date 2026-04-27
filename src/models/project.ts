@@ -42,6 +42,8 @@ export interface GlobalTaskQueueItem {
   project_priority: ProjectPriority;
   user_priority: UserPriority;
   risk: TaskRisk;
+  risk_score: number;
+  risk_reasons: string[];
   expected_files: string[];
   required_capabilities: string[];
   preferred_agent: string | null;

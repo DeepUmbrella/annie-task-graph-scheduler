@@ -37,6 +37,8 @@ test("constructs cross-project scheduling models", () => {
     project_priority: project.priority,
     user_priority: workflow.priority,
     risk: "medium",
+    risk_score: 31,
+    risk_reasons: ["explicit risk medium", "1 expected file(s)"],
     expected_files: ["docs/chapter.md"],
     required_capabilities: ["writing"],
     preferred_agent: "writer-agent",

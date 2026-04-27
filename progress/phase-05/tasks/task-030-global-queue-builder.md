@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,20 @@
 - `src/scheduler/risk_scorer.ts`
 - `tests/cross_project_scheduler.test.ts`
 
+## 完成记录
+
+- 新增 `src/projects/global_queue.ts`。
+- 实现 `buildGlobalTaskQueue`，从多个 project/workflow/state 输入中收集 ready tasks。
+- 队列项包含 project、workflow、task、priority、risk、risk_score、preferred_agent、required_capabilities。
+- 非 ready task 会进入 skipped 列表，便于后续可视化和调度解释。
+- 输出按 project_id / workflow_id / task_id 稳定排序。
+- 对 project/workflow/state 不匹配返回 TaskGraphSchedulerError 结构化错误。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+83 passed
+```
