@@ -2,6 +2,7 @@
 
 import { createStateStore } from "./storage/state_store.js";
 import { recoverWorkflow } from "./storage/recovery_manager.js";
+import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
 import { TaskGraphSchedulerError } from "./errors.js";
 
 const command = process.argv[2];
@@ -9,14 +10,17 @@ const command = process.argv[2];
 if (!command || command === "--help" || command === "-h") {
   console.log(`annie-tgs
 
-Commands planned for Phase 1:
+Commands:
+  status --workflow <workflow_id>
+  recover --workflow <workflow_id>
+  visualize --workflow <workflow_id>
+
+Commands planned for future phases:
   init --plan <plan.json>
   next-wave --workflow <workflow_id>
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
-  recover --workflow <workflow_id>
-  status --workflow <workflow_id>
 `);
   process.exit(0);
 }
@@ -25,6 +29,8 @@ if (command === "status") {
   await runStatus();
 } else if (command === "recover") {
   await runRecover();
+} else if (command === "visualize") {
+  await runVisualize();
 } else {
   console.error(`Command "${command}" is not implemented yet.`);
   process.exit(1);
@@ -77,6 +83,29 @@ async function runRecover(): Promise<void> {
       recovered_task_ids: result.recovered_task_ids,
       audit_events: result.audit_events.length
     }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runVisualize(): Promise<void> {
+  const workflowId = getArg("--workflow");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const state = await createCliStateStore().loadState(workflowId);
+    const result = exportVisualization(state);
+
+    if (result.ok) {
+      console.log(JSON.stringify(result.data, null, 2));
+    } else {
+      console.error(`${result.error.code}: ${result.error.message}`);
+      process.exit(1);
+    }
   } catch (error) {
     printCliError(error);
   }

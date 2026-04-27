@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,4 +28,13 @@
 - `src/storage/state_store.ts`
 - `src/visualization/*`
 - `tests/visualization.test.ts`
+
+## 完成记录
+
+- 在 `projection.ts` 中新增 `exportVisualization()` 函数，接受 `WorkflowState | null`，返回 `VisualizationExport`（ok/error 联合类型）。
+- 新增 `VisualizationExportResult`、`VisualizationExportError`、`VisualizationExport` 类型定义。
+- CLI 新增 `visualize --workflow <workflow_id>` 命令，读取 StateStore 并输出完整 visualization JSON。
+- 失败读取 state 时通过 `TaskGraphSchedulerError`（STATE_LOAD_FAILED）或 `VisualizationExportError`（VISUALIZATION_STATE_MISSING）返回结构化错误。
+- 补充测试：exportVisualization 对有效 state 返回 ok，对 null 返回 error。
+- 验证结果：typecheck pass, build pass, 62 passed。
 
