@@ -18,7 +18,7 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -37,7 +37,7 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 | T019 | done | [Wave 进度投影](./tasks/task-019-wave-progress-projection.md) |
 | T020 | done | [失败任务追踪投影](./tasks/task-020-failure-tracking-projection.md) |
 | T021 | done | [Visualization Export / CLI 边界](./tasks/task-021-visualization-export.md) |
-| T022 | todo | [Phase 03 验收与回归测试](./tasks/task-022-phase-03-acceptance.md) |
+| T022 | done | [Phase 03 验收与回归测试](./tasks/task-022-phase-03-acceptance.md) |
 
 ## 当前进度
 
@@ -50,7 +50,8 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 - 已完成 T019：Wave 进度投影。
 - 已完成 T020：失败任务追踪投影。
 - 已完成 T021：Visualization Export / CLI 边界。
-- 下一步进入 T022：Phase 03 验收与回归测试。
+- 已完成 T022：Phase 03 验收与回归测试。
+- Phase 03 全部任务完成。
 
 ## 阶段完成标准
 

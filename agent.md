@@ -56,28 +56,7 @@ Use `progress/` for fine-grained task progress. Use `agent.md` for stable handof
 
 ## Current Progress
 
-Completed:
-
-- `progress/phase-01/phase-summary.md` - Phase 01 MVP is `done`
-- `progress/phase-02/phase-summary.md` - Phase 02 Enhanced Scheduling is `done`
-
-Planned:
-
-- `progress/phase-03/phase-summary.md` - Phase 03 Visualization is `todo`
-
-Latest completed task:
-
-- `progress/phase-02/tasks/task-015-phase-02-acceptance.md`
-
-Current next phase from the PRD:
-
-- Phase 03: Visualization
-  - Workflow board
-  - DAG graph display
-  - Wave execution progress
-  - Failed task tracking
-
-Do not start Phase 03 implementation directly until UI carrier and interaction scope are clear. Ask the user before choosing between web UI, CLI report, static HTML, or another visualization surface.
+读取progress/README.md文件: 获取项目进度，以及项目进度更新规则。
 
 ## Development Rules
 
@@ -177,7 +156,17 @@ Phase 02:
 - structured scheduler decision output
 - Phase 02 e2e acceptance coverage
 
-Phase 03 planned:
+Phase 03:
+
+- Visualization data model (VisualizationModel, board/dag/waves/failures views)
+- Workflow board projection
+- DAG graph projection (nodes with highlight, dependency edges with status)
+- Wave progress projection
+- Failure tracking projection with downstream impact (BFS traversal)
+- Visualization export function and CLI visualize command
+- Phase 03 e2e acceptance coverage
+
+Phase 04 planned:
 
 - Visualization data model
 - Workflow board projection
@@ -232,8 +221,8 @@ Latest known completed state:
 ```txt
 Phase 01: done
 Phase 02: done
-Phase 03: todo
+Phase 03: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 57 passed
+npm test: 65 passed
 ```

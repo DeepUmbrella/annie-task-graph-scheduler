@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -31,4 +31,11 @@
 - `README.md`
 - `agent.md`
 - `progress/README.md`
+
+## 完成记录
+
+- 新增 `tests/e2e_visualization.test.ts`，覆盖完整成功流程和失败流程的 visualization 投影。
+- 测试覆盖 board/dag/waves/failures/downstream_impact/exportVisualization。
+- Phase 01 / Phase 02 回归测试全部通过。
+- 验证结果：typecheck pass, build pass, 65 passed。
 

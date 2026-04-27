@@ -29,13 +29,11 @@ progress/
 
 - [Phase 01 MVP](./phase-01/phase-summary.md) - done
 - [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md) - done
-- [Phase 03 Visualization](./phase-03/phase-summary.md) - todo
+- [Phase 03 Visualization](./phase-03/phase-summary.md) - done
 
 当前下一阶段：
 
-- Phase 03 Visualization
-
-Phase 03 计划已创建。进入实现前，如果需要决定 UI 载体或交互形态，必须先询问用户。
+Phase 03 已完成。下一阶段为 Phase 04 (Long-term memory integration)，需先规划。
 
 ## 更新规则
 
@@ -85,5 +83,5 @@ npm test
 当前基线：
 
 ```txt
-57 passed
+65 passed
 ```
