@@ -14,7 +14,7 @@
 
 ## 阶段状态
 
-`todo`
+`in_progress`
 
 ## 关联文档
 
@@ -28,7 +28,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T023 | todo | [Template 模型定义](./tasks/task-023-template-model.md) |
+| T023 | done | [Template 模型定义](./tasks/task-023-template-model.md) |
 | T024 | todo | [内置模板与注册机制](./tasks/task-024-builtin-templates.md) |
 | T025 | todo | [从模板创建 Plan](./tasks/task-025-template-instantiation.md) |
 | T026 | todo | [CLI template 命令](./tasks/task-026-cli-template.md) |
@@ -38,7 +38,8 @@
 
 - Phase 01-03 已完成。
 - Phase 04 计划已创建。
-- 下一步进入 T023：Template 模型定义。
+- 已完成 T023：Template 模型定义。
+- 下一步进入 T024：内置模板与注册机制。
 
 ## 阶段完成标准
 
