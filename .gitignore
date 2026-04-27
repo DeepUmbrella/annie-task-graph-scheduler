@@ -5,3 +5,6 @@ coverage/
 .annie/
 *.log
 *.tmp
+
+# ai cli
+.claude
