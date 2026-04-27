@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { defaultExecutionPolicy, type ExecutionPolicy, type TaskDagPlan } from "../models/plan.js";
+import { defaultExecutionPolicy, type ExecutionPolicy, type ExecutionPolicyInput, type TaskDagPlan } from "../models/plan.js";
 import type { PlanTaskInput, Task } from "../models/task.js";
 import type { WorkflowState } from "../models/workflow.js";
 import { TaskGraphSchedulerError } from "../errors.js";
@@ -49,10 +49,45 @@ export function loadPlan(input: unknown): LoadedPlan {
 
   return {
     plan,
-    execution_policy: {
-      ...defaultExecutionPolicy,
-      ...plan.execution_policy
+    execution_policy: normalizeExecutionPolicy(plan.execution_policy)
+  };
+}
+
+export function normalizeExecutionPolicy(policy: ExecutionPolicyInput = {}): ExecutionPolicy {
+  const merged: ExecutionPolicy = {
+    ...defaultExecutionPolicy,
+    ...policy,
+    scheduling: {
+      ...defaultExecutionPolicy.scheduling,
+      ...policy.scheduling
+    },
+    agents: {
+      ...defaultExecutionPolicy.agents,
+      ...policy.agents
+    },
+    risk: {
+      ...defaultExecutionPolicy.risk,
+      ...policy.risk,
+      scoring_weights: {
+        ...defaultExecutionPolicy.risk.scoring_weights,
+        ...policy.risk?.scoring_weights
+      }
+    },
+    retry: {
+      ...defaultExecutionPolicy.retry,
+      ...policy.retry
+    },
+    conflicts: {
+      ...defaultExecutionPolicy.conflicts,
+      ...policy.conflicts
     }
+  };
+
+  return {
+    ...merged,
+    max_retries: merged.retry.max_retries,
+    retry_on: merged.retry.retry_on,
+    manual_review_on_second_failure: merged.retry.manual_review_on_second_failure
   };
 }
 

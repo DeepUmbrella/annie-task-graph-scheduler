@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { validateDag } from "../src/validation/dag_validator.js";
-import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
+import { createInitialWorkflowState, loadPlan, normalizeExecutionPolicy } from "../src/validation/plan_loader.js";
 
 const validPlan = {
   plan_id: "plan_valid",
@@ -107,6 +107,40 @@ test("loadPlan merges default execution policy", () => {
   assert.equal(loaded.execution_policy.max_parallel_tasks, 3);
   assert.equal(loaded.execution_policy.max_agents, 3);
   assert.equal(loaded.execution_policy.max_delivery_retries, 2);
+  assert.equal(loaded.execution_policy.scheduling.selection_order, "topological");
+  assert.equal(loaded.execution_policy.agents.fallback_agent, "default-agent");
+  assert.equal(loaded.execution_policy.conflicts.mode, "exact");
+});
+
+test("normalizeExecutionPolicy deeply merges phase 02 policy defaults", () => {
+  const policy = normalizeExecutionPolicy({
+    scheduling: {
+      selection_order: "risk_aware",
+      prefer_low_risk_first: true,
+      explain_skipped_tasks: true
+    },
+    risk: {
+      high_risk_parallel_limit: 2,
+      critical_requires_review: true,
+      scoring_weights: {
+        explicit_risk: 20
+      }
+    },
+    retry: {
+      max_retries: 3,
+      retry_on: ["transient", "permission"],
+      manual_review_on_second_failure: false,
+      backoff: "linear"
+    }
+  });
+
+  assert.equal(policy.scheduling.selection_order, "risk_aware");
+  assert.equal(policy.risk.high_risk_parallel_limit, 2);
+  assert.equal(policy.risk.scoring_weights.explicit_risk, 20);
+  assert.equal(policy.risk.scoring_weights.expected_files_count, 1);
+  assert.equal(policy.retry.max_retries, 3);
+  assert.equal(policy.max_retries, 3);
+  assert.deepEqual(policy.retry_on, ["transient", "permission"]);
 });
 
 test("createInitialWorkflowState normalizes plan tasks", () => {

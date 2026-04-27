@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 扩展 `ExecutionPolicy`。
+- 新增 `SchedulingPolicy`、`AgentPolicy`、`RiskPolicy`、`RetryPolicy`、`ConflictPolicy`。
+- 新增 `ExecutionPolicyInput` 支持嵌套局部配置。
+- 更新 `defaultExecutionPolicy`。
+- 实现 `normalizeExecutionPolicy(...)` 深度合并默认值。
+- 补充 Phase 02 policy fixture。
+- 补充 policy 默认值与深度合并测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -73,4 +93,3 @@ execution_policy
 - `src/validation/plan_loader.ts`
 - `tests/dag_validator.test.ts`
 - `tests/fixtures/*`
-

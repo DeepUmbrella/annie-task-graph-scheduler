@@ -18,7 +18,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 
 ## 阶段状态
 
-`todo`
+`in_progress`
 
 ## 关联文档
 
@@ -30,7 +30,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T009 | todo | [Phase 02 策略模型与配置](./tasks/task-009-scheduling-policy-model.md) |
+| T009 | done | [Phase 02 策略模型与配置](./tasks/task-009-scheduling-policy-model.md) |
 | T010 | todo | [Agent 负载感知](./tasks/task-010-agent-load-awareness.md) |
 | T011 | todo | [任务风险评分](./tasks/task-011-risk-scoring.md) |
 | T012 | todo | [自动重试策略配置](./tasks/task-012-retry-policy.md) |
@@ -42,7 +42,8 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 
 - Phase 01 MVP 已完成。
 - Phase 02 任务已规划。
-- 下一步进入 T009：Phase 02 策略模型与配置。
+- 已完成 T009：Phase 02 策略模型与配置。
+- 下一步进入 T010：Agent 负载感知。
 
 ## 阶段完成标准
 
@@ -54,4 +55,3 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 6. Scheduler 能解释任务入选或跳过的策略原因。
 7. Phase 01 的 43 个测试继续通过。
 8. Phase 02 新增策略测试和 e2e 验收测试通过。
-

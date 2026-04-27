@@ -1,0 +1,45 @@
+{
+  "plan_id": "plan_phase_02_policy",
+  "plan_type": "dag",
+  "execution_policy": {
+    "max_parallel_tasks": 4,
+    "scheduling": {
+      "selection_order": "risk_aware",
+      "prefer_low_risk_first": true,
+      "explain_skipped_tasks": true
+    },
+    "agents": {
+      "max_tasks_per_agent": 2,
+      "respect_preferred_agent": true,
+      "fallback_agent": "generalist-agent"
+    },
+    "risk": {
+      "high_risk_parallel_limit": 1,
+      "critical_requires_review": true,
+      "scoring_weights": {
+        "explicit_risk": 20,
+        "missing_expected_files": 8
+      }
+    },
+    "retry": {
+      "max_retries": 2,
+      "retry_on": [
+        "transient",
+        "permission"
+      ],
+      "manual_review_on_second_failure": true,
+      "backoff": "linear"
+    },
+    "conflicts": {
+      "mode": "directory",
+      "directory_conflict_depth": 2,
+      "unknown_files_policy": "serialize"
+    }
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Phase 02 policy task"
+    }
+  ]
+}
