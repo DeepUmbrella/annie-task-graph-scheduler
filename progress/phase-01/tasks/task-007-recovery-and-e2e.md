@@ -2,7 +2,29 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 实现 `recoverWorkflow(...)`。
+- 支持丢失 running session 后按策略转为 `failed` 或 `ready`。
+- 支持恢复后重新计算 ready / blocked 状态。
+- 支持恢复过程写入 audit log。
+- 实现 `status` CLI。
+- 实现 `recover` CLI。
+- 补充 PRD MVP 完整 wave 序列 e2e。
+- 补充失败阻塞 e2e。
+- 补充中断恢复 e2e。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -28,4 +50,3 @@
 - `src/storage/recovery_manager.ts`
 - `src/cli.ts`
 - `tests/e2e_mvp_flow.test.ts`
-

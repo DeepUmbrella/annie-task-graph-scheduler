@@ -18,3 +18,4 @@ export * from "./communication/mailbox_store.js";
 export * from "./communication/message_bus.js";
 export * from "./communication/protocol_validator.js";
 export * from "./communication/openclaw_adapter.js";
+export * from "./storage/recovery_manager.js";
