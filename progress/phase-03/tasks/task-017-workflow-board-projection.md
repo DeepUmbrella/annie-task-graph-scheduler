@@ -2,7 +2,26 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 增强 `WorkflowBoardView`。
+- 新增 board totals。
+- 新增 current wave summary。
+- Agent load 增加 capacity remaining 和 active task ids。
+- blocked / failed task 从 id 列表升级为摘要对象。
+- 补充看板投影断言。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过，当前测试数：59。
 
 ## 目标
 
@@ -27,4 +46,3 @@
 
 - `src/visualization/*`
 - `tests/visualization.test.ts`
-

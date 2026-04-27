@@ -78,8 +78,13 @@ test("creates visualization model for workflow with dependencies waves agents an
   assert.equal(model.board.task_status_counts.failed, 1);
   assert.equal(model.board.task_status_counts.blocked, 1);
   assert.equal(model.board.wave_status_counts.failed, 1);
-  assert.deepEqual(model.board.failed_tasks, ["T2"]);
-  assert.deepEqual(model.board.blocked_tasks, ["T3"]);
+  assert.equal(model.board.totals.total_tasks, 3);
+  assert.equal(model.board.totals.completed_tasks, 1);
+  assert.equal(model.board.totals.completion_ratio, 1 / 3);
+  assert.equal(model.board.current_wave?.id, "wave_001");
+  assert.equal(model.board.current_wave?.completed_task_count, 1);
+  assert.deepEqual(model.board.failed_tasks.map((task) => task.task_id), ["T2"]);
+  assert.deepEqual(model.board.blocked_tasks.map((task) => task.task_id), ["T3"]);
   assert.deepEqual(model.dag.edges.map((edge) => edge.id), ["T1->T2", "T2->T3"]);
   assert.equal(model.dag.edges[0]?.status, "satisfied");
   assert.equal(model.dag.edges[1]?.status, "blocked");
@@ -88,4 +93,6 @@ test("creates visualization model for workflow with dependencies waves agents an
   assert.equal(model.failures.failed_tasks[0]?.failure_reason, "Compile error");
   assert.equal(model.failures.blocked_tasks[0]?.blocked_reason, "Blocked by dependency T2.");
   assert.equal(model.board.agent_load[0]?.active_task_count, 1);
+  assert.equal(model.board.agent_load[0]?.capacity_remaining, 1);
+  assert.deepEqual(model.board.agent_load[0]?.active_task_ids, ["T2"]);
 });

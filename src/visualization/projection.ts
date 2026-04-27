@@ -2,6 +2,7 @@ import { taskStatuses, type TaskStatus } from "../models/task.js";
 import { waveStatuses, type WaveStatus } from "../models/wave.js";
 import type { WorkflowState } from "../models/workflow.js";
 import type {
+  CurrentWaveView,
   DependencyEdgeView,
   VisualizationModel,
   WaveView
@@ -21,6 +22,8 @@ export function createVisualizationModel(
       updated_at: state.updated_at
     },
     board: {
+      totals: createWorkflowBoardTotals(state),
+      current_wave: createCurrentWaveView(state),
       task_status_counts: countTaskStatuses(state),
       wave_status_counts: countWaveStatuses(state),
       agent_load: Object.values(state.agents).map((agent) => ({
@@ -28,10 +31,25 @@ export function createVisualizationModel(
         status: agent.status,
         active_task_count: agent.active_task_ids.length,
         max_concurrent_tasks: agent.max_concurrent_tasks,
+        capacity_remaining: Math.max(agent.max_concurrent_tasks - agent.active_task_ids.length, 0),
+        active_task_ids: agent.active_task_ids,
         session_id: agent.session_id
       })),
-      blocked_tasks: Object.values(state.tasks).filter((task) => task.status === "blocked").map((task) => task.id),
-      failed_tasks: Object.values(state.tasks).filter((task) => task.status === "failed").map((task) => task.id)
+      blocked_tasks: Object.values(state.tasks)
+        .filter((task) => task.status === "blocked")
+        .map((task) => ({
+          task_id: task.id,
+          title: task.title,
+          blocked_reason: task.blocked_reason ?? null
+        })),
+      failed_tasks: Object.values(state.tasks)
+        .filter((task) => task.status === "failed")
+        .map((task) => ({
+          task_id: task.id,
+          title: task.title,
+          failure_type: task.failure_type,
+          failure_reason: task.failure_reason
+        }))
     },
     dag: {
       nodes: Object.values(state.tasks).map((task) => ({
@@ -73,6 +91,42 @@ export function createVisualizationModel(
         }))
     },
     generated_at: generatedAt
+  };
+}
+
+function createWorkflowBoardTotals(state: WorkflowState) {
+  const tasks = Object.values(state.tasks);
+  const waves = state.waves;
+  const completedTasks = tasks.filter((task) => task.status === "done").length;
+
+  return {
+    total_tasks: tasks.length,
+    completed_tasks: completedTasks,
+    failed_tasks: tasks.filter((task) => task.status === "failed").length,
+    blocked_tasks: tasks.filter((task) => task.status === "blocked").length,
+    total_waves: waves.length,
+    completed_waves: waves.filter((wave) => wave.status === "done").length,
+    completion_ratio: tasks.length === 0 ? 0 : completedTasks / tasks.length
+  };
+}
+
+function createCurrentWaveView(state: WorkflowState): CurrentWaveView | null {
+  if (!state.current_wave) {
+    return null;
+  }
+
+  const wave = state.waves.find((candidate) => candidate.id === state.current_wave);
+
+  if (!wave) {
+    return null;
+  }
+
+  return {
+    id: wave.id,
+    status: wave.status,
+    tasks: wave.tasks,
+    completed_task_count: wave.tasks.filter((taskId) => state.tasks[taskId]?.status === "done").length,
+    total_task_count: wave.tasks.length
   };
 }
 
@@ -121,4 +175,3 @@ function getDependencyEdgeStatus(
 
   return dependency.status === "done" ? "satisfied" : "waiting";
 }
-
