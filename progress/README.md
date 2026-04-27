@@ -33,10 +33,11 @@ progress/
 - [Phase 04 Task Templates](./phase-04/phase-summary.md) - done
 - [Phase 05 Cross-project Scheduling](./phase-05/phase-summary.md) - done
 - [Phase 06 Execution CLI Orchestration](./phase-06/phase-summary.md) - done
+- [Phase 07 Long-term Memory Integration Boundary](./phase-07/phase-summary.md) - todo
 
 当前下一阶段：
 
-Phase 06 Execution CLI Orchestration 已完成。下一阶段尚未规划。
+Phase 07 Long-term Memory Integration Boundary 已规划。下一步进入 T042。
 
 ## 更新规则
 

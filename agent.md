@@ -194,6 +194,15 @@ Phase 06:
 - CLI review-wave ReviewGate
 - Execution CLI e2e coverage
 
+Phase 07 planned:
+
+- MemoryRecord / MemoryCandidate / MemoryAdapter boundary
+- Execution result memory candidate extraction
+- Scheduling preference memory candidate extraction
+- Template pattern memory candidate extraction
+- Local JSONL MemoryStore
+- CLI memory extract / write / list commands
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -243,6 +252,7 @@ Phase 03: done
 Phase 04: done
 Phase 05: done
 Phase 06: done
+Phase 07: todo
 npm run typecheck: pass
 npm run build: pass
 npm test: 98 passed
