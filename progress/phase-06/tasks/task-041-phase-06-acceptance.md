@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,20 @@
 - `progress/phase-06/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- 确认 T035-T040 全部完成。
+- Phase 06 已实现 `init -> next-wave -> dispatch -> submit-result -> review-wave` CLI 闭环。
+- Execution CLI e2e 覆盖成功进入下一 wave、失败阻塞下游、文件冲突 skipped reason。
+- Phase 01-05 回归测试继续通过。
+- 更新 progress README、phase summary 和 agent.md。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+98 passed
+```

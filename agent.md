@@ -185,7 +185,7 @@ Phase 05:
 - CLI project / queue commands
 - Phase 05 acceptance coverage
 
-Phase 06 planned:
+Phase 06:
 
 - CLI init from DAG plan
 - CLI next-wave orchestration
@@ -242,7 +242,7 @@ Phase 02: done
 Phase 03: done
 Phase 04: done
 Phase 05: done
-Phase 06: in_progress, T035-T040 done, next T041
+Phase 06: done
 npm run typecheck: pass
 npm run build: pass
 npm test: 98 passed
