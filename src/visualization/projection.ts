@@ -9,6 +9,40 @@ import type {
   WaveView
 } from "./model.js";
 
+export interface VisualizationExportResult {
+  ok: true;
+  data: VisualizationModel;
+}
+
+export interface VisualizationExportError {
+  ok: false;
+  error: {
+    code: string;
+    message: string;
+    details: Record<string, unknown>;
+  };
+}
+
+export type VisualizationExport = VisualizationExportResult | VisualizationExportError;
+
+export function exportVisualization(state: WorkflowState | null, generatedAt?: string): VisualizationExport {
+  if (!state) {
+    return {
+      ok: false,
+      error: {
+        code: "VISUALIZATION_STATE_MISSING",
+        message: "Workflow state is required for visualization export.",
+        details: {}
+      }
+    };
+  }
+
+  return {
+    ok: true,
+    data: createVisualizationModel(state, generatedAt)
+  };
+}
+
 export function createVisualizationModel(
   state: WorkflowState,
   generatedAt = new Date().toISOString()
@@ -85,7 +119,8 @@ export function createVisualizationModel(
           failure_type: task.failure_type,
           failure_reason: task.failure_reason,
           retry_count: task.retry_count,
-          next_recommendation: task.next_recommendation
+          next_recommendation: task.next_recommendation,
+          downstream_impact: collectDownstreamImpact(state, task.id)
         })),
       blocked_tasks: Object.values(state.tasks)
         .filter((task) => task.status === "blocked")
@@ -252,4 +287,34 @@ function getDependencyEdgeReason(
   }
 
   return `Dependency is ${dependency.status}.`;
+}
+
+function collectDownstreamImpact(
+  state: WorkflowState,
+  taskId: string
+): import("./model.js").DownstreamImpactView[] {
+  const visited = new Set<string>();
+  const result: import("./model.js").DownstreamImpactView[] = [];
+  const queue = [taskId];
+
+  while (queue.length > 0) {
+    const current = queue.pop()!;
+
+    for (const candidate of Object.values(state.tasks)) {
+      if (!candidate.depends_on.includes(current) || visited.has(candidate.id)) {
+        continue;
+      }
+
+      visited.add(candidate.id);
+      result.push({
+        task_id: candidate.id,
+        title: candidate.title,
+        status: candidate.status,
+        blocked_reason: candidate.blocked_reason ?? null
+      });
+      queue.push(candidate.id);
+    }
+  }
+
+  return result.sort((left, right) => left.task_id.localeCompare(right.task_id));
 }

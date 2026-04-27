@@ -135,6 +135,14 @@ export interface FailureTaskView {
   failure_reason: string | null;
   retry_count: number;
   next_recommendation: string | null;
+  downstream_impact: DownstreamImpactView[];
+}
+
+export interface DownstreamImpactView {
+  task_id: string;
+  title: string;
+  status: TaskStatus;
+  blocked_reason: string | null;
 }
 
 export interface BlockedTaskView {
