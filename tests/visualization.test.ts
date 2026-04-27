@@ -1,0 +1,91 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { createVisualizationModel } from "../src/visualization/projection.js";
+import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
+
+test("creates visualization model for an empty workflow state", () => {
+  const state = createInitialWorkflowState("wf_empty_visualization", loadPlan({
+    plan_id: "plan_empty_visualization",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Only task"
+      }
+    ]
+  }), "2026-04-26T00:00:00.000Z");
+  const model = createVisualizationModel(state, "2026-04-26T00:01:00.000Z");
+
+  assert.equal(model.workflow.workflow_id, "wf_empty_visualization");
+  assert.equal(model.board.task_status_counts.pending, 1);
+  assert.equal(model.dag.nodes.length, 1);
+  assert.deepEqual(model.dag.edges, []);
+  assert.equal(model.generated_at, "2026-04-26T00:01:00.000Z");
+});
+
+test("creates visualization model for workflow with dependencies waves agents and failures", () => {
+  const state = createInitialWorkflowState("wf_visualization", loadPlan({
+    plan_id: "plan_visualization",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Root"
+      },
+      {
+        id: "T2",
+        title: "Failed child",
+        depends_on: ["T1"]
+      },
+      {
+        id: "T3",
+        title: "Blocked grandchild",
+        depends_on: ["T2"]
+      }
+    ]
+  }), "2026-04-26T00:00:00.000Z");
+  state.current_wave = "wave_001";
+  state.tasks.T1!.status = "done";
+  state.tasks.T2!.status = "failed";
+  state.tasks.T2!.failure_type = "implementation";
+  state.tasks.T2!.failure_reason = "Compile error";
+  state.tasks.T3!.status = "blocked";
+  state.tasks.T3!.blocked_reason = "Blocked by dependency T2.";
+  state.waves.push({
+    id: "wave_001",
+    tasks: ["T1", "T2"],
+    status: "failed",
+    started_at: "2026-04-26T00:02:00.000Z",
+    completed_at: "2026-04-26T00:03:00.000Z",
+    review: null,
+    reason: "Test wave",
+    skipped_ready_tasks: []
+  });
+  state.agents["backend-agent"] = {
+    agent_id: "backend-agent",
+    capabilities: ["backend"],
+    active_task_ids: ["T2"],
+    max_concurrent_tasks: 2,
+    session_id: "session_backend",
+    status: "busy"
+  };
+
+  const model = createVisualizationModel(state, "2026-04-26T00:04:00.000Z");
+
+  assert.equal(model.board.task_status_counts.done, 1);
+  assert.equal(model.board.task_status_counts.failed, 1);
+  assert.equal(model.board.task_status_counts.blocked, 1);
+  assert.equal(model.board.wave_status_counts.failed, 1);
+  assert.deepEqual(model.board.failed_tasks, ["T2"]);
+  assert.deepEqual(model.board.blocked_tasks, ["T3"]);
+  assert.deepEqual(model.dag.edges.map((edge) => edge.id), ["T1->T2", "T2->T3"]);
+  assert.equal(model.dag.edges[0]?.status, "satisfied");
+  assert.equal(model.dag.edges[1]?.status, "blocked");
+  assert.equal(model.waves.current_wave, "wave_001");
+  assert.equal(model.waves.waves[0]?.id, "wave_001");
+  assert.equal(model.failures.failed_tasks[0]?.failure_reason, "Compile error");
+  assert.equal(model.failures.blocked_tasks[0]?.blocked_reason, "Blocked by dependency T2.");
+  assert.equal(model.board.agent_load[0]?.active_task_count, 1);
+});

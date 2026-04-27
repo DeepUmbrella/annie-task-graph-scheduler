@@ -18,7 +18,7 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 
 ## 阶段状态
 
-`todo`
+`in_progress`
 
 ## 关联文档
 
@@ -31,7 +31,7 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T016 | todo | [Visualization 模型与边界](./tasks/task-016-visualization-model.md) |
+| T016 | done | [Visualization 模型与边界](./tasks/task-016-visualization-model.md) |
 | T017 | todo | [Workflow 看板投影](./tasks/task-017-workflow-board-projection.md) |
 | T018 | todo | [DAG 图数据投影](./tasks/task-018-dag-graph-projection.md) |
 | T019 | todo | [Wave 进度投影](./tasks/task-019-wave-progress-projection.md) |
@@ -44,7 +44,8 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 - Phase 01 MVP 已完成。
 - Phase 02 Enhanced Scheduling 已完成。
 - Phase 03 任务已规划。
-- 下一步进入 T016：Visualization 模型与边界。
+- 已完成 T016：Visualization 模型与边界。
+- 下一步进入 T017：Workflow 看板投影。
 
 ## 阶段完成标准
 
@@ -56,4 +57,3 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 6. 可以通过 CLI 或 export function 输出 visualization JSON。
 7. Phase 01 / Phase 02 回归测试继续通过。
 8. Phase 03 新增验收测试通过。
-

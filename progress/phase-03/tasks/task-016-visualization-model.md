@@ -2,7 +2,25 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 新增 `src/visualization/` 模块。
+- 定义 `VisualizationModel`。
+- 定义 workflow summary、board、DAG、wave progress、failure tracking view model。
+- 实现 `createVisualizationModel(...)` projection 边界。
+- 补充空 workflow 和完整 workflow visualization 单元测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过，当前测试数：59。
 
 ## 目标
 
@@ -28,4 +46,3 @@
 - `src/models/workflow.ts`
 - `src/visualization/*`
 - `tests/visualization.test.ts`
-
