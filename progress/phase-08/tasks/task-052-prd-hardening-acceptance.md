@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,18 @@
 - `progress/phase-08/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- 确认 Phase 08 所有任务 T049-T052 均已完成。
+- 确认审计、结构化错误、消息恢复 hardening 测试通过。
+- 确认 Phase 01-07 回归测试继续通过。
+- 更新 phase summary、progress README 和 agent handoff 状态。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 118 passed
+```

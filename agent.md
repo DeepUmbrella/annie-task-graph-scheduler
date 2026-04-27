@@ -203,7 +203,7 @@ Phase 07:
 - Local JSONL MemoryStore
 - CLI memory extract / write / list commands
 
-Phase 08 planned:
+Phase 08:
 
 - Scheduler / CLI task state-change audit coverage
 - CLI structured error JSON mode
@@ -260,7 +260,7 @@ Phase 04: done
 Phase 05: done
 Phase 06: done
 Phase 07: done
-Phase 08: in_progress, T049-T051 done, next T052
+Phase 08: done
 npm run typecheck: pass
 npm run build: pass
 npm test: 118 passed

@@ -8,7 +8,7 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 
 ## 阶段状态
 
-`todo`
+`done`
 
 ## 关联文档
 
@@ -23,7 +23,7 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 | T049 | done | [Scheduler state-change audit coverage](./tasks/task-049-scheduler-audit-coverage.md) |
 | T050 | done | [CLI structured error JSON mode](./tasks/task-050-cli-structured-error-json.md) |
 | T051 | done | [Message audit and recovery hardening](./tasks/task-051-message-audit-recovery-hardening.md) |
-| T052 | todo | [PRD hardening acceptance tests](./tasks/task-052-prd-hardening-acceptance.md) |
+| T052 | done | [PRD hardening acceptance tests](./tasks/task-052-prd-hardening-acceptance.md) |
 
 ## 当前进度
 
@@ -32,7 +32,8 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 - 已完成 T049：Scheduler state-change audit coverage。
 - 已完成 T050：CLI structured error JSON mode。
 - 已完成 T051：Message audit and recovery hardening。
-- 下一步进入 T052：PRD hardening acceptance tests。
+- 已完成 T052：PRD hardening acceptance tests。
+- Phase 08 已完成。
 
 ## 阶段完成标准
 
@@ -40,3 +41,11 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 2. CLI 错误输出具备可机器读取的结构化信息。
 3. MessageBus / MailboxStore 的关键消息持久化和恢复语义有测试覆盖。
 4. Phase 01-07 回归测试继续通过。
+
+## 验收结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 118 passed
+```
