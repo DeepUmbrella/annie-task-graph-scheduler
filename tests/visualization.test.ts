@@ -61,7 +61,12 @@ test("creates visualization model for workflow with dependencies waves agents an
     completed_at: "2026-04-26T00:03:00.000Z",
     review: null,
     reason: "Test wave",
-    skipped_ready_tasks: []
+    skipped_ready_tasks: [
+      {
+        task_id: "T3",
+        reason: "Skipped for test"
+      }
+    ]
   });
   state.agents["backend-agent"] = {
     agent_id: "backend-agent",
@@ -97,6 +102,15 @@ test("creates visualization model for workflow with dependencies waves agents an
   assert.equal((model.dag.nodes.find((node) => node.id === "T2")?.risk_score ?? 0) > 0, true);
   assert.equal(model.waves.current_wave, "wave_001");
   assert.equal(model.waves.waves[0]?.id, "wave_001");
+  assert.equal(model.waves.total_waves, 1);
+  assert.equal(model.waves.completed_waves, 0);
+  assert.equal(model.waves.waves[0]?.is_current, true);
+  assert.equal(model.waves.waves[0]?.task_status_counts.done, 1);
+  assert.equal(model.waves.waves[0]?.task_status_counts.failed, 1);
+  assert.equal(model.waves.waves[0]?.completed_task_count, 1);
+  assert.equal(model.waves.waves[0]?.completion_ratio, 0.5);
+  assert.deepEqual(model.waves.waves[0]?.skipped_ready_tasks, [{ task_id: "T3", reason: "Skipped for test" }]);
+  assert.equal(model.waves.waves[0]?.reason, "Test wave");
   assert.equal(model.failures.failed_tasks[0]?.failure_reason, "Compile error");
   assert.equal(model.failures.blocked_tasks[0]?.blocked_reason, "Blocked by dependency T2.");
   assert.equal(model.board.agent_load[0]?.active_task_count, 1);

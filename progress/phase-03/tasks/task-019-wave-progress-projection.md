@@ -2,7 +2,24 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- `WaveProgressView` 增加 total waves、completed waves、completion ratio。
+- `WaveView` 增加 is_current、task status counts、completed task count、completion ratio。
+- `WaveView` 暴露 review、review summary、skipped ready tasks 和 reason。
+- 补充 wave progress projection 测试断言。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过，当前测试数：59。
 
 ## 目标
 
@@ -29,4 +46,3 @@
 - `src/scheduler/scheduler.ts`
 - `src/visualization/*`
 - `tests/visualization.test.ts`
-

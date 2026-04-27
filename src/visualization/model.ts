@@ -1,5 +1,5 @@
 import type { TaskStatus } from "../models/task.js";
-import type { WaveStatus } from "../models/wave.js";
+import type { SkippedReadyTask, WaveReview, WaveStatus } from "../models/wave.js";
 import type { AgentRuntimeState, WorkflowState } from "../models/workflow.js";
 
 export interface VisualizationModel {
@@ -101,14 +101,26 @@ export interface DependencyEdgeView {
 export interface WaveProgressView {
   current_wave: string | null;
   waves: WaveView[];
+  total_waves: number;
+  completed_waves: number;
+  completion_ratio: number;
 }
 
 export interface WaveView {
   id: string;
   tasks: string[];
   status: WaveStatus;
+  is_current: boolean;
+  task_status_counts: Record<TaskStatus, number>;
+  completed_task_count: number;
+  total_task_count: number;
+  completion_ratio: number;
   started_at: string | null;
   completed_at: string | null;
+  review: WaveReview | null;
+  review_summary: string | null;
+  skipped_ready_tasks: SkippedReadyTask[];
+  reason: string;
 }
 
 export interface FailureTrackingView {

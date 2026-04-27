@@ -69,13 +69,12 @@ export function createVisualizationModel(
     },
     waves: {
       current_wave: state.current_wave,
-      waves: state.waves.map((wave): WaveView => ({
-        id: wave.id,
-        tasks: wave.tasks,
-        status: wave.status,
-        started_at: wave.started_at,
-        completed_at: wave.completed_at
-      }))
+      waves: state.waves.map((wave): WaveView => createWaveView(state, wave)),
+      total_waves: state.waves.length,
+      completed_waves: state.waves.filter((wave) => wave.status === "done").length,
+      completion_ratio: state.waves.length === 0
+        ? 0
+        : state.waves.filter((wave) => wave.status === "done").length / state.waves.length
     },
     failures: {
       failed_tasks: Object.values(state.tasks)
@@ -133,6 +132,36 @@ function createCurrentWaveView(state: WorkflowState): CurrentWaveView | null {
     tasks: wave.tasks,
     completed_task_count: wave.tasks.filter((taskId) => state.tasks[taskId]?.status === "done").length,
     total_task_count: wave.tasks.length
+  };
+}
+
+function createWaveView(
+  state: WorkflowState,
+  wave: WorkflowState["waves"][number]
+): WaveView {
+  const taskStatusCounts = Object.fromEntries(
+    taskStatuses.map((status) => [
+      status,
+      wave.tasks.filter((taskId) => state.tasks[taskId]?.status === status).length
+    ])
+  ) as Record<TaskStatus, number>;
+  const completedTaskCount = wave.tasks.filter((taskId) => state.tasks[taskId]?.status === "done").length;
+
+  return {
+    id: wave.id,
+    tasks: wave.tasks,
+    status: wave.status,
+    is_current: state.current_wave === wave.id,
+    task_status_counts: taskStatusCounts,
+    completed_task_count: completedTaskCount,
+    total_task_count: wave.tasks.length,
+    completion_ratio: wave.tasks.length === 0 ? 0 : completedTaskCount / wave.tasks.length,
+    started_at: wave.started_at,
+    completed_at: wave.completed_at,
+    review: wave.review,
+    review_summary: wave.review?.summary ?? null,
+    skipped_ready_tasks: wave.skipped_ready_tasks,
+    reason: wave.reason
   };
 }
 
