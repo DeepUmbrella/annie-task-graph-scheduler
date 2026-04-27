@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 新增任务可选字段 `required_capabilities`。
+- 新增 `AgentRuntimeState`。
+- `WorkflowState` 增加 `agents`。
+- `WorkerPool` 支持 preferred agent、capability、负载和 fallback 分配。
+- assignment 结果增加 decision。
+- assignment audit event 增加负载决策信息。
+- 补充 preferred agent 不可用、least-loaded capable agent 和无可用 Agent 测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -46,4 +66,3 @@ AgentRuntimeState
 - `src/models/workflow.ts`
 - `src/models/plan.ts`
 - `tests/execution.test.ts`
-

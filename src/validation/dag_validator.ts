@@ -21,6 +21,7 @@ interface TaskLike {
   can_parallel?: unknown;
   risk?: unknown;
   expected_files?: unknown;
+  required_capabilities?: unknown;
   preferred_agent?: unknown;
 }
 
@@ -98,6 +99,10 @@ export function validateDag(input: unknown): DagValidationResult {
 
     if (task.expected_files !== undefined && !isStringArray(task.expected_files)) {
       errors.push(`tasks[${index}].expected_files must be an array of strings when provided.`);
+    }
+
+    if (task.required_capabilities !== undefined && !isStringArray(task.required_capabilities)) {
+      errors.push(`tasks[${index}].required_capabilities must be an array of strings when provided.`);
     }
 
     if (task.preferred_agent !== undefined && task.preferred_agent !== null && typeof task.preferred_agent !== "string") {

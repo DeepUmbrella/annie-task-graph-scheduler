@@ -108,6 +108,7 @@ export function createInitialWorkflowState(
     execution_policy: loadedPlan.execution_policy,
     tasks,
     waves: [],
+    agents: {},
     created_at: now,
     updated_at: now
   };
@@ -123,6 +124,7 @@ function normalizePlanTask(task: PlanTaskInput, now: string): Task {
     can_parallel: task.can_parallel ?? true,
     risk: task.risk ?? "low",
     expected_files: task.expected_files ?? [],
+    required_capabilities: task.required_capabilities ?? [],
     changed_files: [],
     tests_run: [],
     risks_found: [],

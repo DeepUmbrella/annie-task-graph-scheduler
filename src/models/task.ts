@@ -24,6 +24,7 @@ export interface Task {
   can_parallel: boolean;
   risk: TaskRisk;
   expected_files: string[];
+  required_capabilities: string[];
   changed_files: string[];
   tests_run: string[];
   risks_found: string[];
@@ -48,5 +49,6 @@ export interface PlanTaskInput {
   can_parallel?: boolean;
   risk?: TaskRisk;
   expected_files?: string[];
+  required_capabilities?: string[];
   preferred_agent?: string | null;
 }

@@ -31,7 +31,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 | ID | 状态 | 任务 |
 |---|---|---|
 | T009 | done | [Phase 02 策略模型与配置](./tasks/task-009-scheduling-policy-model.md) |
-| T010 | todo | [Agent 负载感知](./tasks/task-010-agent-load-awareness.md) |
+| T010 | done | [Agent 负载感知](./tasks/task-010-agent-load-awareness.md) |
 | T011 | todo | [任务风险评分](./tasks/task-011-risk-scoring.md) |
 | T012 | todo | [自动重试策略配置](./tasks/task-012-retry-policy.md) |
 | T013 | todo | [增强文件冲突预测](./tasks/task-013-conflict-prediction.md) |
@@ -43,7 +43,8 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 - Phase 01 MVP 已完成。
 - Phase 02 任务已规划。
 - 已完成 T009：Phase 02 策略模型与配置。
-- 下一步进入 T010：Agent 负载感知。
+- 已完成 T010：Agent 负载感知。
+- 下一步进入 T011：任务风险评分。
 
 ## 阶段完成标准
 

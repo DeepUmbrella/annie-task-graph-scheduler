@@ -152,4 +152,5 @@ test("createInitialWorkflowState normalizes plan tasks", () => {
   assert.equal(state.tasks.T1?.status, "pending");
   assert.equal(state.tasks.T1?.risk, "low");
   assert.deepEqual(state.tasks.T1?.changed_files, []);
+  assert.deepEqual(state.tasks.T1?.required_capabilities, []);
 });

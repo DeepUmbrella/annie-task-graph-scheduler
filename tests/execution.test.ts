@@ -30,13 +30,100 @@ test("assignWorkers assigns every wave task and moves tasks to running", () => {
   const result = assignWorkers(state, wave, { now: "2026-04-26T00:01:00.000Z" });
 
   assert.deepEqual(result.assignments, [
-    { task_id: "T1", assigned_to: "backend-agent" },
-    { task_id: "T2", assigned_to: "frontend-agent" }
+    { task_id: "T1", assigned_to: "backend-agent", decision: "preferred_agent_available" },
+    { task_id: "T2", assigned_to: "frontend-agent", decision: "preferred_agent_available" }
   ]);
   assert.equal(result.state.tasks.T1?.status, "running");
   assert.equal(result.state.tasks.T2?.status, "running");
   assert.equal(result.state.waves[0]?.status, "running");
   assert.equal(result.audit_events.length, 4);
+});
+
+test("assignWorkers uses least-loaded capable agent when preferred agent is unavailable", () => {
+  const state = createReadyState();
+  state.tasks.T1!.preferred_agent = "offline-backend";
+  state.tasks.T1!.required_capabilities = ["backend"];
+  state.agents = {
+    "offline-backend": {
+      agent_id: "offline-backend",
+      capabilities: ["backend"],
+      active_task_ids: [],
+      max_concurrent_tasks: 1,
+      session_id: null,
+      status: "offline"
+    },
+    "backend-agent-a": {
+      agent_id: "backend-agent-a",
+      capabilities: ["backend"],
+      active_task_ids: ["existing-task"],
+      max_concurrent_tasks: 2,
+      session_id: null,
+      status: "busy"
+    },
+    "backend-agent-b": {
+      agent_id: "backend-agent-b",
+      capabilities: ["backend"],
+      active_task_ids: [],
+      max_concurrent_tasks: 2,
+      session_id: null,
+      status: "idle"
+    },
+    "frontend-agent": {
+      agent_id: "frontend-agent",
+      capabilities: [],
+      active_task_ids: [],
+      max_concurrent_tasks: 1,
+      session_id: null,
+      status: "idle"
+    }
+  };
+
+  const result = assignWorkers(state, {
+    id: "wave_001",
+    tasks: ["T1"],
+    status: "pending",
+    started_at: null,
+    completed_at: null,
+    review: null,
+    reason: "",
+    skipped_ready_tasks: []
+  });
+
+  assert.deepEqual(result.assignments, [
+    { task_id: "T1", assigned_to: "backend-agent-b", decision: "least_loaded_capable_agent" }
+  ]);
+  assert.deepEqual(result.state.agents["backend-agent-b"]?.active_task_ids, ["T1"]);
+});
+
+test("assignWorkers rejects tasks when no capable agent is available", () => {
+  const state = createReadyState();
+  state.tasks.T1!.required_capabilities = ["backend"];
+  state.tasks.T1!.preferred_agent = null;
+  state.agents = {
+    "docs-agent": {
+      agent_id: "docs-agent",
+      capabilities: ["docs"],
+      active_task_ids: [],
+      max_concurrent_tasks: 1,
+      session_id: null,
+      status: "idle"
+    }
+  };
+
+  assert.throws(
+    () => assignWorkers(state, {
+      id: "wave_001",
+      tasks: ["T1"],
+      status: "pending",
+      started_at: null,
+      completed_at: null,
+      review: null,
+      reason: "",
+      skipped_ready_tasks: []
+    }),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "NO_AVAILABLE_AGENT"
+  );
 });
 
 test("assignWorkers rejects non-ready tasks", () => {
