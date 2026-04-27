@@ -33,11 +33,11 @@ progress/
 - [Phase 04 Task Templates](./phase-04/phase-summary.md) - done
 - [Phase 05 Cross-project Scheduling](./phase-05/phase-summary.md) - done
 - [Phase 06 Execution CLI Orchestration](./phase-06/phase-summary.md) - done
-- [Phase 07 Long-term Memory Integration Boundary](./phase-07/phase-summary.md) - todo
+- [Phase 07 Long-term Memory Integration Boundary](./phase-07/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 07 Long-term Memory Integration Boundary 正在推进。T042-T047 已完成，下一步进入 T048。
+Phase 07 Long-term Memory Integration Boundary 已完成。当前暂无已规划的下一阶段；如继续推进，应先根据 PRD 和当前实现状态规划 Phase 08。
 
 ## 更新规则
 
