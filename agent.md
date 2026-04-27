@@ -30,7 +30,7 @@ Read these first:
 3. `progress/README.md`
 4. Latest phase summary under `progress/phase-XX/phase-summary.md`
 
-Progress files are part of the product process, not optional notes. Keep them updated with code changes.
+Progress files are part of the product process, not optional notes. For detailed progress update rules, use `progress/README.md`.
 
 ## When To Update This File
 
@@ -82,60 +82,12 @@ When continuing development:
 1. Check `git status --short`.
 2. Read the latest phase summary.
 3. Pick the first `todo` task in the current phase.
-4. Mark that task `in_progress` before code changes.
+4. Follow the task update workflow in `progress/README.md`.
 5. Implement the smallest complete slice.
 6. Run validation.
-7. Mark the task `done`.
-8. Commit with a focused message.
+7. Commit with a focused message.
 
 If a task is ambiguous or changes product semantics, stop and ask the user before proceeding.
-
-## Progress Directory Convention
-
-```txt
-progress/
-└── phase-XX/
-    ├── phase-summary.md
-    └── tasks/
-        ├── task-001-example.md
-        └── task-002-example.md
-```
-
-Task status values:
-
-```txt
-todo
-in_progress
-blocked
-review
-done
-```
-
-Each task file should include:
-
-- Status
-- Goal
-- Scope
-- Acceptance criteria
-- Related code
-- Completion record after implementation
-- Validation commands and results
-
-## Validation Commands
-
-Run these before marking a task done:
-
-```txt
-npm run typecheck
-npm run build
-npm test
-```
-
-Current expected test state after Phase 02:
-
-```txt
-57 passed
-```
 
 ## Git Workflow
 
