@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { extractExecutionMemoryCandidates, extractPreferenceMemoryCandidates, memoryCategories, memoryConfidenceLevels } from "../src/index.js";
+import {
+  extractExecutionMemoryCandidates,
+  extractPreferenceMemoryCandidates,
+  extractTemplateMemoryCandidates,
+  memoryCategories,
+  memoryConfidenceLevels
+} from "../src/index.js";
 import type { MemoryAdapter, MemoryCandidate, MemoryRecord } from "../src/index.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
@@ -283,4 +289,116 @@ test("extractPreferenceMemoryCandidates extracts skipped reason signals without 
   assert.equal(conflict?.confidence, "medium");
   assert.equal(conflict?.content.count, 1);
   assert.deepEqual(conflict?.tags, ["preference", "scheduler", "conflict"]);
+});
+
+test("extractTemplateMemoryCandidates extracts successful workflow shape", () => {
+  const state = createInitialWorkflowState("wf_template_extract", loadPlan({
+    plan_id: "plan_template_extract",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Design API",
+        required_capabilities: ["backend"],
+        preferred_agent: "backend-agent",
+        risk: "medium"
+      },
+      {
+        id: "T2",
+        title: "Implement API",
+        depends_on: ["T1"],
+        required_capabilities: ["backend"],
+        preferred_agent: "backend-agent",
+        risk: "high"
+      }
+    ]
+  }), "2026-04-27T00:00:00.000Z");
+  state.tasks.T1!.status = "done";
+  state.tasks.T2!.status = "done";
+  state.waves.push({
+    id: "wave_001",
+    tasks: ["T1"],
+    status: "done",
+    started_at: "2026-04-27T00:01:00.000Z",
+    completed_at: "2026-04-27T00:02:00.000Z",
+    review: {
+      status: "passed",
+      completed_tasks: ["T1"],
+      failed_tasks: [],
+      conflicts: [],
+      allow_next_wave: true
+    },
+    reason: "First wave",
+    skipped_ready_tasks: []
+  });
+  state.waves.push({
+    id: "wave_002",
+    tasks: ["T2"],
+    status: "done",
+    started_at: "2026-04-27T00:03:00.000Z",
+    completed_at: "2026-04-27T00:04:00.000Z",
+    review: {
+      status: "passed",
+      completed_tasks: ["T2"],
+      failed_tasks: [],
+      conflicts: [],
+      allow_next_wave: true
+    },
+    reason: "Second wave",
+    skipped_ready_tasks: []
+  });
+
+  const candidates = extractTemplateMemoryCandidates(state, {
+    now: "2026-04-27T00:10:00.000Z"
+  });
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0]?.category, "template_pattern");
+  assert.equal(candidates[0]?.confidence, "high");
+  assert.equal(candidates[0]?.provenance.source, "template_usage");
+  assert.equal(candidates[0]?.provenance.source_key, "wf_template_extract:template_pattern:plan_template_extract");
+  assert.deepEqual(candidates[0]?.content.dependency_edges, [{ from: "T1", to: "T2" }]);
+  assert.deepEqual(candidates[0]?.content.capabilities, ["backend"]);
+  assert.deepEqual(candidates[0]?.content.preferred_agents, ["backend-agent"]);
+  assert.deepEqual(candidates[0]?.content.risks, ["high", "medium"]);
+  assert.deepEqual(candidates[0]?.tags, ["backend", "high", "medium", "template", "workflow"]);
+  assert.deepEqual((candidates[0]?.content.tasks as Array<{ id: string }>).map((task) => task.id), ["T1", "T2"]);
+});
+
+test("extractTemplateMemoryCandidates skips incomplete or failed workflows", () => {
+  const incomplete = createInitialWorkflowState("wf_template_incomplete", loadPlan({
+    plan_id: "plan_template_incomplete",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [{ id: "T1", title: "Only task" }]
+  }), "2026-04-27T00:00:00.000Z");
+  incomplete.tasks.T1!.status = "done";
+
+  const failed = createInitialWorkflowState("wf_template_failed", loadPlan({
+    plan_id: "plan_template_failed",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [{ id: "T1", title: "Only task" }]
+  }), "2026-04-27T00:00:00.000Z");
+  failed.tasks.T1!.status = "failed";
+  failed.waves.push({
+    id: "wave_001",
+    tasks: ["T1"],
+    status: "failed",
+    started_at: "2026-04-27T00:01:00.000Z",
+    completed_at: "2026-04-27T00:02:00.000Z",
+    review: {
+      status: "failed",
+      completed_tasks: [],
+      failed_tasks: ["T1"],
+      conflicts: [],
+      allow_next_wave: false
+    },
+    reason: "Failed wave",
+    skipped_ready_tasks: []
+  });
+
+  assert.deepEqual(extractTemplateMemoryCandidates(incomplete), []);
+  assert.deepEqual(extractTemplateMemoryCandidates(failed), []);
 });

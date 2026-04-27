@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,18 @@
 - `src/memory/extractors.ts`
 - `src/models/template.ts`
 - `tests/memory.test.ts`
+
+## 完成记录
+
+- 在 `src/memory/extractors.ts` 增加 `extractTemplateMemoryCandidates`。
+- 仅从全量完成且 ReviewGate 通过、无失败 review wave 的 workflow 中生成 `template_pattern` candidate。
+- candidate 记录 task count、wave count、dependency edge count、capabilities、preferred agents、risks 和结构化 task pattern。
+- 不记录文件正文，也不直接写入 TemplateRegistry。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 107 passed
+```

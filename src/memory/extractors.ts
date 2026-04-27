@@ -144,6 +144,63 @@ export function extractPreferenceMemoryCandidates(
   return candidates.sort((a, b) => a.provenance.source_key.localeCompare(b.provenance.source_key));
 }
 
+export function extractTemplateMemoryCandidates(
+  state: WorkflowState,
+  options: MemoryExtractionOptions = {}
+): MemoryCandidate[] {
+  if (!isSuccessfulWorkflowShape(state)) {
+    return [];
+  }
+
+  const now = options.now ?? new Date().toISOString();
+  const tasks = Object.values(state.tasks).sort((a, b) => a.id.localeCompare(b.id));
+  const dependencyEdges = tasks.flatMap((task) =>
+    task.depends_on.map((dependencyId) => ({
+      from: dependencyId,
+      to: task.id
+    }))
+  ).sort((a, b) => `${a.from}->${a.to}`.localeCompare(`${b.from}->${b.to}`));
+  const capabilities = uniqueSorted(tasks.flatMap((task) => task.required_capabilities));
+  const preferredAgents = uniqueSorted(tasks.map((task) => task.preferred_agent).filter((agent): agent is string => agent !== null));
+  const risks = uniqueSorted(tasks.map((task) => task.risk));
+
+  return [{
+    category: "template_pattern",
+    title: `Workflow template pattern: ${state.plan_id}`,
+    summary: `Successful workflow with ${tasks.length} task(s), ${dependencyEdges.length} dependency edge(s), and ${state.waves.length} wave(s).`,
+    content: {
+      plan_id: state.plan_id,
+      task_count: tasks.length,
+      wave_count: state.waves.length,
+      dependency_edges: dependencyEdges,
+      capabilities,
+      preferred_agents: preferredAgents,
+      risks,
+      tasks: tasks.map((task) => ({
+        id: task.id,
+        title: task.title,
+        depends_on: task.depends_on,
+        can_parallel: task.can_parallel,
+        risk: task.risk,
+        required_capabilities: task.required_capabilities,
+        preferred_agent: task.preferred_agent
+      }))
+    },
+    confidence: tasks.length > 1 ? "high" : "medium",
+    reason: "All workflow tasks are done and at least one wave passed ReviewGate.",
+    tags: uniqueSorted(["template", "workflow", ...capabilities, ...risks]),
+    provenance: {
+      workflow_id: state.workflow_id,
+      plan_id: state.plan_id,
+      wave_id: null,
+      task_id: null,
+      source: "template_usage",
+      source_key: `${state.workflow_id}:template_pattern:${state.plan_id}`,
+      created_at: now
+    }
+  }];
+}
+
 function getExecutionConfidence(task: NonNullable<WorkflowState["tasks"][string]>): MemoryCandidate["confidence"] {
   if (task.tests_run.length > 0 && task.risks_found.length === 0) {
     return "high";
@@ -219,4 +276,16 @@ function classifySkippedReason(reason: string): "conflict" | "risk" | "concurren
   }
 
   return null;
+}
+
+function isSuccessfulWorkflowShape(state: WorkflowState): boolean {
+  const tasks = Object.values(state.tasks);
+  return tasks.length > 0
+    && tasks.every((task) => task.status === "done")
+    && state.waves.some((wave) => wave.review?.status === "passed")
+    && state.waves.every((wave) => wave.review?.status !== "failed");
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
