@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,21 @@
 - `src/memory/model.ts`
 - `src/index.ts`
 - `tests/memory.test.ts`
+
+## 完成记录
+
+- 新增 `src/memory/model.ts`。
+- 定义 MemoryRecord、MemoryCandidate、MemoryAdapter。
+- 定义 memoryCategories、MemoryCategory、memoryConfidenceLevels、MemoryConfidence。
+- 定义 MemoryProvenance、MemoryWriteOptions、MemoryListFilter。
+- 新增 `src/memory/index.ts` 并从根入口导出。
+- 新增 `tests/memory.test.ts` 覆盖模型构造、adapter 边界和 enum 导出。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+101 passed
+```

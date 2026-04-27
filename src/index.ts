@@ -6,6 +6,7 @@ export * from "./models/project.js";
 export * from "./models/task.js";
 export * from "./models/wave.js";
 export * from "./models/workflow.js";
+export * from "./memory/index.js";
 export * from "./validation/dag_validator.js";
 export * from "./validation/plan_loader.js";
 export * from "./projects/index.js";
