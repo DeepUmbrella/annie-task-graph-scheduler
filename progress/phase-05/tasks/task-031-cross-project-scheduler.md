@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -31,3 +31,20 @@
 - `src/projects/agent_pool.ts`
 - `tests/cross_project_scheduler.test.ts`
 
+## 完成记录
+
+- 新增 `src/projects/cross_project_scheduler.ts`。
+- 实现 `planCrossProjectDispatch`，根据 user priority、project priority、risk score 和 agent load 生成 dispatch plan。
+- 支持 max_dispatches 上限。
+- Agent 满载、离线或 capability 不匹配时输出 skipped reason。
+- 调度器只模拟 capacity，不修改输入 queue、agent 或 workflow state。
+- 补充 cross-project scheduler 单元测试。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+86 passed
+```

@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TaskGraphSchedulerError, buildGlobalTaskQueue } from "../src/index.js";
-import type { ProjectRef, ProjectWorkflowRef, WorkflowState } from "../src/index.js";
+import { TaskGraphSchedulerError, buildGlobalTaskQueue, planCrossProjectDispatch } from "../src/index.js";
+import type { GlobalAgentRuntimeState, GlobalTaskQueueItem, ProjectRef, ProjectWorkflowRef, WorkflowState } from "../src/index.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
 function createProject(projectId: string, name: string, priority: ProjectRef["priority"] = "normal"): ProjectRef {
@@ -69,6 +69,21 @@ function createState(workflowId: string, planId: string): WorkflowState {
       }
     ]
   }), "2026-04-27T00:00:00.000Z");
+}
+
+function createAgent(agentId: string, capabilities: string[], activeGlobalTaskIds: string[] = []): GlobalAgentRuntimeState {
+  return {
+    agent_id: agentId,
+    capabilities,
+    active_task_ids: [],
+    max_concurrent_tasks: 1,
+    session_id: null,
+    status: activeGlobalTaskIds.length > 0 ? "busy" : "idle",
+    project_ids: [],
+    workflow_ids: [],
+    active_global_task_ids: activeGlobalTaskIds,
+    capacity_remaining: Math.max(0, 1 - activeGlobalTaskIds.length)
+  };
 }
 
 test("buildGlobalTaskQueue includes only ready tasks with cross-project metadata", () => {
@@ -140,4 +155,110 @@ test("buildGlobalTaskQueue rejects mismatched workflow references", () => {
     (error) => error instanceof TaskGraphSchedulerError
       && error.code === "GLOBAL_QUEUE_WORKFLOW_MISMATCH"
   );
+});
+
+test("planCrossProjectDispatch orders by user priority then project priority", () => {
+  const lowProjectItem: GlobalTaskQueueItem = {
+    id: "project_low:wf:T1",
+    project_id: "project_low",
+    project_name: "Low",
+    workflow_id: "wf",
+    plan_id: "plan",
+    task_id: "T1",
+    title: "Low project",
+    status: "ready",
+    project_priority: "low",
+    user_priority: "urgent",
+    risk: "low",
+    risk_score: 10,
+    risk_reasons: [],
+    expected_files: [],
+    required_capabilities: ["backend"],
+    preferred_agent: null,
+    retry_count: 0,
+    created_at: "2026-04-27T00:00:00.000Z"
+  };
+  const highProjectItem: GlobalTaskQueueItem = {
+    ...lowProjectItem,
+    id: "project_high:wf:T2",
+    project_id: "project_high",
+    project_name: "High",
+    task_id: "T2",
+    project_priority: "urgent",
+    user_priority: "normal"
+  };
+  const focusProjectItem: GlobalTaskQueueItem = {
+    ...lowProjectItem,
+    id: "project_focus:wf:T3",
+    project_id: "project_focus",
+    project_name: "Focus",
+    task_id: "T3",
+    project_priority: "high",
+    user_priority: "focus"
+  };
+
+  const plan = planCrossProjectDispatch(
+    [highProjectItem, focusProjectItem, lowProjectItem],
+    [
+      { ...createAgent("agent-a", ["backend"]), max_concurrent_tasks: 3, capacity_remaining: 3 }
+    ]
+  );
+
+  assert.deepEqual(plan.assignments.map((assignment) => assignment.global_task_id), [
+    "project_low:wf:T1",
+    "project_focus:wf:T3",
+    "project_high:wf:T2"
+  ]);
+  assert.deepEqual(plan.skipped, []);
+});
+
+test("planCrossProjectDispatch skips tasks when capable agent is full", () => {
+  const item: GlobalTaskQueueItem = {
+    id: "project_api:wf_api:T_ready",
+    project_id: "project_api",
+    project_name: "API",
+    workflow_id: "wf_api",
+    plan_id: "plan_api",
+    task_id: "T_ready",
+    title: "Ready task",
+    status: "ready",
+    project_priority: "high",
+    user_priority: "focus",
+    risk: "low",
+    risk_score: 10,
+    risk_reasons: [],
+    expected_files: [],
+    required_capabilities: ["backend"],
+    preferred_agent: "backend-agent",
+    retry_count: 0,
+    created_at: "2026-04-27T00:00:00.000Z"
+  };
+
+  const plan = planCrossProjectDispatch([item], [
+    createAgent("backend-agent", ["backend"], ["existing:task"])
+  ]);
+
+  assert.deepEqual(plan.assignments, []);
+  assert.equal(plan.skipped[0]?.category, "agent_capacity");
+  assert.match(plan.skipped[0]?.reason ?? "", /no online capable agent/);
+});
+
+test("planCrossProjectDispatch simulates capacity without mutating inputs", () => {
+  const project = createProject("project_api", "API");
+  const workflow = createWorkflow(project.project_id, "wf_api", "plan_api");
+  const state = createState(workflow.workflow_id, workflow.plan_id);
+  state.tasks.T_ready!.status = "ready";
+  const stateBefore = JSON.stringify(state);
+  const queue = buildGlobalTaskQueue([{ project, workflow, state }]).items;
+  const agents = [
+    { ...createAgent("backend-agent", ["backend"]), max_concurrent_tasks: 2, capacity_remaining: 2 }
+  ];
+  const agentsBefore = JSON.stringify(agents);
+
+  const plan = planCrossProjectDispatch(queue, agents);
+
+  assert.deepEqual(plan.assignments.map((assignment) => assignment.assigned_to), ["backend-agent"]);
+  assert.equal(JSON.stringify(state), stateBefore);
+  assert.equal(JSON.stringify(agents), agentsBefore);
+  assert.equal(plan.decision.agent_load_summary[0]?.planned_task_count, 1);
 });
