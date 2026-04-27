@@ -2,6 +2,8 @@
 
 本目录用于记录 Annie TaskGraphScheduler 的项目进度。
 
+细粒度任务进度写在 `progress/`。跨客户端交接规则、当前大阶段状态和协作注意事项写在根目录 `agent.md`。
+
 ## 目录约定
 
 ```txt
@@ -25,5 +27,63 @@ progress/
 
 ## 当前阶段
 
-- [Phase 01 MVP](./phase-01/phase-summary.md)
-- [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md)
+- [Phase 01 MVP](./phase-01/phase-summary.md) - done
+- [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md) - done
+
+下一阶段应先根据 PRD 创建：
+
+- `progress/phase-03/phase-summary.md`
+- `progress/phase-03/tasks/`
+
+并在开始实现前先提交 Phase 03 计划。
+
+## 更新规则
+
+每个 task 推进时：
+
+1. 在对应 `phase-summary.md` 中把 task 状态改为 `in_progress`。
+2. 在对应 task 文件中同步状态。
+3. 完成实现后运行验证命令。
+4. 将 task 状态改为 `done`。
+5. 在 task 文件写入完成记录和验证结果。
+6. 提交代码和进度文档。
+
+每个 phase 完成时：
+
+1. 将 `phase-summary.md` 的阶段状态改为 `done`。
+2. 确认该 phase 所有 task 都是 `done`。
+3. 更新 `agent.md` 中的 phase-level 状态和验证基线。
+
+## 与 agent.md 的分工
+
+`progress/` 记录：
+
+- phase 列表
+- task 列表
+- task 状态
+- task 完成记录
+- task 验证结果
+
+`agent.md` 记录：
+
+- 当前大阶段状态
+- 跨编辑器 / Agent 的交接规则
+- 架构地图
+- 开发和验证基线
+- 什么时候必须停下来询问用户
+
+不要因为普通小任务完成而更新 `agent.md`。只有 phase 开始/结束、验证基线变化、架构规则变化或协作规则变化时才更新。
+
+## 验证命令
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+当前基线：
+
+```txt
+57 passed
+```
