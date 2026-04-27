@@ -33,7 +33,8 @@ test("detects file conflicts by exact expected file", () => {
   assert.deepEqual(conflicts, [
     {
       file: "same.ts",
-      task_ids: ["T1", "T2"]
+      task_ids: ["T1", "T2"],
+      type: "exact"
     }
   ]);
 });
@@ -92,7 +93,7 @@ test("serializes file-conflicting ready tasks", () => {
 
   assert.deepEqual(result.wave?.tasks, ["T1", "T3"]);
   assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
-  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /expected_files conflicts/);
+  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /exact file conflict/);
 });
 
 test("serializes high-risk tasks", () => {
@@ -187,4 +188,56 @@ test("allows more high-risk tasks when policy limit is increased", () => {
   const result = generateNextWave(state);
 
   assert.deepEqual(result.wave?.tasks, ["T1", "T2"]);
+});
+
+test("detects directory conflicts when directory mode is enabled", () => {
+  const state = createState([
+    { id: "T1", title: "One", expected_files: ["src/a.ts"] },
+    { id: "T2", title: "Two", expected_files: ["src/b.ts"] }
+  ], {
+    conflicts: {
+      mode: "directory",
+      directory_conflict_depth: 1
+    }
+  });
+
+  const result = generateNextWave(state);
+
+  assert.deepEqual(result.wave?.tasks, ["T1"]);
+  assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
+  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /directory file conflict/);
+});
+
+test("detects glob conflicts when glob mode is enabled", () => {
+  const state = createState([
+    { id: "T1", title: "One", expected_files: ["src/**/*.ts"] },
+    { id: "T2", title: "Two", expected_files: ["src/features/a.ts"] }
+  ], {
+    conflicts: {
+      mode: "glob"
+    }
+  });
+
+  const result = generateNextWave(state);
+
+  assert.deepEqual(result.wave?.tasks, ["T1"]);
+  assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
+  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /glob file conflict/);
+});
+
+test("serializes unknown expected files when policy requires it", () => {
+  const state = createState([
+    { id: "T1", title: "One" },
+    { id: "T2", title: "Two" }
+  ], {
+    conflicts: {
+      unknown_files_policy: "serialize"
+    }
+  });
+
+  const result = generateNextWave(state);
+
+  assert.deepEqual(result.wave?.tasks, ["T1"]);
+  assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
+  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /unknown_files/);
 });

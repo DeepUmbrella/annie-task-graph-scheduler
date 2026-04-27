@@ -1,7 +1,7 @@
 import type { Task } from "../models/task.js";
 import type { Wave } from "../models/wave.js";
 import type { WorkflowState } from "../models/workflow.js";
-import { hasFileConflict } from "./conflict_detector.js";
+import { getFileConflictReason } from "./conflict_detector.js";
 import { isHighRiskScore, scoreTaskRisk, type RiskScore } from "./risk_scorer.js";
 
 export interface NextWaveResult {
@@ -91,8 +91,9 @@ function getSkipReason(
     return `Skipped because max_agents=${state.execution_policy.max_agents} has been reached.`;
   }
 
-  if (hasFileConflict(task, selectedTasks)) {
-    return "Skipped because expected_files conflicts with a task already selected for this wave.";
+  const fileConflictReason = getFileConflictReason(task, selectedTasks, state.execution_policy.conflicts);
+  if (fileConflictReason) {
+    return fileConflictReason;
   }
 
   if (isHighRiskScore(riskScores[task.id])) {

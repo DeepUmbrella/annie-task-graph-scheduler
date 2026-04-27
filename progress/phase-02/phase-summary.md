@@ -34,7 +34,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 | T010 | done | [Agent 负载感知](./tasks/task-010-agent-load-awareness.md) |
 | T011 | done | [任务风险评分](./tasks/task-011-risk-scoring.md) |
 | T012 | done | [自动重试策略配置](./tasks/task-012-retry-policy.md) |
-| T013 | todo | [增强文件冲突预测](./tasks/task-013-conflict-prediction.md) |
+| T013 | done | [增强文件冲突预测](./tasks/task-013-conflict-prediction.md) |
 | T014 | todo | [Scheduler 策略集成与解释输出](./tasks/task-014-scheduler-policy-integration.md) |
 | T015 | todo | [Phase 02 验收与回归测试](./tasks/task-015-phase-02-acceptance.md) |
 
@@ -46,7 +46,8 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 - 已完成 T010：Agent 负载感知。
 - 已完成 T011：任务风险评分。
 - 已完成 T012：自动重试策略配置。
-- 下一步进入 T013：增强文件冲突预测。
+- 已完成 T013：增强文件冲突预测。
+- 下一步进入 T014：Scheduler 策略集成与解释输出。
 
 ## 阶段完成标准
 

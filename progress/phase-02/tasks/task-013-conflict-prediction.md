@@ -2,7 +2,26 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- `detectFileConflicts(...)` 支持 exact / directory / glob / unknown files。
+- 新增 `getTaskFileConflict(...)`。
+- 新增 `getFileConflictReason(...)`。
+- Scheduler 使用 conflict policy 生成 skipped reason。
+- 未声明 `expected_files` 的任务可按 policy 串行化。
+- 补充 directory、glob 和 unknown files 测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -34,4 +53,3 @@
 - `src/scheduler/scheduler.ts`
 - `src/execution/review_gate.ts`
 - `tests/scheduler.test.ts`
-
