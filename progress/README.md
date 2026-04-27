@@ -37,7 +37,7 @@ progress/
 
 当前下一阶段：
 
-Phase 07 Long-term Memory Integration Boundary 正在推进。T042 已完成，下一步进入 T043。
+Phase 07 Long-term Memory Integration Boundary 正在推进。T042-T043 已完成，下一步进入 T044。
 
 ## 更新规则
 
@@ -87,5 +87,5 @@ npm test
 当前基线：
 
 ```txt
-101 passed
+103 passed
 ```
