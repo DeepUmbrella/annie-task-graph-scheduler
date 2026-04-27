@@ -7,6 +7,7 @@ import { exportVisualization, type VisualizationExport } from "./visualization/p
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
+import { collectResult } from "./execution/result_collector.js";
 import { assignWorkers } from "./execution/worker_pool.js";
 import { resolveDependencies } from "./scheduler/dependency_resolver.js";
 import { generateNextWave } from "./scheduler/scheduler.js";
@@ -28,6 +29,7 @@ Commands:
   init --plan <plan.json> [--workflow <workflow_id>]
   next-wave --workflow <workflow_id>
   dispatch --workflow <workflow_id> --wave <wave_id>
+  submit-result --workflow <workflow_id> --result <result.json>
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
@@ -41,7 +43,6 @@ Commands:
   queue plan [--project <project_id> --workflow <workflow_id>]
 
 Commands planned for future phases:
-  submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
 `);
   process.exit(0);
@@ -55,6 +56,8 @@ if (command === "init") {
   await runNextWave();
 } else if (command === "dispatch") {
   await runDispatch();
+} else if (command === "submit-result") {
+  await runSubmitResult();
 } else if (command === "recover") {
   await runRecover();
 } else if (command === "visualize") {
@@ -209,6 +212,47 @@ async function runDispatch(): Promise<void> {
         current_wave: result.state.current_wave,
         wave_status: result.state.waves.find((candidate) => candidate.id === waveId)?.status ?? null
       }
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runSubmitResult(): Promise<void> {
+  const workflowId = getArg("--workflow");
+  const resultPath = getArg("--result");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+  if (!resultPath) {
+    console.error("Missing required --result <result.json>.");
+    process.exit(1);
+  }
+
+  try {
+    const store = createCliStateStore();
+    const state = await store.loadState(workflowId);
+    const workerResult = await loadJsonFile(resultPath, "WORKER_RESULT_READ_FAILED");
+    const result = collectResult(state, workerResult);
+    await store.saveState(result.state);
+    for (const event of result.audit_events) {
+      await store.appendAuditEvent(event);
+    }
+
+    const taskId = (workerResult as { task_id?: unknown }).task_id;
+    const task = typeof taskId === "string" ? result.state.tasks[taskId] : undefined;
+    console.log(JSON.stringify({
+      workflow_id: result.state.workflow_id,
+      task_id: task?.id ?? null,
+      status: task?.status ?? null,
+      assigned_to: task?.assigned_to ?? null,
+      retry_count: task?.retry_count ?? null,
+      changed_files: task?.changed_files ?? [],
+      tests_run: task?.tests_run ?? [],
+      risks_found: task?.risks_found ?? [],
+      audit_events: result.audit_events.length
     }, null, 2));
   } catch (error) {
     printCliError(error);
@@ -464,6 +508,17 @@ async function loadWorkflowStateFromPath(statePath: string): Promise<WorkflowSta
   } catch (error) {
     throw new TaskGraphSchedulerError("Failed to load workflow state.", "STATE_LOAD_FAILED", {
       path: statePath,
+      cause: error instanceof Error ? error.message : String(error)
+    });
+  }
+}
+
+async function loadJsonFile(path: string, errorCode: string): Promise<unknown> {
+  try {
+    return JSON.parse(await readFile(path, "utf8")) as unknown;
+  } catch (error) {
+    throw new TaskGraphSchedulerError("Failed to read JSON file.", errorCode, {
+      path,
       cause: error instanceof Error ? error.message : String(error)
     });
   }

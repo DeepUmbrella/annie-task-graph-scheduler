@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,21 @@
 - `src/cli.ts`
 - `src/execution/result_collector.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增 `submit-result --workflow <workflow_id> --result <result.json>` CLI。
+- 命令读取 worker result JSON 并交给 `collectResult` 校验和处理。
+- 保存 result collection 后的 workflow state。
+- 追加 TASK_RESULT_COLLECTED 和 TASK_STATUS_CHANGED audit events。
+- CLI 输出 task status、changed_files、tests_run、risks_found 和 audit event 数量。
+- 扩展 execution CLI e2e，覆盖 completed result 从 running 到 reviewing。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+95 passed
+```

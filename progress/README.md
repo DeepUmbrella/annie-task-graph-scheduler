@@ -36,7 +36,7 @@ progress/
 
 当前下一阶段：
 
-Phase 06 Execution CLI Orchestration 正在推进。T035-T037 已完成，下一步进入 T038。
+Phase 06 Execution CLI Orchestration 正在推进。T035-T038 已完成，下一步进入 T039。
 
 ## 更新规则
 
@@ -86,5 +86,5 @@ npm test
 当前基线：
 
 ```txt
-94 passed
+95 passed
 ```

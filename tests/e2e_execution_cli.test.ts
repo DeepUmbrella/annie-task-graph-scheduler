@@ -196,3 +196,70 @@ test("CLI dispatch assigns wave tasks and writes audit events", async () => {
   assert.match(audit, /WORKER_ASSIGNED/);
   assert.match(audit, /TASK_STATUS_CHANGED/);
 });
+
+test("CLI submit-result collects worker output and persists task result", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-submit-result-"));
+  const planPath = join(rootDir, "plan.json");
+  const resultPath = join(rootDir, "result.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_submit_result",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Backend",
+        preferred_agent: "backend-agent"
+      }
+    ]
+  }), "utf8");
+  await writeFile(resultPath, JSON.stringify({
+    task_id: "T1",
+    status: "completed",
+    summary: "Implemented backend.",
+    changed_files: ["src/backend.ts"],
+    tests_run: ["npm test"],
+    risks: []
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_submit"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_submit"]);
+  await runCli(["dispatch", "--root", rootDir, "--workflow", "wf_submit", "--wave", "wave_001"]);
+  const output = await runCli([
+    "submit-result",
+    "--root",
+    rootDir,
+    "--workflow",
+    "wf_submit",
+    "--result",
+    resultPath
+  ]) as {
+    task_id: string;
+    status: string;
+    assigned_to: string;
+    changed_files: string[];
+    tests_run: string[];
+    audit_events: number;
+  };
+
+  assert.equal(output.task_id, "T1");
+  assert.equal(output.status, "reviewing");
+  assert.equal(output.assigned_to, "backend-agent");
+  assert.deepEqual(output.changed_files, ["src/backend.ts"]);
+  assert.deepEqual(output.tests_run, ["npm test"]);
+  assert.equal(output.audit_events, 2);
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_submit", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string; changed_files: string[]; tests_run: string[]; result_summary: string }>;
+    agents: Record<string, { active_task_ids: string[]; status: string }>;
+  };
+  assert.equal(state.tasks.T1?.status, "reviewing");
+  assert.deepEqual(state.tasks.T1?.changed_files, ["src/backend.ts"]);
+  assert.deepEqual(state.tasks.T1?.tests_run, ["npm test"]);
+  assert.equal(state.tasks.T1?.result_summary, "Implemented backend.");
+  assert.deepEqual(state.agents["backend-agent"]?.active_task_ids, []);
+  assert.equal(state.agents["backend-agent"]?.status, "idle");
+
+  const audit = await readFile(join(rootDir, "workflows", "wf_submit", "audit.jsonl"), "utf8");
+  assert.match(audit, /TASK_RESULT_COLLECTED/);
+});
