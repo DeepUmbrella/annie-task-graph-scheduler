@@ -30,10 +30,11 @@ progress/
 - [Phase 01 MVP](./phase-01/phase-summary.md) - done
 - [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md) - done
 - [Phase 03 Visualization](./phase-03/phase-summary.md) - done
+- [Phase 04 Task Templates](./phase-04/phase-summary.md) - todo
 
 当前下一阶段：
 
-Phase 03 已完成。下一阶段为 Phase 04 (Long-term memory integration)，需先规划。
+Phase 04 Task Templates
 
 ## 更新规则
 
