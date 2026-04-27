@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -30,3 +30,20 @@
 - `src/models/project.ts`
 - `tests/project_registry.test.ts`
 
+## 完成记录
+
+- 新增 `src/projects/registry.ts`，实现本地 JSON Project Registry。
+- 新增 `src/projects/index.ts` 并从根入口导出 projects API。
+- 支持 registerProject / getProject / listProjects / updateProject。
+- 支持 registerWorkflow / listWorkflows，为后续 Global Queue Builder 提供 workflow state 引用。
+- registry 文件不存在时返回空 snapshot 和空列表。
+- duplicate / missing / invalid input 返回 TaskGraphSchedulerError 结构化错误。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+80 passed
+```

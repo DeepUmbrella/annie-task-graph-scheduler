@@ -55,3 +55,10 @@ export interface GlobalAgentRuntimeState extends AgentRuntimeState {
   active_global_task_ids: string[];
   capacity_remaining: number;
 }
+
+export interface ProjectRegistrySnapshot {
+  version: 1;
+  projects: ProjectRef[];
+  workflows: ProjectWorkflowRef[];
+  updated_at: string | null;
+}

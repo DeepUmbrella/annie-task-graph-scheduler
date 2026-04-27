@@ -232,8 +232,8 @@ Phase 01: done
 Phase 02: done
 Phase 03: done
 Phase 04: done
-Phase 05: in_progress, T028 done, next T029
+Phase 05: in_progress, T028-T029 done, next T030
 npm run typecheck: pass
 npm run build: pass
-npm test: 75 passed
+npm test: 80 passed
 ```
