@@ -57,6 +57,9 @@ Commands:
   memory write --workflow <workflow_id>
   memory list [--category <category>]
 
+Global options:
+  --json-errors  Print CLI errors as JSON to stderr
+
 `);
   process.exit(0);
 }
@@ -93,6 +96,10 @@ if (command === "init") {
 function getArg(name: string): string | null {
   const index = process.argv.indexOf(name);
   return index >= 0 ? process.argv[index + 1] ?? null : null;
+}
+
+function hasFlag(name: string): boolean {
+  return process.argv.includes(name);
 }
 
 function createCliStateStore() {
@@ -765,6 +772,27 @@ function createCliAuditEventId(now: string): string {
 }
 
 function printCliError(error: unknown): never {
+  if (hasFlag("--json-errors")) {
+    const payload = error instanceof TaskGraphSchedulerError
+      ? {
+          error: {
+            code: error.code,
+            message: error.message,
+            details: error.details
+          }
+        }
+      : {
+          error: {
+            code: "CLI_ERROR",
+            message: error instanceof Error ? error.message : String(error),
+            details: {}
+          }
+        };
+
+    console.error(JSON.stringify(payload, null, 2));
+    process.exit(1);
+  }
+
   if (error instanceof TaskGraphSchedulerError) {
     console.error(`${error.code}: ${error.message}`);
     if (Object.keys(error.details).length > 0) {

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,18 @@
 
 - `src/cli.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增全局 CLI option：`--json-errors`。
+- 开启后，`TaskGraphSchedulerError` 会以 JSON envelope 输出到 stderr，包含 `code`、`message`、`details`。
+- 默认错误输出保持原有文本格式，避免破坏兼容。
+- CLI help 增加全局 option 说明。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 115 passed
+```

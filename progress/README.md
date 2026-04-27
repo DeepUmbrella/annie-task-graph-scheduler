@@ -38,7 +38,7 @@ progress/
 
 当前下一阶段：
 
-Phase 08 PRD Acceptance Hardening 正在推进。T049 已完成，下一步进入 T050。
+Phase 08 PRD Acceptance Hardening 正在推进。T049-T050 已完成，下一步进入 T051。
 
 ## 更新规则
 
@@ -88,5 +88,5 @@ npm test
 当前基线：
 
 ```txt
-114 passed
+115 passed
 ```

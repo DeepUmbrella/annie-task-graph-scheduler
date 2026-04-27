@@ -82,6 +82,31 @@ test("CLI init accepts explicit workflow id", async () => {
   assert.equal(output.state_path, join(rootDir, "workflows", "wf_custom", "state.json"));
 });
 
+test("CLI can print structured JSON errors", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-json-error-"));
+
+  await assert.rejects(
+    () => execFileAsync(process.execPath, [
+      cliPath,
+      "status",
+      "--root",
+      rootDir,
+      "--workflow",
+      "wf_missing",
+      "--json-errors"
+    ]),
+    (error) => {
+      const parsed = JSON.parse((error as { stderr?: string }).stderr ?? "{}") as {
+        error?: { code?: string; message?: string; details?: { workflow_id?: string } };
+      };
+      assert.equal(parsed.error?.code, "STATE_LOAD_FAILED");
+      assert.equal(parsed.error?.message, "Failed to load workflow state.");
+      assert.equal(parsed.error?.details?.workflow_id, "wf_missing");
+      return true;
+    }
+  );
+});
+
 test("CLI next-wave resolves dependencies and persists generated wave", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-next-wave-"));
   const planPath = join(rootDir, "plan.json");
