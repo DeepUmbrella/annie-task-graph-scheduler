@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -36,3 +36,18 @@
 - `agent.md`
 - `progress/README.md`
 
+## 完成记录
+
+- 确认 T028-T033 全部完成。
+- Phase 05 覆盖 project registry、global queue builder、cross-project scheduler、global agent pool、project / queue CLI。
+- Phase 01-04 回归测试继续通过。
+- 更新 progress README、phase summary 和 agent.md。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+90 passed
+```

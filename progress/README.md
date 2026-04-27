@@ -31,11 +31,11 @@ progress/
 - [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md) - done
 - [Phase 03 Visualization](./phase-03/phase-summary.md) - done
 - [Phase 04 Task Templates](./phase-04/phase-summary.md) - done
-- [Phase 05 Cross-project Scheduling](./phase-05/phase-summary.md) - todo
+- [Phase 05 Cross-project Scheduling](./phase-05/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 05 Cross-project Scheduling 正在推进。T028-T033 已完成，下一步进入 T034。
+Phase 05 Cross-project Scheduling 已完成。下一阶段尚未规划。
 
 ## 更新规则
 
