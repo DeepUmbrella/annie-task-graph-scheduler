@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,20 @@
 
 - `tests/e2e_execution_cli.test.ts`
 - `src/cli.ts`
+
+## 完成记录
+
+- 扩展 `tests/e2e_execution_cli.test.ts`。
+- 覆盖成功路径：`init -> next-wave -> dispatch -> submit-result -> review-wave -> next-wave`。
+- 验证首个 wave review 通过后，下游 task 进入下一 wave。
+- 覆盖失败路径：非 retryable failure 经过 ReviewGate 后阻塞下游 task。
+- 保留 file conflict skipped reason 覆盖。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+98 passed
+```

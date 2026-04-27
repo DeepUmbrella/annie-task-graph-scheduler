@@ -326,3 +326,128 @@ test("CLI review-wave runs ReviewGate and marks reviewing tasks done", async () 
   const audit = await readFile(join(rootDir, "workflows", "wf_review", "audit.jsonl"), "utf8");
   assert.match(audit, /WAVE_REVIEWED/);
 });
+
+test("Execution CLI runs a successful workflow into the next wave", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-full-success-"));
+  const planPath = join(rootDir, "plan.json");
+  const resultT1Path = join(rootDir, "result-t1.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_full_success",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Design",
+        preferred_agent: "design-agent"
+      },
+      {
+        id: "T2",
+        title: "Implement",
+        depends_on: ["T1"],
+        preferred_agent: "backend-agent"
+      }
+    ]
+  }), "utf8");
+  await writeFile(resultT1Path, JSON.stringify({
+    task_id: "T1",
+    status: "completed",
+    summary: "Design complete.",
+    changed_files: ["docs/design.md"]
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_full_success"]);
+  const firstWave = await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_full_success"]) as {
+    wave: { id: string; tasks: string[] };
+  };
+  assert.deepEqual(firstWave.wave.tasks, ["T1"]);
+
+  await runCli(["dispatch", "--root", rootDir, "--workflow", "wf_full_success", "--wave", "wave_001"]);
+  await runCli(["submit-result", "--root", rootDir, "--workflow", "wf_full_success", "--result", resultT1Path]);
+  await runCli(["review-wave", "--root", rootDir, "--workflow", "wf_full_success", "--wave", "wave_001"]);
+  const secondWave = await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_full_success"]) as {
+    ready_task_ids: string[];
+    status_changes: Array<{ task_id: string; from: string; to: string }>;
+    wave: { id: string; tasks: string[] };
+  };
+
+  assert.deepEqual(secondWave.ready_task_ids, ["T2"]);
+  assert.deepEqual(secondWave.status_changes.map((change) => `${change.task_id}:${change.from}->${change.to}`), [
+    "T2:pending->ready"
+  ]);
+  assert.equal(secondWave.wave.id, "wave_002");
+  assert.deepEqual(secondWave.wave.tasks, ["T2"]);
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_full_success", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string }>;
+    waves: Array<{ id: string; status: string; tasks: string[] }>;
+  };
+  assert.equal(state.tasks.T1?.status, "done");
+  assert.equal(state.tasks.T2?.status, "ready");
+  assert.deepEqual(state.waves.map((wave) => `${wave.id}:${wave.status}:${wave.tasks.join(",")}`), [
+    "wave_001:done:T1",
+    "wave_002:pending:T2"
+  ]);
+});
+
+test("Execution CLI blocks downstream tasks after non-retryable failure", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-failure-blocks-"));
+  const planPath = join(rootDir, "plan.json");
+  const resultT1Path = join(rootDir, "result-t1-failed.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_failure_blocks",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Risky root",
+        preferred_agent: "backend-agent"
+      },
+      {
+        id: "T2",
+        title: "Downstream",
+        depends_on: ["T1"],
+        preferred_agent: "backend-agent"
+      }
+    ]
+  }), "utf8");
+  await writeFile(resultT1Path, JSON.stringify({
+    task_id: "T1",
+    status: "failed",
+    summary: "Implementation failed.",
+    failure_type: "implementation",
+    failure_reason: "Compile error"
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_failure_blocks"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_failure_blocks"]);
+  await runCli(["dispatch", "--root", rootDir, "--workflow", "wf_failure_blocks", "--wave", "wave_001"]);
+  const failedResult = await runCli(["submit-result", "--root", rootDir, "--workflow", "wf_failure_blocks", "--result", resultT1Path]) as {
+    status: string;
+    retry_count: number;
+  };
+  assert.equal(failedResult.status, "failed");
+  assert.equal(failedResult.retry_count, 0);
+
+  const review = await runCli(["review-wave", "--root", rootDir, "--workflow", "wf_failure_blocks", "--wave", "wave_001"]) as {
+    review: { status: string; allow_next_wave: boolean; failed_tasks: string[] };
+  };
+  assert.equal(review.review.status, "failed");
+  assert.equal(review.review.allow_next_wave, false);
+  assert.deepEqual(review.review.failed_tasks, ["T1"]);
+
+  const nextWave = await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_failure_blocks"]) as {
+    blocked_task_ids: string[];
+    wave: null;
+  };
+  assert.deepEqual(nextWave.blocked_task_ids, ["T2"]);
+  assert.equal(nextWave.wave, null);
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_failure_blocks", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string; blocked_reason?: string }>;
+  };
+  assert.equal(state.tasks.T1?.status, "failed");
+  assert.equal(state.tasks.T2?.status, "blocked");
+  assert.equal(state.tasks.T2?.blocked_reason, "Blocked by dependency T1.");
+});
