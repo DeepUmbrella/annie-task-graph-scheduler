@@ -30,11 +30,11 @@ progress/
 - [Phase 01 MVP](./phase-01/phase-summary.md) - done
 - [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md) - done
 - [Phase 03 Visualization](./phase-03/phase-summary.md) - done
-- [Phase 04 Task Templates](./phase-04/phase-summary.md) - todo
+- [Phase 04 Task Templates](./phase-04/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 04 Task Templates
+Phase 04 已完成。下一阶段为 Phase 05 (Cross-project scheduling)，需先规划。
 
 ## 更新规则
 
@@ -84,5 +84,5 @@ npm test
 当前基线：
 
 ```txt
-65 passed
+73 passed
 ```

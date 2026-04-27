@@ -14,7 +14,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -32,7 +32,7 @@
 | T024 | done | [内置模板与注册机制](./tasks/task-024-builtin-templates.md) |
 | T025 | done | [从模板创建 Plan](./tasks/task-025-template-instantiation.md) |
 | T026 | done | [CLI template 命令](./tasks/task-026-cli-template.md) |
-| T027 | todo | [Phase 04 验收测试](./tasks/task-027-phase-04-acceptance.md) |
+| T027 | done | [Phase 04 验收测试](./tasks/task-027-phase-04-acceptance.md) |
 
 ## 当前进度
 
@@ -42,7 +42,8 @@
 - 已完成 T024：内置模板与注册机制。
 - 已完成 T025：从模板创建 Plan。
 - 已完成 T026：CLI template 命令。
-- 下一步进入 T027：Phase 04 验收测试。
+- 已完成 T027：Phase 04 验收测试。
+- Phase 04 全部任务完成。
 
 ## 阶段完成标准
 

@@ -166,15 +166,16 @@ Phase 03:
 - Visualization export function and CLI visualize command
 - Phase 03 e2e acceptance coverage
 
-Phase 04 planned:
+Phase 04:
 
-- Visualization data model
-- Workflow board projection
-- DAG graph projection
-- Wave progress projection
-- Failure tracking projection
-- Visualization API / CLI export boundary
-- Phase 03 acceptance coverage
+- TaskTemplate model and TemplateRegistry interface
+- Template registry with register/get/list/findByTag
+- 3 builtin templates (api-design-implement-test, parallel-frontend-backend, full-stack-review)
+- instantiateTemplate with plan_id, task_overrides, extra_tasks, execution_policy_overrides
+- CLI template list/show/instantiate commands
+- Phase 04 acceptance coverage
+
+Phase 05 planned:
 
 ## Important Behavioral Constraints
 
@@ -222,7 +223,8 @@ Latest known completed state:
 Phase 01: done
 Phase 02: done
 Phase 03: done
+Phase 04: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 65 passed
+npm test: 73 passed
 ```
