@@ -203,6 +203,13 @@ Phase 07:
 - Local JSONL MemoryStore
 - CLI memory extract / write / list commands
 
+Phase 08 planned:
+
+- Scheduler / CLI task state-change audit coverage
+- CLI structured error JSON mode
+- MessageBus / MailboxStore recovery hardening
+- PRD hardening acceptance coverage
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -253,6 +260,7 @@ Phase 04: done
 Phase 05: done
 Phase 06: done
 Phase 07: done
+Phase 08: planned, next T049
 npm run typecheck: pass
 npm run build: pass
 npm test: 114 passed
