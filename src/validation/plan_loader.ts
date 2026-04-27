@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { defaultExecutionPolicy, type ExecutionPolicy, type ExecutionPolicyInput, type TaskDagPlan } from "../models/plan.js";
 import type { PlanTaskInput, Task } from "../models/task.js";
+import type { TaskTemplate } from "../models/template.js";
 import type { WorkflowState } from "../models/workflow.js";
 import { TaskGraphSchedulerError } from "../errors.js";
 import { validateDag } from "./dag_validator.js";
@@ -112,6 +113,39 @@ export function createInitialWorkflowState(
     created_at: now,
     updated_at: now
   };
+}
+
+export interface InstantiateTemplateOptions {
+  plan_id?: string;
+  execution_policy_overrides?: ExecutionPolicyInput;
+  task_overrides?: Record<string, Partial<PlanTaskInput>>;
+  extra_tasks?: PlanTaskInput[];
+}
+
+export function instantiateTemplate(
+  template: TaskTemplate,
+  options: InstantiateTemplateOptions = {}
+): LoadedPlan {
+  const tasks: PlanTaskInput[] = template.tasks.map((task) => {
+    const override = options.task_overrides?.[task.id];
+    return override ? { ...task, ...override } : task;
+  });
+
+  if (options.extra_tasks) {
+    tasks.push(...options.extra_tasks);
+  }
+
+  const plan: TaskDagPlan = {
+    plan_id: options.plan_id ?? template.id,
+    plan_type: "dag",
+    execution_policy: {
+      ...template.execution_policy,
+      ...options.execution_policy_overrides
+    },
+    tasks
+  };
+
+  return loadPlan(plan);
 }
 
 function normalizePlanTask(task: PlanTaskInput, now: string): Task {
