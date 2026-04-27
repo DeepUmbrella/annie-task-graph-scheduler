@@ -2,6 +2,7 @@ import type { AuditEvent } from "../models/audit.js";
 import type { TaskStatus } from "../models/task.js";
 import type { WorkflowState } from "../models/workflow.js";
 import { TaskGraphSchedulerError } from "../errors.js";
+import { decideRetry } from "./retry_policy.js";
 
 export interface WorkerTaskResult {
   task_id: string;
@@ -43,7 +44,13 @@ export function collectResult(
     });
   }
 
-  const nextStatus: TaskStatus = parsedResult.status === "completed" ? "reviewing" : "failed";
+  const failureType = parsedResult.status === "failed" ? parsedResult.failure_type ?? "unknown" : null;
+  const retryDecision = failureType ? decideRetry(task, failureType, state.execution_policy.retry) : null;
+  const nextStatus: TaskStatus = parsedResult.status === "completed"
+    ? "reviewing"
+    : retryDecision?.should_retry
+      ? "ready"
+      : "failed";
   const nextTask = {
     ...task,
     status: nextStatus,
@@ -51,10 +58,13 @@ export function collectResult(
     tests_run: parsedResult.tests_run ?? [],
     risks_found: parsedResult.risks ?? [],
     result_summary: parsedResult.summary,
-    failure_type: parsedResult.status === "failed" ? parsedResult.failure_type ?? "unknown" : null,
+    failure_type: failureType,
     failure_reason: parsedResult.status === "failed" ? parsedResult.failure_reason ?? parsedResult.summary : null,
     next_recommendation: parsedResult.next_recommendation ?? null,
-    completed_at: now
+    retry_count: retryDecision?.next_retry_count ?? task.retry_count,
+    assigned_to: nextStatus === "ready" ? null : task.assigned_to,
+    started_at: nextStatus === "ready" ? null : task.started_at,
+    completed_at: nextStatus === "ready" ? null : now
   };
 
   return {
@@ -87,7 +97,19 @@ export function collectResult(
           to: nextStatus
         },
         created_at: now
-      }
+      },
+      ...(retryDecision ? [{
+        event_id: `evt_${Date.parse(now)}_${Math.random().toString(36).slice(2, 10)}`,
+        workflow_id: state.workflow_id,
+        type: retryDecision.should_retry ? "TASK_RETRY_SCHEDULED" : "TASK_RETRY_SKIPPED",
+        payload: {
+          task_id: parsedResult.task_id,
+          failure_type: failureType,
+          retry_count: retryDecision.next_retry_count,
+          reason: retryDecision.reason
+        },
+        created_at: now
+      }] satisfies AuditEvent[] : [])
     ]
   };
 }

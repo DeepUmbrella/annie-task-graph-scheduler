@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 新增 `retry_policy.ts`。
+- 实现 `decideRetry(...)`。
+- ResultCollector 根据 `failure_type` 和 `execution_policy.retry` 判断自动重试。
+- retryable 失败自动回到 `ready`。
+- retry 会增加 `retry_count`，清空 assignment 并生成 `TASK_RETRY_SCHEDULED`。
+- 超过 retry limit 或非 retryable 失败保持 `failed` 并生成 `TASK_RETRY_SKIPPED`。
+- 补充 retry 单元测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -32,4 +52,3 @@
 - `src/scheduler/dependency_resolver.ts`
 - `src/storage/state_store.ts`
 - `tests/execution.test.ts`
-

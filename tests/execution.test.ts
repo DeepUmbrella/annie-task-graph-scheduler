@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { assignWorkers } from "../src/execution/worker_pool.js";
 import { collectResult, validateWorkerTaskResult } from "../src/execution/result_collector.js";
+import { decideRetry } from "../src/execution/retry_policy.js";
 import { reviewWave } from "../src/execution/review_gate.js";
 import { generateNextWave } from "../src/scheduler/scheduler.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
@@ -171,12 +172,54 @@ test("collectResult moves failed running task to failed", () => {
     task_id: "T1",
     status: "failed",
     summary: "Command timed out.",
+    failure_type: "implementation",
+    failure_reason: "Timeout"
+  });
+
+  assert.equal(collected.state.tasks.T1?.status, "failed");
+  assert.equal(collected.state.tasks.T1?.failure_type, "implementation");
+});
+
+test("decideRetry allows configured transient retries", () => {
+  const state = createReadyState();
+  const decision = decideRetry(state.tasks.T1!, "transient", state.execution_policy.retry);
+
+  assert.equal(decision.should_retry, true);
+  assert.equal(decision.next_retry_count, 1);
+});
+
+test("collectResult moves retryable transient failure back to ready", () => {
+  const state = createReadyState();
+  const assigned = assignWorkers(state, generateNextWave(state).wave!).state;
+  const collected = collectResult(assigned, {
+    task_id: "T1",
+    status: "failed",
+    summary: "Command timed out.",
+    failure_type: "transient",
+    failure_reason: "Timeout"
+  });
+
+  assert.equal(collected.state.tasks.T1?.status, "ready");
+  assert.equal(collected.state.tasks.T1?.retry_count, 1);
+  assert.equal(collected.state.tasks.T1?.assigned_to, null);
+  assert.equal(collected.audit_events.some((event) => event.type === "TASK_RETRY_SCHEDULED"), true);
+});
+
+test("collectResult does not retry after retry limit is reached", () => {
+  const state = createReadyState();
+  state.tasks.T1!.retry_count = 1;
+  const assigned = assignWorkers(state, generateNextWave(state).wave!).state;
+  const collected = collectResult(assigned, {
+    task_id: "T1",
+    status: "failed",
+    summary: "Command timed out again.",
     failure_type: "transient",
     failure_reason: "Timeout"
   });
 
   assert.equal(collected.state.tasks.T1?.status, "failed");
-  assert.equal(collected.state.tasks.T1?.failure_type, "transient");
+  assert.equal(collected.state.tasks.T1?.retry_count, 1);
+  assert.equal(collected.audit_events.some((event) => event.type === "TASK_RETRY_SKIPPED"), true);
 });
 
 test("reviewWave passes when all wave tasks are reviewing", () => {
