@@ -2,7 +2,26 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 完善 `TransportAdapter`，以 Annie `Message` 为边界。
+- 保留并收紧 `MockAdapter`。
+- 实现 `OpenClawAdapter`。
+- 实现 `toOpenClawEnvelope(...)`。
+- 支持通过 `agent_sessions` 将 Agent 映射到底层 session。
+- 补充 OpenClaw adapter 单元测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -27,4 +46,3 @@
 
 - `src/communication/openclaw_adapter.ts`
 - `src/communication/message_bus.ts`
-
