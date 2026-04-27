@@ -81,3 +81,59 @@ test("CLI init accepts explicit workflow id", async () => {
   assert.equal(output.workflow_id, "wf_custom");
   assert.equal(output.state_path, join(rootDir, "workflows", "wf_custom", "state.json"));
 });
+
+test("CLI next-wave resolves dependencies and persists generated wave", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-next-wave-"));
+  const planPath = join(rootDir, "plan.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_next_wave",
+    plan_type: "dag",
+    execution_policy: {
+      max_parallel_tasks: 3
+    },
+    tasks: [
+      {
+        id: "T1",
+        title: "Root",
+        expected_files: ["src/root.ts"]
+      },
+      {
+        id: "T2",
+        title: "Conflicting peer",
+        expected_files: ["src/root.ts"]
+      },
+      {
+        id: "T3",
+        title: "Downstream",
+        depends_on: ["T1"]
+      }
+    ]
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_next_wave"]);
+  const output = await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_next_wave"]) as {
+    ready_task_ids: string[];
+    status_changes: Array<{ task_id: string; from: string; to: string }>;
+    wave: { id: string; tasks: string[] };
+    skipped_ready_tasks: Array<{ task_id: string; reason: string }>;
+  };
+
+  assert.deepEqual(output.ready_task_ids, ["T1", "T2"]);
+  assert.deepEqual(output.status_changes.map((change) => `${change.task_id}:${change.from}->${change.to}`), [
+    "T1:pending->ready",
+    "T2:pending->ready"
+  ]);
+  assert.equal(output.wave.id, "wave_001");
+  assert.deepEqual(output.wave.tasks, ["T1"]);
+  assert.equal(output.skipped_ready_tasks[0]?.task_id, "T2");
+  assert.match(output.skipped_ready_tasks[0]?.reason ?? "", /file conflict/);
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_next_wave", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string }>;
+    waves: Array<{ id: string; tasks: string[] }>;
+  };
+  assert.equal(state.tasks.T1?.status, "ready");
+  assert.equal(state.tasks.T2?.status, "ready");
+  assert.equal(state.tasks.T3?.status, "pending");
+  assert.deepEqual(state.waves.map((wave) => wave.id), ["wave_001"]);
+});

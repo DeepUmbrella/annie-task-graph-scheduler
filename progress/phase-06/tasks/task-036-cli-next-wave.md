@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -30,3 +30,21 @@
 - `src/scheduler/dependency_resolver.ts`
 - `src/scheduler/scheduler.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增 `next-wave --workflow <workflow_id>` CLI。
+- 命令会加载 workflow state，执行 `resolveDependencies` 和 `generateNextWave`。
+- 生成 wave 时会将新增 wave 持久化到 state。
+- 无 wave 时仍保存依赖解析后的 state，保留 blocked 等状态变化。
+- CLI 输出 ready task、blocked task、status changes、wave、skipped reason 和 scheduler decision。
+- 扩展 execution CLI e2e，覆盖依赖解析、wave 持久化和 file conflict skipped reason。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+93 passed
+```

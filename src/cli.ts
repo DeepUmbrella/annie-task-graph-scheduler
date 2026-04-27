@@ -7,6 +7,8 @@ import { exportVisualization, type VisualizationExport } from "./visualization/p
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
+import { resolveDependencies } from "./scheduler/dependency_resolver.js";
+import { generateNextWave } from "./scheduler/scheduler.js";
 import {
   buildGlobalAgentPool,
   buildGlobalTaskQueue,
@@ -23,6 +25,7 @@ if (!command || command === "--help" || command === "-h") {
 
 Commands:
   init --plan <plan.json> [--workflow <workflow_id>]
+  next-wave --workflow <workflow_id>
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
@@ -36,7 +39,6 @@ Commands:
   queue plan [--project <project_id> --workflow <workflow_id>]
 
 Commands planned for future phases:
-  next-wave --workflow <workflow_id>
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
@@ -48,6 +50,8 @@ if (command === "init") {
   await runInit();
 } else if (command === "status") {
   await runStatus();
+} else if (command === "next-wave") {
+  await runNextWave();
 } else if (command === "recover") {
   await runRecover();
 } else if (command === "visualize") {
@@ -120,6 +124,41 @@ async function runStatus(): Promise<void> {
       current_wave: state.current_wave,
       tasks: Object.fromEntries(Object.entries(state.tasks).map(([taskId, task]) => [taskId, task.status])),
       waves: state.waves.map((wave) => ({ id: wave.id, status: wave.status, tasks: wave.tasks }))
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runNextWave(): Promise<void> {
+  const workflowId = getArg("--workflow");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const store = createCliStateStore();
+    const state = await store.loadState(workflowId);
+    const dependencyResolution = resolveDependencies(state);
+    const nextWave = generateNextWave(dependencyResolution.state);
+    const nextState: WorkflowState = {
+      ...dependencyResolution.state,
+      waves: nextWave.wave
+        ? [...dependencyResolution.state.waves, nextWave.wave]
+        : dependencyResolution.state.waves
+    };
+    await store.saveState(nextState);
+
+    console.log(JSON.stringify({
+      workflow_id: nextState.workflow_id,
+      ready_task_ids: nextWave.ready_task_ids,
+      blocked_task_ids: dependencyResolution.blocked_task_ids,
+      status_changes: dependencyResolution.status_changes,
+      wave: nextWave.wave,
+      skipped_ready_tasks: nextWave.skipped_ready_tasks,
+      decision: nextWave.decision
     }, null, 2));
   } catch (error) {
     printCliError(error);
