@@ -88,6 +88,13 @@ test("creates visualization model for workflow with dependencies waves agents an
   assert.deepEqual(model.dag.edges.map((edge) => edge.id), ["T1->T2", "T2->T3"]);
   assert.equal(model.dag.edges[0]?.status, "satisfied");
   assert.equal(model.dag.edges[1]?.status, "blocked");
+  assert.equal(model.dag.edges[0]?.label, "T1 -> T2");
+  assert.equal(model.dag.edges[1]?.reason, "Dependency failed.");
+  assert.deepEqual(model.dag.nodes.map((node) => node.id), ["T1", "T2", "T3"]);
+  assert.equal(model.dag.nodes.find((node) => node.id === "T2")?.highlight, "failed");
+  assert.equal(model.dag.nodes.find((node) => node.id === "T3")?.highlight, "blocked");
+  assert.equal(model.dag.nodes.find((node) => node.id === "T1")?.downstream_count, 1);
+  assert.equal((model.dag.nodes.find((node) => node.id === "T2")?.risk_score ?? 0) > 0, true);
   assert.equal(model.waves.current_wave, "wave_001");
   assert.equal(model.waves.waves[0]?.id, "wave_001");
   assert.equal(model.failures.failed_tasks[0]?.failure_reason, "Compile error");

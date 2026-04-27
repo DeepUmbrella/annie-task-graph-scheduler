@@ -33,7 +33,7 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 |---|---|---|
 | T016 | done | [Visualization 模型与边界](./tasks/task-016-visualization-model.md) |
 | T017 | done | [Workflow 看板投影](./tasks/task-017-workflow-board-projection.md) |
-| T018 | todo | [DAG 图数据投影](./tasks/task-018-dag-graph-projection.md) |
+| T018 | done | [DAG 图数据投影](./tasks/task-018-dag-graph-projection.md) |
 | T019 | todo | [Wave 进度投影](./tasks/task-019-wave-progress-projection.md) |
 | T020 | todo | [失败任务追踪投影](./tasks/task-020-failure-tracking-projection.md) |
 | T021 | todo | [Visualization Export / CLI 边界](./tasks/task-021-visualization-export.md) |
@@ -46,7 +46,8 @@ Phase 03 先实现稳定的 visualization projection 和导出边界，不直接
 - Phase 03 任务已规划。
 - 已完成 T016：Visualization 模型与边界。
 - 已完成 T017：Workflow 看板投影。
-- 下一步进入 T018：DAG 图数据投影。
+- 已完成 T018：DAG 图数据投影。
+- 下一步进入 T019：Wave 进度投影。
 
 ## 阶段完成标准
 

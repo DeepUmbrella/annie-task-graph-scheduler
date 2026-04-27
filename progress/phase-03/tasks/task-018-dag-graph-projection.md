@@ -2,7 +2,26 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- DAG node 增加 risk score 和 risk reasons。
+- DAG node 增加 depends_on_count 和 downstream_count。
+- DAG node 增加 failed / blocked / running highlight。
+- DAG edge 增加 label 和 reason。
+- DAG node / edge 输出保持稳定排序。
+- 补充 DAG graph projection 测试断言。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过，当前测试数：59。
 
 ## 目标
 
@@ -28,4 +47,3 @@
 - `src/visualization/*`
 - `src/scheduler/risk_scorer.ts`
 - `tests/visualization.test.ts`
-

@@ -1,6 +1,7 @@
 import { taskStatuses, type TaskStatus } from "../models/task.js";
 import { waveStatuses, type WaveStatus } from "../models/wave.js";
 import type { WorkflowState } from "../models/workflow.js";
+import { scoreTaskRisk } from "../scheduler/risk_scorer.js";
 import type {
   CurrentWaveView,
   DependencyEdgeView,
@@ -57,8 +58,13 @@ export function createVisualizationModel(
         title: task.title,
         status: task.status,
         risk: task.risk,
-        assigned_to: task.assigned_to
-      })),
+        risk_score: scoreTaskRisk(task, state.execution_policy.risk).score,
+        risk_reasons: scoreTaskRisk(task, state.execution_policy.risk).reasons,
+        assigned_to: task.assigned_to,
+        depends_on_count: task.depends_on.length,
+        downstream_count: Object.values(state.tasks).filter((candidate) => candidate.depends_on.includes(task.id)).length,
+        highlight: getTaskNodeHighlight(task.status)
+      })).sort((left, right) => left.id.localeCompare(right.id)),
       edges: createDependencyEdges(state)
     },
     waves: {
@@ -154,9 +160,27 @@ function createDependencyEdges(state: WorkflowState): DependencyEdgeView[] {
       id: `${dependencyId}->${task.id}`,
       source: dependencyId,
       target: task.id,
-      status: getDependencyEdgeStatus(state, dependencyId)
+      status: getDependencyEdgeStatus(state, dependencyId),
+      label: `${dependencyId} -> ${task.id}`,
+      reason: getDependencyEdgeReason(state, dependencyId)
     })))
     .sort((left, right) => left.id.localeCompare(right.id));
+}
+
+function getTaskNodeHighlight(status: TaskStatus): "none" | "running" | "blocked" | "failed" {
+  if (status === "running") {
+    return "running";
+  }
+
+  if (status === "blocked") {
+    return "blocked";
+  }
+
+  if (status === "failed") {
+    return "failed";
+  }
+
+  return "none";
 }
 
 function getDependencyEdgeStatus(
@@ -174,4 +198,29 @@ function getDependencyEdgeStatus(
   }
 
   return dependency.status === "done" ? "satisfied" : "waiting";
+}
+
+function getDependencyEdgeReason(
+  state: WorkflowState,
+  dependencyId: string
+): string {
+  const dependency = state.tasks[dependencyId];
+
+  if (!dependency) {
+    return "Dependency task is missing.";
+  }
+
+  if (dependency.status === "failed") {
+    return "Dependency failed.";
+  }
+
+  if (dependency.status === "blocked") {
+    return "Dependency is blocked.";
+  }
+
+  if (dependency.status === "done") {
+    return "Dependency is done.";
+  }
+
+  return `Dependency is ${dependency.status}.`;
 }

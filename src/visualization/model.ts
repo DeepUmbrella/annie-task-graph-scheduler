@@ -81,7 +81,12 @@ export interface TaskNodeView {
   title: string;
   status: TaskStatus;
   risk: string;
+  risk_score: number;
+  risk_reasons: string[];
   assigned_to: string | null;
+  depends_on_count: number;
+  downstream_count: number;
+  highlight: "none" | "running" | "blocked" | "failed";
 }
 
 export interface DependencyEdgeView {
@@ -89,6 +94,8 @@ export interface DependencyEdgeView {
   source: string;
   target: string;
   status: "satisfied" | "waiting" | "blocked";
+  label: string;
+  reason: string;
 }
 
 export interface WaveProgressView {
