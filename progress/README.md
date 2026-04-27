@@ -38,7 +38,7 @@ progress/
 
 当前下一阶段：
 
-Phase 08 PRD Acceptance Hardening 已规划。下一步进入 T049。
+Phase 08 PRD Acceptance Hardening 正在推进。T049 已完成，下一步进入 T050。
 
 ## 更新规则
 

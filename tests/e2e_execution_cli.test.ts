@@ -136,6 +136,13 @@ test("CLI next-wave resolves dependencies and persists generated wave", async ()
   assert.equal(state.tasks.T2?.status, "ready");
   assert.equal(state.tasks.T3?.status, "pending");
   assert.deepEqual(state.waves.map((wave) => wave.id), ["wave_001"]);
+
+  const auditEvents = parseAuditEvents(await readFile(join(rootDir, "workflows", "wf_next_wave", "audit.jsonl"), "utf8"));
+  assert.deepEqual(auditEvents.map((event) => `${event.payload.task_id}:${event.payload.from}->${event.payload.to}`), [
+    "T1:pending->ready",
+    "T2:pending->ready"
+  ]);
+  assert.equal(auditEvents.every((event) => event.payload.source === "dependency_resolver"), true);
 });
 
 test("CLI dispatch assigns wave tasks and writes audit events", async () => {
@@ -450,4 +457,20 @@ test("Execution CLI blocks downstream tasks after non-retryable failure", async 
   assert.equal(state.tasks.T1?.status, "failed");
   assert.equal(state.tasks.T2?.status, "blocked");
   assert.equal(state.tasks.T2?.blocked_reason, "Blocked by dependency T1.");
+
+  const auditEvents = parseAuditEvents(await readFile(join(rootDir, "workflows", "wf_failure_blocks", "audit.jsonl"), "utf8"));
+  assert.equal(auditEvents.some((event) =>
+    event.payload.task_id === "T2"
+      && event.payload.from === "pending"
+      && event.payload.to === "blocked"
+      && event.payload.reason === "Dependency T1 is failed."
+      && event.payload.source === "dependency_resolver"
+  ), true);
 });
+
+function parseAuditEvents(raw: string): Array<{ type: string; payload: Record<string, unknown> }> {
+  return raw
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => JSON.parse(line) as { type: string; payload: Record<string, unknown> });
+}

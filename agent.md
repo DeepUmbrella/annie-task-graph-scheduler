@@ -260,7 +260,7 @@ Phase 04: done
 Phase 05: done
 Phase 06: done
 Phase 07: done
-Phase 08: planned, next T049
+Phase 08: in_progress, T049 done, next T050
 npm run typecheck: pass
 npm run build: pass
 npm test: 114 passed

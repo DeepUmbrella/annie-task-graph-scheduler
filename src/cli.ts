@@ -177,6 +177,9 @@ async function runNextWave(): Promise<void> {
         : dependencyResolution.state.waves
     };
     await store.saveState(nextState);
+    for (const event of createSchedulerStatusAuditEvents(nextState, dependencyResolution.status_changes)) {
+      await store.appendAuditEvent(event);
+    }
 
     console.log(JSON.stringify({
       workflow_id: nextState.workflow_id,
@@ -736,6 +739,25 @@ function createReviewAuditEvents(previous: WorkflowState, next: WorkflowState, w
   }
 
   return events;
+}
+
+function createSchedulerStatusAuditEvents(
+  state: WorkflowState,
+  statusChanges: Array<{ task_id: string; from: string; to: string; reason: string }>
+): AuditEvent[] {
+  return statusChanges.map((change) => ({
+    event_id: createCliAuditEventId(state.updated_at),
+    workflow_id: state.workflow_id,
+    type: "TASK_STATUS_CHANGED",
+    payload: {
+      task_id: change.task_id,
+      from: change.from,
+      to: change.to,
+      reason: change.reason,
+      source: "dependency_resolver"
+    },
+    created_at: state.updated_at
+  }));
 }
 
 function createCliAuditEventId(now: string): string {

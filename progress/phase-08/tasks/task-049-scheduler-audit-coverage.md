@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,18 @@
 
 - `src/cli.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- `next-wave` 在保存 workflow state 后，会将 dependency resolver 的 `status_changes` 写入 audit log。
+- audit event 使用 `TASK_STATUS_CHANGED`，payload 包含 `task_id`、`from`、`to`、`reason` 和 `source: dependency_resolver`。
+- e2e 覆盖 `pending -> ready` 和上游失败导致的 `pending -> blocked`。
+- `next-wave` 成功 JSON 输出保持兼容。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 114 passed
+```

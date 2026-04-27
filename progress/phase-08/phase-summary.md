@@ -20,7 +20,7 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T049 | todo | [Scheduler state-change audit coverage](./tasks/task-049-scheduler-audit-coverage.md) |
+| T049 | done | [Scheduler state-change audit coverage](./tasks/task-049-scheduler-audit-coverage.md) |
 | T050 | todo | [CLI structured error JSON mode](./tasks/task-050-cli-structured-error-json.md) |
 | T051 | todo | [Message audit and recovery hardening](./tasks/task-051-message-audit-recovery-hardening.md) |
 | T052 | todo | [PRD hardening acceptance tests](./tasks/task-052-prd-hardening-acceptance.md) |
@@ -29,7 +29,8 @@ Phase 08 不接真实 OpenClaw session，不改变 plan schema，不引入新 ru
 
 - Phase 01-07 已完成。
 - Phase 08 已规划。
-- 下一步进入 T049：Scheduler state-change audit coverage。
+- 已完成 T049：Scheduler state-change audit coverage。
+- 下一步进入 T050：CLI structured error JSON mode。
 
 ## 阶段完成标准
 
