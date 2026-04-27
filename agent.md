@@ -185,6 +185,15 @@ Phase 05:
 - CLI project / queue commands
 - Phase 05 acceptance coverage
 
+Phase 06 planned:
+
+- CLI init from DAG plan
+- CLI next-wave orchestration
+- CLI dispatch worker assignment
+- CLI submit-result result collection
+- CLI review-wave ReviewGate
+- Execution CLI e2e coverage
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -233,6 +242,7 @@ Phase 02: done
 Phase 03: done
 Phase 04: done
 Phase 05: done
+Phase 06: todo
 npm run typecheck: pass
 npm run build: pass
 npm test: 90 passed
