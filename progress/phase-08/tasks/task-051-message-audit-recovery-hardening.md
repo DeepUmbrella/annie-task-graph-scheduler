@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,18 @@
 - `src/communication/message_bus.ts`
 - `src/communication/mailbox_store.ts`
 - `tests/message_bus.test.ts`
+
+## 完成记录
+
+- 补充 mailbox JSONL 恢复读取 delivered / acknowledged / processed 消息状态测试。
+- 补充 failed delivery 消息恢复读取测试。
+- 补充 MessageBus 不直接修改 workflow task state 的边界测试。
+- 未改变 MessageBus 运行逻辑，仅补齐恢复语义验收覆盖。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 118 passed
+```
