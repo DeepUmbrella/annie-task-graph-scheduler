@@ -26,4 +26,4 @@ progress/
 ## 当前阶段
 
 - [Phase 01 MVP](./phase-01/phase-summary.md)
-
+- [Phase 02 Enhanced Scheduling](./phase-02/phase-summary.md)
