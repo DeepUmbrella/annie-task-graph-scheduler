@@ -18,6 +18,15 @@ import {
   createProjectRegistry,
   planCrossProjectDispatch
 } from "./projects/index.js";
+import {
+  createLocalMemoryStore,
+  extractExecutionMemoryCandidates,
+  extractPreferenceMemoryCandidates,
+  extractTemplateMemoryCandidates,
+  memoryCategories,
+  type MemoryCandidate,
+  type MemoryCategory
+} from "./memory/index.js";
 import { projectPriorities, userPriorities, type ProjectPriority, type ProjectRef, type ProjectWorkflowRef } from "./models/project.js";
 import type { AuditEvent } from "./models/audit.js";
 import type { WorkflowState } from "./models/workflow.js";
@@ -44,6 +53,9 @@ Commands:
   project show --project <project_id>
   queue build [--project <project_id> --workflow <workflow_id>]
   queue plan [--project <project_id> --workflow <workflow_id>]
+  memory extract --workflow <workflow_id>
+  memory write --workflow <workflow_id>
+  memory list [--category <category>]
 
 `);
   process.exit(0);
@@ -71,6 +83,8 @@ if (command === "init") {
   await runProject();
 } else if (command === "queue") {
   await runQueue();
+} else if (command === "memory") {
+  await runMemory();
 } else {
   console.error(`Command "${command}" is not implemented yet.`);
   process.exit(1);
@@ -87,6 +101,10 @@ function createCliStateStore() {
 
 function createCliProjectRegistry() {
   return createProjectRegistry(getArg("--root") ?? ".annie");
+}
+
+function createCliMemoryStore() {
+  return createLocalMemoryStore(getArg("--root") ?? ".annie");
 }
 
 async function runInit(): Promise<void> {
@@ -483,6 +501,53 @@ async function runQueue(): Promise<void> {
   }
 }
 
+async function runMemory(): Promise<void> {
+  const subcommand = process.argv[3];
+
+  try {
+    if (subcommand === "extract") {
+      const workflowId = getRequiredArg("--workflow", "Missing required --workflow <workflow_id>.");
+      const state = await createCliStateStore().loadState(workflowId);
+      const candidates = extractAllMemoryCandidates(state);
+
+      console.log(JSON.stringify({
+        workflow_id: state.workflow_id,
+        candidate_count: candidates.length,
+        candidates
+      }, null, 2));
+    } else if (subcommand === "write") {
+      const workflowId = getRequiredArg("--workflow", "Missing required --workflow <workflow_id>.");
+      const state = await createCliStateStore().loadState(workflowId);
+      const candidates = extractAllMemoryCandidates(state);
+      const store = createCliMemoryStore();
+      const records = [];
+
+      for (const candidate of candidates) {
+        records.push(await store.append(candidate));
+      }
+
+      console.log(JSON.stringify({
+        workflow_id: state.workflow_id,
+        candidate_count: candidates.length,
+        record_count: records.length,
+        records_path: store.recordsPath(),
+        records
+      }, null, 2));
+    } else if (subcommand === "list") {
+      const category = getArg("--category");
+      const records = await createCliMemoryStore().list({
+        category: category ? parseMemoryCategory(category) : undefined
+      });
+      console.log(JSON.stringify(records, null, 2));
+    } else {
+      console.error(`Unknown memory subcommand "${subcommand}". Use extract, write, or list.`);
+      process.exit(1);
+    }
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
 async function loadGlobalQueueInputs(): Promise<Array<{ project: ProjectRef; workflow: ProjectWorkflowRef; state: WorkflowState }>> {
   const projectId = getArg("--project");
   const workflowId = getArg("--workflow");
@@ -575,6 +640,36 @@ function getArgs(name: string): string[] {
   }
 
   return values;
+}
+
+function getRequiredArg(name: string, message: string): string {
+  const value = getArg(name);
+  if (!value) {
+    throw new TaskGraphSchedulerError(message, "CLI_ARGUMENT_MISSING", {
+      argument: name
+    });
+  }
+
+  return value;
+}
+
+function extractAllMemoryCandidates(state: WorkflowState): MemoryCandidate[] {
+  return [
+    ...extractExecutionMemoryCandidates(state),
+    ...extractPreferenceMemoryCandidates(state),
+    ...extractTemplateMemoryCandidates(state)
+  ];
+}
+
+function parseMemoryCategory(value: string): MemoryCategory {
+  if ((memoryCategories as readonly string[]).includes(value)) {
+    return value as MemoryCategory;
+  }
+
+  throw new TaskGraphSchedulerError("Memory category is invalid.", "MEMORY_CATEGORY_INVALID", {
+    value,
+    allowed: memoryCategories
+  });
 }
 
 function parseProjectPriority(value: string): ProjectPriority {

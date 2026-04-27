@@ -25,7 +25,7 @@ Phase 07 不接真实 Annie Memory 远端服务，不改变 plan schema，不引
 | T044 | done | [Preference memory candidate extractor](./tasks/task-044-preference-memory-extractor.md) |
 | T045 | done | [Template memory candidate extractor](./tasks/task-045-template-memory-extractor.md) |
 | T046 | done | [Local memory store](./tasks/task-046-local-memory-store.md) |
-| T047 | todo | [CLI memory commands](./tasks/task-047-cli-memory-commands.md) |
+| T047 | done | [CLI memory commands](./tasks/task-047-cli-memory-commands.md) |
 | T048 | todo | [Phase 07 验收测试](./tasks/task-048-phase-07-acceptance.md) |
 
 ## 当前进度
@@ -37,7 +37,8 @@ Phase 07 不接真实 Annie Memory 远端服务，不改变 plan schema，不引
 - 已完成 T044：Preference memory candidate extractor。
 - 已完成 T045：Template memory candidate extractor。
 - 已完成 T046：Local memory store。
-- 下一步进入 T047：CLI memory commands。
+- 已完成 T047：CLI memory commands。
+- 下一步进入 T048：Phase 07 验收测试。
 
 ## 阶段完成标准
 

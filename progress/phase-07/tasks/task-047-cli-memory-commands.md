@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,19 @@
 - `src/cli.ts`
 - `src/memory/*`
 - `tests/e2e_memory_cli.test.ts`
+
+## 完成记录
+
+- 新增 `memory extract --workflow <workflow_id>`，从 workflow state 输出 memory candidates。
+- 新增 `memory write --workflow <workflow_id>`，提取并写入本地 JSONL MemoryStore。
+- 新增 `memory list [--category <category>]`，列举本地 memory records 并支持 category 过滤。
+- CLI help 增加 memory commands。
+- category 参数使用 `memoryCategories` 做枚举校验，错误输出 `TaskGraphSchedulerError` 结构信息。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 114 passed
+```
