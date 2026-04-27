@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -30,3 +30,21 @@
 - `src/cli.ts`
 - `src/execution/review_gate.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增 `review-wave --workflow <workflow_id> --wave <wave_id>` CLI。
+- 命令调用 `reviewWave` 执行 ReviewGate。
+- 保存 review 后的 workflow state。
+- CLI 侧追加 WAVE_REVIEWED 和 TASK_STATUS_CHANGED audit events。
+- CLI 输出 review、state summary 和 audit event 数量。
+- 扩展 execution CLI e2e，覆盖 reviewing task 通过 ReviewGate 后进入 done。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+96 passed
+```

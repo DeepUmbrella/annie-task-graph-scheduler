@@ -263,3 +263,66 @@ test("CLI submit-result collects worker output and persists task result", async 
   const audit = await readFile(join(rootDir, "workflows", "wf_submit", "audit.jsonl"), "utf8");
   assert.match(audit, /TASK_RESULT_COLLECTED/);
 });
+
+test("CLI review-wave runs ReviewGate and marks reviewing tasks done", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-review-wave-"));
+  const planPath = join(rootDir, "plan.json");
+  const resultPath = join(rootDir, "result.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_review_wave",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Backend",
+        preferred_agent: "backend-agent"
+      }
+    ]
+  }), "utf8");
+  await writeFile(resultPath, JSON.stringify({
+    task_id: "T1",
+    status: "completed",
+    summary: "Implemented backend.",
+    changed_files: ["src/backend.ts"]
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_review"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_review"]);
+  await runCli(["dispatch", "--root", rootDir, "--workflow", "wf_review", "--wave", "wave_001"]);
+  await runCli(["submit-result", "--root", rootDir, "--workflow", "wf_review", "--result", resultPath]);
+  const output = await runCli([
+    "review-wave",
+    "--root",
+    rootDir,
+    "--workflow",
+    "wf_review",
+    "--wave",
+    "wave_001"
+  ]) as {
+    review: { status: string; allow_next_wave: boolean; completed_tasks: string[] };
+    audit_events: number;
+    state: { status: string; current_wave: string | null; wave_status: string };
+  };
+
+  assert.equal(output.review.status, "passed");
+  assert.equal(output.review.allow_next_wave, true);
+  assert.deepEqual(output.review.completed_tasks, ["T1"]);
+  assert.equal(output.audit_events, 2);
+  assert.deepEqual(output.state, {
+    status: "running",
+    current_wave: null,
+    wave_status: "done"
+  });
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_review", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string }>;
+    waves: Array<{ id: string; status: string; review: { status: string } }>;
+  };
+  assert.equal(state.tasks.T1?.status, "done");
+  assert.equal(state.waves[0]?.status, "done");
+  assert.equal(state.waves[0]?.review.status, "passed");
+
+  const audit = await readFile(join(rootDir, "workflows", "wf_review", "audit.jsonl"), "utf8");
+  assert.match(audit, /WAVE_REVIEWED/);
+});

@@ -8,6 +8,7 @@ import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
 import { collectResult } from "./execution/result_collector.js";
+import { reviewWave } from "./execution/review_gate.js";
 import { assignWorkers } from "./execution/worker_pool.js";
 import { resolveDependencies } from "./scheduler/dependency_resolver.js";
 import { generateNextWave } from "./scheduler/scheduler.js";
@@ -18,6 +19,7 @@ import {
   planCrossProjectDispatch
 } from "./projects/index.js";
 import { projectPriorities, userPriorities, type ProjectPriority, type ProjectRef, type ProjectWorkflowRef } from "./models/project.js";
+import type { AuditEvent } from "./models/audit.js";
 import type { WorkflowState } from "./models/workflow.js";
 
 const command = process.argv[2];
@@ -30,6 +32,7 @@ Commands:
   next-wave --workflow <workflow_id>
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
+  review-wave --workflow <workflow_id> --wave <wave_id>
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
@@ -42,8 +45,6 @@ Commands:
   queue build [--project <project_id> --workflow <workflow_id>]
   queue plan [--project <project_id> --workflow <workflow_id>]
 
-Commands planned for future phases:
-  review-wave --workflow <workflow_id> --wave <wave_id>
 `);
   process.exit(0);
 }
@@ -58,6 +59,8 @@ if (command === "init") {
   await runDispatch();
 } else if (command === "submit-result") {
   await runSubmitResult();
+} else if (command === "review-wave") {
+  await runReviewWave();
 } else if (command === "recover") {
   await runRecover();
 } else if (command === "visualize") {
@@ -253,6 +256,45 @@ async function runSubmitResult(): Promise<void> {
       tests_run: task?.tests_run ?? [],
       risks_found: task?.risks_found ?? [],
       audit_events: result.audit_events.length
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runReviewWave(): Promise<void> {
+  const workflowId = getArg("--workflow");
+  const waveId = getArg("--wave");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+  if (!waveId) {
+    console.error("Missing required --wave <wave_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const store = createCliStateStore();
+    const state = await store.loadState(workflowId);
+    const result = reviewWave(state, waveId);
+    const auditEvents = createReviewAuditEvents(state, result.state, waveId);
+    await store.saveState(result.state);
+    for (const event of auditEvents) {
+      await store.appendAuditEvent(event);
+    }
+
+    console.log(JSON.stringify({
+      workflow_id: result.state.workflow_id,
+      wave_id: waveId,
+      review: result.review,
+      audit_events: auditEvents.length,
+      state: {
+        status: result.state.status,
+        current_wave: result.state.current_wave,
+        wave_status: result.state.waves.find((candidate) => candidate.id === waveId)?.status ?? null
+      }
     }, null, 2));
   } catch (error) {
     printCliError(error);
@@ -564,6 +606,45 @@ function createWorkflowId(planId: string): string {
     .replace(/^_+|_+$/g, "");
 
   return `wf_${safePlanId || "workflow"}`;
+}
+
+function createReviewAuditEvents(previous: WorkflowState, next: WorkflowState, waveId: string): AuditEvent[] {
+  const now = next.updated_at;
+  const events: AuditEvent[] = [{
+    event_id: createCliAuditEventId(now),
+    workflow_id: next.workflow_id,
+    type: "WAVE_REVIEWED",
+    payload: {
+      wave_id: waveId,
+      status: next.waves.find((wave) => wave.id === waveId)?.review?.status ?? null,
+      allow_next_wave: next.waves.find((wave) => wave.id === waveId)?.review?.allow_next_wave ?? null
+    },
+    created_at: now
+  }];
+
+  for (const [taskId, task] of Object.entries(next.tasks)) {
+    const previousTask = previous.tasks[taskId];
+    if (previousTask && previousTask.status !== task.status) {
+      events.push({
+        event_id: createCliAuditEventId(now),
+        workflow_id: next.workflow_id,
+        type: "TASK_STATUS_CHANGED",
+        payload: {
+          task_id: taskId,
+          from: previousTask.status,
+          to: task.status,
+          wave_id: waveId
+        },
+        created_at: now
+      });
+    }
+  }
+
+  return events;
+}
+
+function createCliAuditEventId(now: string): string {
+  return `evt_${Date.parse(now)}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
 function printCliError(error: unknown): never {
