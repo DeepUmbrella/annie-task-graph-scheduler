@@ -5,7 +5,7 @@ import { createStateStore } from "./storage/state_store.js";
 import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
 import { createBuiltinRegistry } from "./templates/index.js";
-import { instantiateTemplate } from "./validation/plan_loader.js";
+import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
 import {
   buildGlobalAgentPool,
@@ -22,6 +22,7 @@ if (!command || command === "--help" || command === "-h") {
   console.log(`annie-tgs
 
 Commands:
+  init --plan <plan.json> [--workflow <workflow_id>]
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
@@ -35,7 +36,6 @@ Commands:
   queue plan [--project <project_id> --workflow <workflow_id>]
 
 Commands planned for future phases:
-  init --plan <plan.json>
   next-wave --workflow <workflow_id>
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
@@ -44,7 +44,9 @@ Commands planned for future phases:
   process.exit(0);
 }
 
-if (command === "status") {
+if (command === "init") {
+  await runInit();
+} else if (command === "status") {
   await runStatus();
 } else if (command === "recover") {
   await runRecover();
@@ -72,6 +74,33 @@ function createCliStateStore() {
 
 function createCliProjectRegistry() {
   return createProjectRegistry(getArg("--root") ?? ".annie");
+}
+
+async function runInit(): Promise<void> {
+  const planPath = getArg("--plan");
+
+  if (!planPath) {
+    console.error("Missing required --plan <plan.json>.");
+    process.exit(1);
+  }
+
+  try {
+    const loaded = await loadPlanFile(planPath);
+    const workflowId = getArg("--workflow") ?? createWorkflowId(loaded.plan.plan_id);
+    const store = createCliStateStore();
+    const state = createInitialWorkflowState(workflowId, loaded);
+    await store.saveState(state);
+
+    console.log(JSON.stringify({
+      workflow_id: state.workflow_id,
+      plan_id: state.plan_id,
+      status: state.status,
+      task_count: Object.keys(state.tasks).length,
+      state_path: store.statePath(state.workflow_id)
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
 }
 
 async function runStatus(): Promise<void> {
@@ -382,6 +411,15 @@ function parseUserPriority(value: string): ProjectWorkflowRef["priority"] {
     value,
     allowed: userPriorities
   });
+}
+
+function createWorkflowId(planId: string): string {
+  const safePlanId = planId
+    .trim()
+    .replace(/[^a-zA-Z0-9_-]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  return `wf_${safePlanId || "workflow"}`;
 }
 
 function printCliError(error: unknown): never {

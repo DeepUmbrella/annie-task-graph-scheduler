@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -30,3 +30,20 @@
 - `src/validation/plan_loader.ts`
 - `src/storage/state_store.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增 `init --plan <plan.json> [--workflow <workflow_id>]` CLI。
+- 未传 `--workflow` 时按 `wf_<plan_id>` 生成可预测 workflow id。
+- 使用 `loadPlanFile` 校验 plan，使用 `createInitialWorkflowState` 创建 state。
+- 使用 StateStore 保存 `.annie/workflows/<workflow_id>/state.json`。
+- 新增 `tests/e2e_execution_cli.test.ts` 覆盖自动 workflow id 和显式 workflow id。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+92 passed
+```
