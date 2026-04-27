@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { detectFileConflicts } from "../src/scheduler/conflict_detector.js";
+import { scoreTaskRisk } from "../src/scheduler/risk_scorer.js";
 import { generateNextWave } from "../src/scheduler/scheduler.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
@@ -105,7 +106,7 @@ test("serializes high-risk tasks", () => {
 
   assert.deepEqual(result.wave?.tasks, ["T1", "T3"]);
   assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
-  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /high-risk/);
+  assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /risk score/);
 });
 
 test("respects max_agents using preferred agent hints", () => {
@@ -131,4 +132,59 @@ test("returns null wave when no tasks are ready", () => {
   const result = generateNextWave(state);
 
   assert.equal(result.wave, null);
+});
+
+test("scores task risk with explainable reasons", () => {
+  const state = createState([
+    {
+      id: "T1",
+      title: "Risky task",
+      risk: "high",
+      expected_files: ["a.ts", "b.ts"]
+    }
+  ]);
+  state.tasks.T1!.retry_count = 1;
+  state.tasks.T1!.preferred_agent = null;
+
+  const score = scoreTaskRisk(state.tasks.T1!, state.execution_policy.risk);
+
+  assert.equal(score.task_id, "T1");
+  assert.equal(score.level, "high");
+  assert.equal(score.score > 0, true);
+  assert.match(score.reasons.join("\n"), /retry/);
+  assert.match(score.reasons.join("\n"), /preferred_agent/);
+});
+
+test("orders ready tasks by low risk first when risk-aware policy is enabled", () => {
+  const state = createState([
+    { id: "T1", title: "High", risk: "high" },
+    { id: "T2", title: "Low", risk: "low", expected_files: ["low.ts"], preferred_agent: "docs-agent" },
+    { id: "T3", title: "Medium", risk: "medium" }
+  ], {
+    scheduling: {
+      selection_order: "risk_aware",
+      prefer_low_risk_first: true,
+      explain_skipped_tasks: true
+    }
+  });
+
+  const result = generateNextWave(state);
+
+  assert.deepEqual(result.wave?.tasks, ["T2", "T3", "T1"]);
+  assert.equal(result.risk_scores.T1?.level, "high");
+});
+
+test("allows more high-risk tasks when policy limit is increased", () => {
+  const state = createState([
+    { id: "T1", title: "One", risk: "high" },
+    { id: "T2", title: "Two", risk: "critical" }
+  ], {
+    risk: {
+      high_risk_parallel_limit: 2
+    }
+  });
+
+  const result = generateNextWave(state);
+
+  assert.deepEqual(result.wave?.tasks, ["T1", "T2"]);
 });

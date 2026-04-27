@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 新增 `risk_scorer.ts`。
+- 实现 `scoreTaskRisk(...)`。
+- 风险评分包含显式 risk、expected files、missing expected files、retry count、missing preferred agent。
+- Scheduler 在 `risk_aware` 或 `prefer_low_risk_first` policy 下按低风险优先排序。
+- 高风险并发限制改为读取 `execution_policy.risk.high_risk_parallel_limit`。
+- Scheduler 输出 `risk_scores`。
+- 补充风险评分、风险排序和高风险并发策略测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -35,4 +55,3 @@
 - `src/models/task.ts`
 - `src/execution/review_gate.ts`
 - `tests/scheduler.test.ts`
-
