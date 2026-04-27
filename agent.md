@@ -61,11 +61,15 @@ Completed:
 - `progress/phase-01/phase-summary.md` - Phase 01 MVP is `done`
 - `progress/phase-02/phase-summary.md` - Phase 02 Enhanced Scheduling is `done`
 
+Planned:
+
+- `progress/phase-03/phase-summary.md` - Phase 03 Visualization is `todo`
+
 Latest completed task:
 
 - `progress/phase-02/tasks/task-015-phase-02-acceptance.md`
 
-Next likely phase from the PRD:
+Current next phase from the PRD:
 
 - Phase 03: Visualization
   - Workflow board
@@ -73,7 +77,7 @@ Next likely phase from the PRD:
   - Wave execution progress
   - Failed task tracking
 
-Do not start Phase 03 implementation directly. First create `progress/phase-03/phase-summary.md` and task files, then commit the plan.
+Do not start Phase 03 implementation directly until UI carrier and interaction scope are clear. Ask the user before choosing between web UI, CLI report, static HTML, or another visualization surface.
 
 ## Development Rules
 
@@ -173,6 +177,16 @@ Phase 02:
 - structured scheduler decision output
 - Phase 02 e2e acceptance coverage
 
+Phase 03 planned:
+
+- Visualization data model
+- Workflow board projection
+- DAG graph projection
+- Wave progress projection
+- Failure tracking projection
+- Visualization API / CLI export boundary
+- Phase 03 acceptance coverage
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -218,6 +232,7 @@ Latest known completed state:
 ```txt
 Phase 01: done
 Phase 02: done
+Phase 03: todo
 npm run typecheck: pass
 npm run build: pass
 npm test: 57 passed
