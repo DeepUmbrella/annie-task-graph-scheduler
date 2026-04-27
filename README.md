@@ -1,8 +1,8 @@
 # Annie TaskGraphScheduler
 
-TaskGraphScheduler is the Phase 1 MVP scheduler for Annie Workflow System.
+TaskGraphScheduler is the DAG scheduler for Annie Workflow System.
 
-It turns a `WritingPlansWorkflow` DAG plan into safe execution waves with dependency checks, file-conflict serialization, worker assignment records, review gates, local state persistence, and auditable messaging.
+It turns a `WritingPlansWorkflow` DAG plan into safe execution waves with dependency checks, policy-aware scheduling, file-conflict prediction, worker assignment records, review gates, local state persistence, and auditable messaging.
 
 ## Current Status
 
@@ -10,6 +10,19 @@ Project initialized from:
 
 - `docs/annie_task_graph_scheduler_prd (1).md`
 - `docs/task_graph_scheduler_implementation_plan.md`
+
+Phase status:
+
+- Phase 01 MVP: done
+- Phase 02 Enhanced Scheduling: done
+
+Phase 02 adds:
+
+- Agent load-aware assignment
+- Risk scoring and risk-aware scheduling
+- Configurable retry policy
+- Exact, directory, glob, and unknown-file conflict prediction
+- Structured Scheduler decision output
 
 ## Planned Commands
 

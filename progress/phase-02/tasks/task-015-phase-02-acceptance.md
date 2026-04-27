@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 增加 Phase 02 e2e fixture。
+- 覆盖风险排序影响 wave 选择。
+- 覆盖目录冲突预测。
+- 覆盖 transient 自动重试后重新调度成功。
+- 验证 Agent 负载释放，修复 ResultCollector 未释放 active task 的问题。
+- 更新 README 当前状态与 Phase 02 能力说明。
+- Phase 02 summary 标记为完成。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过，当前测试数：57。
 
 ## 目标
 
@@ -34,4 +54,3 @@
 - `tests/execution.test.ts`
 - `README.md`
 - `progress/phase-02/phase-summary.md`
-

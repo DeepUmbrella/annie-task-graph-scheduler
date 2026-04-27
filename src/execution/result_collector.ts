@@ -74,6 +74,7 @@ export function collectResult(
         ...state.tasks,
         [parsedResult.task_id]: nextTask
       },
+      agents: releaseTaskFromAgent(state.agents, parsedResult.task_id),
       updated_at: now
     },
     audit_events: [
@@ -112,6 +113,30 @@ export function collectResult(
       }] satisfies AuditEvent[] : [])
     ]
   };
+}
+
+function releaseTaskFromAgent(
+  agents: WorkflowState["agents"],
+  taskId: string
+): WorkflowState["agents"] {
+  return Object.fromEntries(
+    Object.entries(agents).map(([agentId, agent]) => {
+      const activeTaskIds = agent.active_task_ids.filter((activeTaskId) => activeTaskId !== taskId);
+
+      return [
+        agentId,
+        {
+          ...agent,
+          active_task_ids: activeTaskIds,
+          status: agent.status === "offline"
+            ? "offline"
+            : activeTaskIds.length > 0
+              ? "busy"
+              : "idle"
+        }
+      ];
+    })
+  );
 }
 
 export function validateWorkerTaskResult(input: unknown): WorkerTaskResult {

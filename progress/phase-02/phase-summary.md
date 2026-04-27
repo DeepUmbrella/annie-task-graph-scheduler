@@ -18,7 +18,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -36,7 +36,7 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 | T012 | done | [自动重试策略配置](./tasks/task-012-retry-policy.md) |
 | T013 | done | [增强文件冲突预测](./tasks/task-013-conflict-prediction.md) |
 | T014 | done | [Scheduler 策略集成与解释输出](./tasks/task-014-scheduler-policy-integration.md) |
-| T015 | todo | [Phase 02 验收与回归测试](./tasks/task-015-phase-02-acceptance.md) |
+| T015 | done | [Phase 02 验收与回归测试](./tasks/task-015-phase-02-acceptance.md) |
 
 ## 当前进度
 
@@ -48,7 +48,8 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 - 已完成 T012：自动重试策略配置。
 - 已完成 T013：增强文件冲突预测。
 - 已完成 T014：Scheduler 策略集成与解释输出。
-- 下一步进入 T015：Phase 02 验收与回归测试。
+- 已完成 T015：Phase 02 验收与回归测试。
+- Phase 02 Enhanced Scheduling 已完成。
 
 ## 阶段完成标准
 
@@ -58,5 +59,5 @@ Phase 01 已经能生成合法 wave，并按依赖、并发上限、Agent 上限
 4. 失败处理能根据 failure type 和 retry policy 自动决定是否重试。
 5. 文件冲突预测支持精确文件、目录、glob 和未知文件风险。
 6. Scheduler 能解释任务入选或跳过的策略原因。
-7. Phase 01 的 43 个测试继续通过。
+7. Phase 01 的回归测试继续通过。
 8. Phase 02 新增策略测试和 e2e 验收测试通过。

@@ -109,3 +109,112 @@ test("recovers lost running sessions and preserves done tasks", async () => {
   const audit = await readFile(store.auditPath("wf_recovery"), "utf8");
   assert.match(audit, /WORKFLOW_RECOVERY/);
 });
+
+test("runs a Phase 02 enhanced scheduling flow", () => {
+  const phase02Plan = {
+    plan_id: "plan_phase_02_flow",
+    plan_type: "dag",
+    execution_policy: {
+      max_parallel_tasks: 3,
+      max_agents: 2,
+      scheduling: {
+        selection_order: "risk_aware",
+        prefer_low_risk_first: true,
+        explain_skipped_tasks: true
+      },
+      conflicts: {
+        mode: "directory",
+        directory_conflict_depth: 1,
+        unknown_files_policy: "allow"
+      },
+      retry: {
+        max_retries: 1,
+        retry_on: ["transient"],
+        manual_review_on_second_failure: true,
+        backoff: "none"
+      }
+    },
+    tasks: [
+      {
+        id: "T1",
+        title: "Low risk docs",
+        risk: "low",
+        expected_files: ["docs/readme.md"],
+        preferred_agent: "docs-agent",
+        required_capabilities: ["docs"]
+      },
+      {
+        id: "T2",
+        title: "High risk backend",
+        risk: "medium",
+        expected_files: ["src/server/a.ts"],
+        preferred_agent: "backend-agent",
+        required_capabilities: ["backend"]
+      },
+      {
+        id: "T3",
+        title: "Conflicting backend",
+        risk: "high",
+        expected_files: ["src/server/b.ts"],
+        preferred_agent: "backend-agent",
+        required_capabilities: ["backend"]
+      }
+    ]
+  } as const;
+  let state = createInitialWorkflowState("wf_phase_02_flow", loadPlan(phase02Plan), "2026-04-26T00:00:00.000Z");
+  state.agents = {
+    "docs-agent": {
+      agent_id: "docs-agent",
+      capabilities: ["docs"],
+      active_task_ids: [],
+      max_concurrent_tasks: 1,
+      session_id: "session_docs",
+      status: "idle"
+    },
+    "backend-agent": {
+      agent_id: "backend-agent",
+      capabilities: ["backend"],
+      active_task_ids: [],
+      max_concurrent_tasks: 1,
+      session_id: "session_backend",
+      status: "idle"
+    }
+  };
+
+  state = resolveDependencies(state).state;
+  let result = generateNextWave(state);
+  assert.deepEqual(result.wave?.tasks, ["T1", "T2"]);
+  assert.equal(result.decision.skipped_tasks[0]?.task_id, "T3");
+  assert.equal(result.decision.skipped_tasks[0]?.category, "file_conflict");
+
+  state = assignWorkers(state, result.wave!).state;
+  state = collectResult(state, {
+    task_id: "T1",
+    status: "completed",
+    summary: "Docs done."
+  }).state;
+  state = collectResult(state, {
+    task_id: "T2",
+    status: "failed",
+    summary: "Backend command timed out.",
+    failure_type: "transient"
+  }).state;
+
+  assert.equal(state.tasks.T2?.status, "ready");
+  assert.equal(state.tasks.T2?.retry_count, 1);
+
+  result = generateNextWave(state);
+  assert.deepEqual(result.wave?.tasks, ["T2"]);
+  state = assignWorkers(state, result.wave!).state;
+  state = collectResult(state, {
+    task_id: "T2",
+    status: "completed",
+    summary: "Backend done after retry."
+  }).state;
+  state = reviewWave(state, "wave_001").state;
+  state = reviewWave(state, "wave_002").state;
+
+  state = resolveDependencies(state).state;
+  result = generateNextWave(state);
+  assert.deepEqual(result.wave?.tasks, ["T3"]);
+});
