@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,20 @@
 
 - `src/memory/local_store.ts`
 - `tests/memory.test.ts`
+
+## 完成记录
+
+- 新增 `createLocalMemoryStore` 和 `LocalMemoryStore`。
+- 默认使用 `.annie/memory/records.jsonl`。
+- 支持 `append`、`list`、`findByCategory`。
+- `append` 按 `provenance.source_key` 去重，重复写入返回已有 record。
+- 文件不存在时返回空列表。
+- JSONL 读取和解析错误包装为 `TaskGraphSchedulerError`。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 111 passed
+```

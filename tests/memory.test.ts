@@ -1,6 +1,10 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
+  createLocalMemoryStore,
   extractExecutionMemoryCandidates,
   extractPreferenceMemoryCandidates,
   extractTemplateMemoryCandidates,
@@ -8,33 +12,34 @@ import {
   memoryConfidenceLevels
 } from "../src/index.js";
 import type { MemoryAdapter, MemoryCandidate, MemoryRecord } from "../src/index.js";
+import { TaskGraphSchedulerError } from "../src/errors.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
-test("constructs memory candidate and record models", () => {
-  const candidate: MemoryCandidate = {
-    category: "execution_result",
-    title: "Backend implementation completed",
-    summary: "Task T1 completed with tests.",
-    content: {
-      changed_files: ["src/backend.ts"],
-      tests_run: ["npm test"]
-    },
-    confidence: "high",
-    reason: "Task is done and its wave passed review.",
-    tags: ["execution", "backend"],
-    provenance: {
-      workflow_id: "wf_memory",
-      plan_id: "plan_memory",
-      wave_id: "wave_001",
-      task_id: "T1",
-      source: "workflow_state",
-      source_key: "wf_memory:wave_001:T1:execution_result",
-      created_at: "2026-04-27T00:00:00.000Z"
-    }
-  };
+const memoryCandidate: MemoryCandidate = {
+  category: "execution_result",
+  title: "Backend implementation completed",
+  summary: "Task T1 completed with tests.",
+  content: {
+    changed_files: ["src/backend.ts"],
+    tests_run: ["npm test"]
+  },
+  confidence: "high",
+  reason: "Task is done and its wave passed review.",
+  tags: ["execution", "backend"],
+  provenance: {
+    workflow_id: "wf_memory",
+    plan_id: "plan_memory",
+    wave_id: "wave_001",
+    task_id: "T1",
+    source: "workflow_state",
+    source_key: "wf_memory:wave_001:T1:execution_result",
+    created_at: "2026-04-27T00:00:00.000Z"
+  }
+};
 
+test("constructs memory candidate and record models", () => {
   const record: MemoryRecord = {
-    ...candidate,
+    ...memoryCandidate,
     id: "mem_wf_memory_wave_001_T1_execution_result",
     stored_at: "2026-04-27T00:01:00.000Z"
   };
@@ -99,6 +104,62 @@ test("memory adapter boundary does not require a remote service", async () => {
 test("exports stable memory enum values", () => {
   assert.deepEqual(memoryCategories, ["execution_result", "preference", "template_pattern"]);
   assert.deepEqual(memoryConfidenceLevels, ["low", "medium", "high"]);
+});
+
+test("createLocalMemoryStore returns empty records when file does not exist", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-memory-empty-"));
+  const store = createLocalMemoryStore(rootDir);
+
+  assert.deepEqual(await store.list(), []);
+  assert.deepEqual(await store.findByCategory("execution_result"), []);
+});
+
+test("createLocalMemoryStore appends and lists memory records", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-memory-append-"));
+  const store = createLocalMemoryStore(rootDir);
+
+  const record = await store.append(memoryCandidate, {
+    now: "2026-04-27T00:01:00.000Z"
+  });
+
+  assert.equal(record.id, "mem_wf_memory_wave_001_t1_execution_result");
+  assert.equal(record.stored_at, "2026-04-27T00:01:00.000Z");
+  assert.deepEqual(await store.list(), [record]);
+  assert.deepEqual(await store.list({ category: "execution_result" }), [record]);
+  assert.deepEqual(await store.list({ tag: "backend" }), [record]);
+  assert.deepEqual(await store.list({ workflow_id: "wf_memory" }), [record]);
+  assert.deepEqual(await store.findByCategory("preference"), []);
+});
+
+test("createLocalMemoryStore deduplicates records by source key", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-memory-dedupe-"));
+  const store = createLocalMemoryStore(rootDir);
+
+  const first = await store.append(memoryCandidate, {
+    now: "2026-04-27T00:01:00.000Z"
+  });
+  const second = await store.append({
+    ...memoryCandidate,
+    summary: "Changed summary should not create a duplicate."
+  }, {
+    now: "2026-04-27T00:02:00.000Z"
+  });
+
+  assert.deepEqual(second, first);
+  assert.equal((await store.list()).length, 1);
+});
+
+test("createLocalMemoryStore wraps invalid jsonl errors", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-memory-invalid-"));
+  const store = createLocalMemoryStore(rootDir);
+  await mkdir(store.memoryDir(), { recursive: true });
+  await writeFile(store.recordsPath(), "{not-json}\n", "utf8");
+
+  await assert.rejects(
+    () => store.list(),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "MEMORY_STORE_RECORD_INVALID"
+  );
 });
 
 test("extractExecutionMemoryCandidates extracts done tasks from passed waves", () => {
