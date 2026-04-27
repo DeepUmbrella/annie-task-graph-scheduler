@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { extractExecutionMemoryCandidates, memoryCategories, memoryConfidenceLevels } from "../src/index.js";
+import { extractExecutionMemoryCandidates, extractPreferenceMemoryCandidates, memoryCategories, memoryConfidenceLevels } from "../src/index.js";
 import type { MemoryAdapter, MemoryCandidate, MemoryRecord } from "../src/index.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
@@ -198,4 +198,89 @@ test("extractExecutionMemoryCandidates skips unfinished failed and unreviewed ta
   });
 
   assert.deepEqual(extractExecutionMemoryCandidates(state), []);
+});
+
+test("extractPreferenceMemoryCandidates extracts policy preferences", () => {
+  const state = createInitialWorkflowState("wf_preference_extract", loadPlan({
+    plan_id: "plan_preference_extract",
+    plan_type: "dag",
+    execution_policy: {
+      max_parallel_tasks: 2,
+      max_agents: 2,
+      scheduling: {
+        selection_order: "risk_aware",
+        prefer_low_risk_first: true
+      },
+      conflicts: {
+        mode: "directory",
+        directory_conflict_depth: 2
+      }
+    },
+    tasks: [
+      { id: "T1", title: "One" },
+      { id: "T2", title: "Two" }
+    ]
+  }), "2026-04-27T00:00:00.000Z");
+
+  const candidates = extractPreferenceMemoryCandidates(state, {
+    now: "2026-04-27T00:10:00.000Z"
+  });
+
+  assert.deepEqual(candidates.map((candidate) => candidate.provenance.source_key), [
+    "wf_preference_extract:preference:concurrency",
+    "wf_preference_extract:preference:conflict",
+    "wf_preference_extract:preference:risk"
+  ]);
+  assert.equal(candidates.find((candidate) => candidate.provenance.source_key.endsWith(":risk"))?.confidence, "high");
+  assert.deepEqual(candidates.find((candidate) => candidate.provenance.source_key.endsWith(":concurrency"))?.content, {
+    max_parallel_tasks: 2,
+    max_agents: 2,
+    max_tasks_per_agent: 1,
+    respect_preferred_agent: true
+  });
+  assert.deepEqual(candidates.find((candidate) => candidate.provenance.source_key.endsWith(":conflict"))?.content, {
+    same_file_conflict_policy: "serialize",
+    conflict_mode: "directory",
+    directory_conflict_depth: 2,
+    unknown_files_policy: "allow"
+  });
+});
+
+test("extractPreferenceMemoryCandidates extracts skipped reason signals without mutating state", () => {
+  const state = createInitialWorkflowState("wf_preference_skipped", loadPlan({
+    plan_id: "plan_preference_skipped",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      { id: "T1", title: "One" },
+      { id: "T2", title: "Two" }
+    ]
+  }), "2026-04-27T00:00:00.000Z");
+  state.waves.push({
+    id: "wave_001",
+    tasks: ["T1"],
+    status: "pending",
+    started_at: null,
+    completed_at: null,
+    review: null,
+    reason: "Test",
+    skipped_ready_tasks: [
+      {
+        task_id: "T2",
+        reason: "Skipped because exact file conflict on src/a.ts."
+      }
+    ]
+  });
+  const before = JSON.stringify(state);
+
+  const candidates = extractPreferenceMemoryCandidates(state, {
+    now: "2026-04-27T00:10:00.000Z"
+  });
+
+  assert.equal(JSON.stringify(state), before);
+  const conflict = candidates.find((candidate) => candidate.provenance.source_key === "wf_preference_skipped:preference:skipped-conflict");
+  assert.equal(conflict?.category, "preference");
+  assert.equal(conflict?.confidence, "medium");
+  assert.equal(conflict?.content.count, 1);
+  assert.deepEqual(conflict?.tags, ["preference", "scheduler", "conflict"]);
 });

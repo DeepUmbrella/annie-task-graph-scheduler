@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,21 @@
 - `src/memory/extractors.ts`
 - `src/models/plan.ts`
 - `tests/memory.test.ts`
+
+## 完成记录
+
+- 扩展 `src/memory/extractors.ts`。
+- 新增 `extractPreferenceMemoryCandidates`。
+- 从 ExecutionPolicy 提取 concurrency、risk、conflict preference candidates。
+- 从 wave skipped_ready_tasks 提取 conflict / risk / concurrency / agent 调度信号。
+- 仅生成候选，不修改 WorkflowState，不改变 plan schema。
+- 扩展 `tests/memory.test.ts` 覆盖 policy preference 和 skipped reason signal。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+105 passed
+```
