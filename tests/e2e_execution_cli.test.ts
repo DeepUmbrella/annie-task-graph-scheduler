@@ -137,3 +137,62 @@ test("CLI next-wave resolves dependencies and persists generated wave", async ()
   assert.equal(state.tasks.T3?.status, "pending");
   assert.deepEqual(state.waves.map((wave) => wave.id), ["wave_001"]);
 });
+
+test("CLI dispatch assigns wave tasks and writes audit events", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-dispatch-"));
+  const planPath = join(rootDir, "plan.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_dispatch",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Backend",
+        preferred_agent: "backend-agent"
+      }
+    ]
+  }), "utf8");
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_dispatch"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_dispatch"]);
+  const output = await runCli([
+    "dispatch",
+    "--root",
+    rootDir,
+    "--workflow",
+    "wf_dispatch",
+    "--wave",
+    "wave_001"
+  ]) as {
+    assignments: Array<{ task_id: string; assigned_to: string; decision: string }>;
+    audit_events: number;
+    state: { status: string; current_wave: string; wave_status: string };
+  };
+
+  assert.deepEqual(output.assignments, [
+    {
+      task_id: "T1",
+      assigned_to: "backend-agent",
+      decision: "preferred_agent_available"
+    }
+  ]);
+  assert.equal(output.audit_events, 2);
+  assert.deepEqual(output.state, {
+    status: "running",
+    current_wave: "wave_001",
+    wave_status: "running"
+  });
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_dispatch", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string; assigned_to: string | null }>;
+    waves: Array<{ id: string; status: string }>;
+  };
+  assert.equal(state.tasks.T1?.status, "running");
+  assert.equal(state.tasks.T1?.assigned_to, "backend-agent");
+  assert.equal(state.waves[0]?.status, "running");
+
+  const audit = await readFile(join(rootDir, "workflows", "wf_dispatch", "audit.jsonl"), "utf8");
+  assert.match(audit, /WORKER_ASSIGNED/);
+  assert.match(audit, /TASK_STATUS_CHANGED/);
+});

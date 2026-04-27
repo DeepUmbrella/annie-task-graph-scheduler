@@ -7,6 +7,7 @@ import { exportVisualization, type VisualizationExport } from "./visualization/p
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
+import { assignWorkers } from "./execution/worker_pool.js";
 import { resolveDependencies } from "./scheduler/dependency_resolver.js";
 import { generateNextWave } from "./scheduler/scheduler.js";
 import {
@@ -26,6 +27,7 @@ if (!command || command === "--help" || command === "-h") {
 Commands:
   init --plan <plan.json> [--workflow <workflow_id>]
   next-wave --workflow <workflow_id>
+  dispatch --workflow <workflow_id> --wave <wave_id>
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
@@ -39,7 +41,6 @@ Commands:
   queue plan [--project <project_id> --workflow <workflow_id>]
 
 Commands planned for future phases:
-  dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
 `);
@@ -52,6 +53,8 @@ if (command === "init") {
   await runStatus();
 } else if (command === "next-wave") {
   await runNextWave();
+} else if (command === "dispatch") {
+  await runDispatch();
 } else if (command === "recover") {
   await runRecover();
 } else if (command === "visualize") {
@@ -159,6 +162,53 @@ async function runNextWave(): Promise<void> {
       wave: nextWave.wave,
       skipped_ready_tasks: nextWave.skipped_ready_tasks,
       decision: nextWave.decision
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runDispatch(): Promise<void> {
+  const workflowId = getArg("--workflow");
+  const waveId = getArg("--wave");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+  if (!waveId) {
+    console.error("Missing required --wave <wave_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const store = createCliStateStore();
+    const state = await store.loadState(workflowId);
+    const wave = state.waves.find((candidate) => candidate.id === waveId);
+
+    if (!wave) {
+      throw new TaskGraphSchedulerError("Wave does not exist.", "WAVE_NOT_FOUND", {
+        workflow_id: workflowId,
+        wave_id: waveId
+      });
+    }
+
+    const result = assignWorkers(state, wave);
+    await store.saveState(result.state);
+    for (const event of result.audit_events) {
+      await store.appendAuditEvent(event);
+    }
+
+    console.log(JSON.stringify({
+      workflow_id: result.state.workflow_id,
+      wave_id: waveId,
+      assignments: result.assignments,
+      audit_events: result.audit_events.length,
+      state: {
+        status: result.state.status,
+        current_wave: result.state.current_wave,
+        wave_status: result.state.waves.find((candidate) => candidate.id === waveId)?.status ?? null
+      }
     }, null, 2));
   } catch (error) {
     printCliError(error);
