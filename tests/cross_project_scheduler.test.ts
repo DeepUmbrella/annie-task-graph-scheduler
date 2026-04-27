@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { TaskGraphSchedulerError, buildGlobalTaskQueue, planCrossProjectDispatch } from "../src/index.js";
+import {
+  TaskGraphSchedulerError,
+  buildGlobalAgentPool,
+  buildGlobalTaskQueue,
+  canGlobalAgentRunTask,
+  planCrossProjectDispatch
+} from "../src/index.js";
 import type { GlobalAgentRuntimeState, GlobalTaskQueueItem, ProjectRef, ProjectWorkflowRef, WorkflowState } from "../src/index.js";
 import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
@@ -261,4 +267,73 @@ test("planCrossProjectDispatch simulates capacity without mutating inputs", () =
   assert.equal(JSON.stringify(state), stateBefore);
   assert.equal(JSON.stringify(agents), agentsBefore);
   assert.equal(plan.decision.agent_load_summary[0]?.planned_task_count, 1);
+});
+
+test("buildGlobalAgentPool merges same named agents across workflows", () => {
+  const pool = buildGlobalAgentPool([
+    {
+      project_id: "project_api",
+      workflow_id: "wf_api",
+      agents: {
+        "shared-agent": {
+          agent_id: "shared-agent",
+          capabilities: ["backend"],
+          active_task_ids: ["T1"],
+          max_concurrent_tasks: 2,
+          session_id: "session_api",
+          status: "busy"
+        }
+      }
+    },
+    {
+      project_id: "project_docs",
+      workflow_id: "wf_docs",
+      agents: {
+        "shared-agent": {
+          agent_id: "shared-agent",
+          capabilities: ["writing"],
+          active_task_ids: ["T2"],
+          max_concurrent_tasks: 2,
+          session_id: "session_docs",
+          status: "idle"
+        },
+        "offline-agent": {
+          agent_id: "offline-agent",
+          capabilities: ["backend"],
+          active_task_ids: [],
+          max_concurrent_tasks: 1,
+          session_id: null,
+          status: "offline"
+        }
+      }
+    }
+  ]);
+
+  assert.equal(pool.totals.total_agents, 2);
+  assert.equal(pool.totals.max_concurrent_tasks, 5);
+  assert.equal(pool.totals.active_global_task_count, 2);
+  assert.equal(pool.totals.capacity_remaining, 2);
+
+  const sharedAgent = pool.agents.find((agent) => agent.agent_id === "shared-agent");
+  assert.deepEqual(sharedAgent?.capabilities, ["backend", "writing"]);
+  assert.deepEqual(sharedAgent?.project_ids, ["project_api", "project_docs"]);
+  assert.deepEqual(sharedAgent?.workflow_ids, ["wf_api", "wf_docs"]);
+  assert.deepEqual(sharedAgent?.active_global_task_ids, [
+    "project_api:wf_api:T1",
+    "project_docs:wf_docs:T2"
+  ]);
+  assert.equal(sharedAgent?.max_concurrent_tasks, 4);
+  assert.equal(sharedAgent?.capacity_remaining, 2);
+  assert.equal(sharedAgent?.status, "busy");
+});
+
+test("canGlobalAgentRunTask follows worker pool capability and capacity semantics", () => {
+  const onlineAgent = createAgent("backend-agent", ["backend"]);
+  const offlineAgent = { ...createAgent("offline-agent", ["backend"]), status: "offline" as const };
+  const fullAgent = createAgent("full-agent", ["backend"], ["project:wf:T1"]);
+
+  assert.equal(canGlobalAgentRunTask(onlineAgent, { required_capabilities: ["backend"] }), true);
+  assert.equal(canGlobalAgentRunTask(onlineAgent, { required_capabilities: ["frontend"] }), false);
+  assert.equal(canGlobalAgentRunTask(offlineAgent, { required_capabilities: ["backend"] }), false);
+  assert.equal(canGlobalAgentRunTask(fullAgent, { required_capabilities: ["backend"] }), false);
 });
