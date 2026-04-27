@@ -177,6 +177,14 @@ Phase 04:
 
 Phase 05 planned:
 
+- Cross-project scheduling model
+- Local Project Registry
+- Global ready task queue builder
+- Cross-project dispatch planner
+- Global Agent pool view
+- CLI project / queue commands
+- Phase 05 acceptance coverage
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -224,6 +232,7 @@ Phase 01: done
 Phase 02: done
 Phase 03: done
 Phase 04: done
+Phase 05: todo
 npm run typecheck: pass
 npm run build: pass
 npm test: 73 passed
