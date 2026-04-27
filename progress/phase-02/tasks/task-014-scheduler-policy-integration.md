@@ -2,7 +2,27 @@
 
 ## 状态
 
-`todo`
+`done`
+
+## 完成记录
+
+- 新增 `WaveDecision`。
+- Scheduler 输出 `decision`。
+- `decision` 包含 selected tasks、skipped tasks、policy applied、risk summary、agent load summary、conflict summary。
+- skipped task 增加 category。
+- wave reason 包含策略摘要。
+- 保持原有 `wave` 和 `skipped_ready_tasks` 兼容输出。
+- 补充结构化决策输出测试。
+
+## 验证
+
+```txt
+npm run typecheck
+npm run build
+npm test
+```
+
+全部通过。
 
 ## 目标
 
@@ -42,4 +62,3 @@ WaveDecision
 - `src/scheduler/conflict_detector.ts`
 - `src/execution/worker_pool.ts`
 - `tests/scheduler.test.ts`
-

@@ -9,6 +9,22 @@ export interface NextWaveResult {
   ready_task_ids: string[];
   skipped_ready_tasks: Array<{ task_id: string; reason: string }>;
   risk_scores: Record<string, RiskScore>;
+  decision: WaveDecision;
+}
+
+export interface WaveDecision {
+  selected_tasks: string[];
+  skipped_tasks: Array<{ task_id: string; reason: string; category: string }>;
+  policy_applied: {
+    selection_order: string;
+    max_parallel_tasks: number;
+    max_agents: number;
+    high_risk_parallel_limit: number;
+    conflict_mode: string;
+  };
+  risk_summary: Array<{ task_id: string; score: number; level: string }>;
+  agent_load_summary: Array<{ agent_id: string; active_task_count: number; max_concurrent_tasks: number; status: string }>;
+  conflict_summary: Array<{ task_id: string; reason: string }>;
 }
 
 export function generateNextWave(state: WorkflowState): NextWaveResult {
@@ -21,16 +37,17 @@ export function generateNextWave(state: WorkflowState): NextWaveResult {
     state
   );
   const selectedTasks: Task[] = [];
-  const skippedReadyTasks: Array<{ task_id: string; reason: string }> = [];
+  const skippedReadyTasks: Array<{ task_id: string; reason: string; category: string }> = [];
   const agentKeys = new Set<string>();
 
   for (const task of readyTasks) {
-    const skipReason = getSkipReason(task, selectedTasks, agentKeys, state, riskScores);
+    const skipDecision = getSkipDecision(task, selectedTasks, agentKeys, state, riskScores);
 
-    if (skipReason) {
+    if (skipDecision) {
       skippedReadyTasks.push({
         task_id: task.id,
-        reason: skipReason
+        reason: skipDecision.reason,
+        category: skipDecision.category
       });
       continue;
     }
@@ -39,12 +56,15 @@ export function generateNextWave(state: WorkflowState): NextWaveResult {
     agentKeys.add(getAgentKey(task));
   }
 
+  const decision = createWaveDecision(selectedTasks, skippedReadyTasks, riskScores, state);
+
   if (selectedTasks.length === 0) {
     return {
       wave: null,
       ready_task_ids: readyTasks.map((task) => task.id),
-      skipped_ready_tasks: skippedReadyTasks,
-      risk_scores: riskScores
+      skipped_ready_tasks: skippedReadyTasks.map(({ task_id, reason }) => ({ task_id, reason })),
+      risk_scores: riskScores,
+      decision
     };
   }
 
@@ -55,45 +75,66 @@ export function generateNextWave(state: WorkflowState): NextWaveResult {
     started_at: null,
     completed_at: null,
     review: null,
-    reason: "Ready tasks selected under dependency, concurrency, agent, risk score, and file-conflict constraints.",
-    skipped_ready_tasks: skippedReadyTasks
+    reason: `Selected ${selectedTasks.length} task(s) using ${state.execution_policy.scheduling.selection_order} scheduling, conflict mode ${state.execution_policy.conflicts.mode}, and high-risk limit ${state.execution_policy.risk.high_risk_parallel_limit}.`,
+    skipped_ready_tasks: skippedReadyTasks.map(({ task_id, reason }) => ({ task_id, reason }))
   };
 
   return {
     wave,
     ready_task_ids: readyTasks.map((task) => task.id),
-    skipped_ready_tasks: skippedReadyTasks,
-    risk_scores: riskScores
+    skipped_ready_tasks: skippedReadyTasks.map(({ task_id, reason }) => ({ task_id, reason })),
+    risk_scores: riskScores,
+    decision
   };
 }
 
-function getSkipReason(
+interface SkipDecision {
+  reason: string;
+  category: string;
+}
+
+function getSkipDecision(
   task: Task,
   selectedTasks: Task[],
   agentKeys: Set<string>,
   state: WorkflowState,
   riskScores: Record<string, RiskScore>
-): string | null {
+): SkipDecision | null {
   if (selectedTasks.length >= state.execution_policy.max_parallel_tasks) {
-    return `Skipped because max_parallel_tasks=${state.execution_policy.max_parallel_tasks} has been reached.`;
+    return {
+      category: "parallel_limit",
+      reason: `Skipped because max_parallel_tasks=${state.execution_policy.max_parallel_tasks} has been reached.`
+    };
   }
 
   if (selectedTasks.length > 0 && !task.can_parallel) {
-    return "Skipped because task is marked can_parallel=false.";
+    return {
+      category: "parallel_policy",
+      reason: "Skipped because task is marked can_parallel=false."
+    };
   }
 
   if (selectedTasks.some((selectedTask) => !selectedTask.can_parallel)) {
-    return "Skipped because current wave already contains a non-parallel task.";
+    return {
+      category: "parallel_policy",
+      reason: "Skipped because current wave already contains a non-parallel task."
+    };
   }
 
   const nextAgentKey = getAgentKey(task);
   if (!agentKeys.has(nextAgentKey) && agentKeys.size >= state.execution_policy.max_agents) {
-    return `Skipped because max_agents=${state.execution_policy.max_agents} has been reached.`;
+    return {
+      category: "agent_limit",
+      reason: `Skipped because max_agents=${state.execution_policy.max_agents} has been reached.`
+    };
   }
 
   const fileConflictReason = getFileConflictReason(task, selectedTasks, state.execution_policy.conflicts);
   if (fileConflictReason) {
-    return fileConflictReason;
+    return {
+      category: "file_conflict",
+      reason: fileConflictReason
+    };
   }
 
   if (isHighRiskScore(riskScores[task.id])) {
@@ -102,11 +143,47 @@ function getSkipReason(
     ).length;
 
     if (selectedHighRiskCount >= state.execution_policy.risk.high_risk_parallel_limit) {
-      return `Skipped because risk score ${riskScores[task.id].score} exceeds high-risk parallel limit ${state.execution_policy.risk.high_risk_parallel_limit}.`;
+      return {
+        category: "risk_limit",
+        reason: `Skipped because risk score ${riskScores[task.id].score} exceeds high-risk parallel limit ${state.execution_policy.risk.high_risk_parallel_limit}.`
+      };
     }
   }
 
   return null;
+}
+
+function createWaveDecision(
+  selectedTasks: Task[],
+  skippedTasks: Array<{ task_id: string; reason: string; category: string }>,
+  riskScores: Record<string, RiskScore>,
+  state: WorkflowState
+): WaveDecision {
+  return {
+    selected_tasks: selectedTasks.map((task) => task.id),
+    skipped_tasks: skippedTasks,
+    policy_applied: {
+      selection_order: state.execution_policy.scheduling.selection_order,
+      max_parallel_tasks: state.execution_policy.max_parallel_tasks,
+      max_agents: state.execution_policy.max_agents,
+      high_risk_parallel_limit: state.execution_policy.risk.high_risk_parallel_limit,
+      conflict_mode: state.execution_policy.conflicts.mode
+    },
+    risk_summary: selectedTasks.map((task) => ({
+      task_id: task.id,
+      score: riskScores[task.id].score,
+      level: riskScores[task.id].level
+    })),
+    agent_load_summary: Object.values(state.agents).map((agent) => ({
+      agent_id: agent.agent_id,
+      active_task_count: agent.active_task_ids.length,
+      max_concurrent_tasks: agent.max_concurrent_tasks,
+      status: agent.status
+    })),
+    conflict_summary: skippedTasks
+      .filter((task) => task.category === "file_conflict")
+      .map(({ task_id, reason }) => ({ task_id, reason }))
+  };
 }
 
 function sortReadyTasks(

@@ -50,6 +50,7 @@ test("puts independent ready tasks into the same wave", () => {
   assert.deepEqual(result.wave?.tasks, ["T1", "T2"]);
   assert.equal(result.wave?.id, "wave_001");
   assert.deepEqual(result.skipped_ready_tasks, []);
+  assert.deepEqual(result.decision.selected_tasks, ["T1", "T2"]);
 });
 
 test("does not schedule non-ready tasks", () => {
@@ -122,6 +123,7 @@ test("respects max_agents using preferred agent hints", () => {
   assert.deepEqual(result.wave?.tasks, ["T1", "T2"]);
   assert.equal(result.skipped_ready_tasks[0]?.task_id, "T3");
   assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /max_agents=2/);
+  assert.equal(result.decision.skipped_tasks[0]?.category, "agent_limit");
 });
 
 test("returns null wave when no tasks are ready", () => {
@@ -206,6 +208,7 @@ test("detects directory conflicts when directory mode is enabled", () => {
   assert.deepEqual(result.wave?.tasks, ["T1"]);
   assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
   assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /directory file conflict/);
+  assert.equal(result.decision.conflict_summary[0]?.task_id, "T2");
 });
 
 test("detects glob conflicts when glob mode is enabled", () => {
@@ -240,4 +243,29 @@ test("serializes unknown expected files when policy requires it", () => {
   assert.deepEqual(result.wave?.tasks, ["T1"]);
   assert.equal(result.skipped_ready_tasks[0]?.task_id, "T2");
   assert.match(result.skipped_ready_tasks[0]?.reason ?? "", /unknown_files/);
+});
+
+test("returns structured wave decision for policy observability", () => {
+  const state = createState([
+    { id: "T1", title: "One", risk: "high" },
+    { id: "T2", title: "Two", risk: "critical" }
+  ]);
+  state.agents = {
+    "backend-agent": {
+      agent_id: "backend-agent",
+      capabilities: ["backend"],
+      active_task_ids: ["existing-task"],
+      max_concurrent_tasks: 2,
+      session_id: "session_backend",
+      status: "busy"
+    }
+  };
+
+  const result = generateNextWave(state);
+
+  assert.equal(result.decision.policy_applied.high_risk_parallel_limit, 1);
+  assert.deepEqual(result.decision.selected_tasks, ["T1"]);
+  assert.equal(result.decision.skipped_tasks[0]?.category, "risk_limit");
+  assert.equal(result.decision.risk_summary[0]?.task_id, "T1");
+  assert.equal(result.decision.agent_load_summary[0]?.agent_id, "backend-agent");
 });
