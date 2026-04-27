@@ -175,7 +175,7 @@ Phase 04:
 - CLI template list/show/instantiate commands
 - Phase 04 acceptance coverage
 
-Phase 05 planned:
+Phase 05 in progress:
 
 - Cross-project scheduling model
 - Local Project Registry
@@ -232,8 +232,8 @@ Phase 01: done
 Phase 02: done
 Phase 03: done
 Phase 04: done
-Phase 05: todo
+Phase 05: in_progress, T028 done, next T029
 npm run typecheck: pass
 npm run build: pass
-npm test: 73 passed
+npm test: 75 passed
 ```

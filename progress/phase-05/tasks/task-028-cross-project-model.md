@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -31,3 +31,17 @@
 - `src/index.ts`
 - `tests/cross_project_scheduler.test.ts`
 
+## 完成记录
+
+- 新增 `src/models/project.ts`，定义 ProjectRef、ProjectWorkflowRef、GlobalTaskQueueItem、ProjectPriority、UserPriority、GlobalAgentRuntimeState。
+- 从 `src/index.ts` 导出跨项目模型。
+- 新增 `tests/project_model.test.ts`，覆盖跨项目模型构造与 priority 常量导出。
+
+## 验证结果
+
+```txt
+npm run typecheck
+npm run build
+npm test
+75 passed
+```
