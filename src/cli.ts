@@ -3,6 +3,8 @@
 import { createStateStore } from "./storage/state_store.js";
 import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
+import { createBuiltinRegistry } from "./templates/index.js";
+import { instantiateTemplate } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
 
 const command = process.argv[2];
@@ -14,6 +16,9 @@ Commands:
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
+  template list
+  template show --template <template_id>
+  template instantiate --template <template_id> --plan-id <plan_id>
 
 Commands planned for future phases:
   init --plan <plan.json>
@@ -31,6 +36,8 @@ if (command === "status") {
   await runRecover();
 } else if (command === "visualize") {
   await runVisualize();
+} else if (command === "template") {
+  await runTemplate();
 } else {
   console.error(`Command "${command}" is not implemented yet.`);
   process.exit(1);
@@ -108,6 +115,55 @@ async function runVisualize(): Promise<void> {
     }
   } catch (error) {
     printCliError(error);
+  }
+}
+
+async function runTemplate(): Promise<void> {
+  const subcommand = process.argv[3];
+  const registry = createBuiltinRegistry();
+
+  if (subcommand === "list") {
+    const templates = registry.list();
+    for (const t of templates) {
+      console.log(`${t.id}  ${t.name}  [${t.tags.join(", ")}]`);
+    }
+  } else if (subcommand === "show") {
+    const templateId = getArg("--template");
+    if (!templateId) {
+      console.error("Missing required --template <template_id>.");
+      process.exit(1);
+    }
+    const template = registry.get(templateId);
+    if (!template) {
+      console.error(`Template "${templateId}" not found.`);
+      process.exit(1);
+    }
+    console.log(JSON.stringify(template, null, 2));
+  } else if (subcommand === "instantiate") {
+    const templateId = getArg("--template");
+    const planId = getArg("--plan-id");
+    if (!templateId) {
+      console.error("Missing required --template <template_id>.");
+      process.exit(1);
+    }
+    if (!planId) {
+      console.error("Missing required --plan-id <plan_id>.");
+      process.exit(1);
+    }
+    const template = registry.get(templateId);
+    if (!template) {
+      console.error(`Template "${templateId}" not found.`);
+      process.exit(1);
+    }
+    try {
+      const loaded = instantiateTemplate(template, { plan_id: planId });
+      console.log(JSON.stringify(loaded.plan, null, 2));
+    } catch (error) {
+      printCliError(error);
+    }
+  } else {
+    console.error(`Unknown template subcommand "${subcommand}". Use list, show, or instantiate.`);
+    process.exit(1);
   }
 }
 

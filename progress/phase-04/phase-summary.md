@@ -31,7 +31,7 @@
 | T023 | done | [Template 模型定义](./tasks/task-023-template-model.md) |
 | T024 | done | [内置模板与注册机制](./tasks/task-024-builtin-templates.md) |
 | T025 | done | [从模板创建 Plan](./tasks/task-025-template-instantiation.md) |
-| T026 | todo | [CLI template 命令](./tasks/task-026-cli-template.md) |
+| T026 | done | [CLI template 命令](./tasks/task-026-cli-template.md) |
 | T027 | todo | [Phase 04 验收测试](./tasks/task-027-phase-04-acceptance.md) |
 
 ## 当前进度
@@ -41,7 +41,8 @@
 - 已完成 T023：Template 模型定义。
 - 已完成 T024：内置模板与注册机制。
 - 已完成 T025：从模板创建 Plan。
-- 下一步进入 T026：CLI template 命令。
+- 已完成 T026：CLI template 命令。
+- 下一步进入 T027：Phase 04 验收测试。
 
 ## 阶段完成标准
 
