@@ -22,7 +22,7 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 |---|---|---|
 | T053 | done | [Plan handoff validation CLI](./tasks/task-053-plan-handoff-validation-cli.md) |
 | T054 | done | [Workflow execution report](./tasks/task-054-workflow-execution-report.md) |
-| T055 | todo | [Handoff examples and docs](./tasks/task-055-handoff-examples-docs.md) |
+| T055 | done | [Handoff examples and docs](./tasks/task-055-handoff-examples-docs.md) |
 | T056 | todo | [Phase 09 验收测试](./tasks/task-056-phase-09-acceptance.md) |
 
 ## 当前进度
@@ -31,7 +31,8 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 - Phase 09 已规划。
 - 已完成 T053：Plan handoff validation CLI。
 - 已完成 T054：Workflow execution report。
-- 下一步进入 T055：Handoff examples and docs。
+- 已完成 T055：Handoff examples and docs。
+- 下一步进入 T056：Phase 09 验收测试。
 
 ## 阶段完成标准
 

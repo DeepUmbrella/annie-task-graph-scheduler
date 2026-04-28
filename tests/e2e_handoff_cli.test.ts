@@ -10,6 +10,7 @@ import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loa
 
 const execFileAsync = promisify(execFile);
 const cliPath = join(process.cwd(), "dist", "src", "cli.js");
+const handoffExamplePath = join(process.cwd(), "examples", "handoff", "writing-plan-handoff.json");
 
 async function runCli(args: string[]): Promise<unknown> {
   const result = await execFileAsync(process.execPath, [cliPath, ...args]);
@@ -124,6 +125,22 @@ test("plan validate supports structured JSON errors", async () => {
       return true;
     }
   );
+});
+
+test("plan validate accepts the documented handoff example", async () => {
+  const output = await runCli(["plan", "validate", "--plan", handoffExamplePath]) as {
+    valid: boolean;
+    plan_id: string;
+    task_count: number;
+    topological_order: string[];
+    required_capabilities: string[];
+  };
+
+  assert.equal(output.valid, true);
+  assert.equal(output.plan_id, "plan_handoff_example");
+  assert.equal(output.task_count, 4);
+  assert.deepEqual(output.topological_order, ["T1", "T2", "T3", "T4"]);
+  assert.deepEqual(output.required_capabilities, ["architecture", "backend", "docs", "test"]);
 });
 
 test("report outputs workflow execution handoff report", async () => {

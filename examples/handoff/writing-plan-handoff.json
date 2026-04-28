@@ -1,0 +1,77 @@
+{
+  "plan_id": "plan_handoff_example",
+  "plan_type": "dag",
+  "execution_policy": {
+    "max_parallel_tasks": 3,
+    "max_agents": 3,
+    "same_file_conflict_policy": "serialize",
+    "review_after_each_wave": true,
+    "stop_on_critical_failure": true,
+    "scheduling": {
+      "selection_order": "risk_aware",
+      "prefer_low_risk_first": true
+    },
+    "conflicts": {
+      "mode": "exact",
+      "unknown_files_policy": "serialize"
+    },
+    "retry": {
+      "max_retries": 1,
+      "retry_on": ["transient"]
+    }
+  },
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "Define handoff contract",
+      "description": "Define the local workflow handoff contract and stable fields.",
+      "depends_on": [],
+      "can_parallel": false,
+      "risk": "medium",
+      "expected_files": [
+        "docs/workflow_handoff_contract.md"
+      ],
+      "required_capabilities": ["architecture", "docs"],
+      "preferred_agent": "docs-agent"
+    },
+    {
+      "id": "T2",
+      "title": "Implement validation entrypoint",
+      "description": "Expose plan validation for WritingPlansWorkflow output.",
+      "depends_on": ["T1"],
+      "can_parallel": true,
+      "risk": "medium",
+      "expected_files": [
+        "src/cli.ts"
+      ],
+      "required_capabilities": ["backend"],
+      "preferred_agent": "backend-agent"
+    },
+    {
+      "id": "T3",
+      "title": "Implement execution report",
+      "description": "Expose a structured report for ExecutionWorkflow and Delivery.",
+      "depends_on": ["T1"],
+      "can_parallel": true,
+      "risk": "medium",
+      "expected_files": [
+        "src/reporting/execution_report.ts"
+      ],
+      "required_capabilities": ["backend"],
+      "preferred_agent": "backend-agent"
+    },
+    {
+      "id": "T4",
+      "title": "Validate handoff e2e",
+      "description": "Run handoff validation and report tests.",
+      "depends_on": ["T2", "T3"],
+      "can_parallel": false,
+      "risk": "low",
+      "expected_files": [
+        "tests/e2e_handoff_cli.test.ts"
+      ],
+      "required_capabilities": ["test"],
+      "preferred_agent": "test-agent"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,18 @@
 - `docs/*`
 - `examples/*`
 - `tests/e2e_handoff_cli.test.ts`
+
+## 完成记录
+
+- 新增 `examples/handoff/writing-plan-handoff.json`。
+- 新增 `docs/workflow_handoff_contract.md`，说明上游 DAG 输入、`plan validate`、执行入口和 `report` 输出。
+- 明确真实 Annie Workflow System API 尚未接入。
+- 增加 e2e 测试确认文档示例可被 `plan validate` 通过。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 123 passed
+```
