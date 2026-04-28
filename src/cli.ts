@@ -4,6 +4,7 @@ import { readFile } from "node:fs/promises";
 import { createStateStore } from "./storage/state_store.js";
 import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
+import { createWorkflowExecutionReport } from "./reporting/index.js";
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import type { LoadedPlan } from "./validation/plan_loader.js";
@@ -46,6 +47,7 @@ Commands:
   status --workflow <workflow_id>
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
+  report --workflow <workflow_id>
   template list
   template show --template <template_id>
   template instantiate --template <template_id> --plan-id <plan_id>
@@ -82,6 +84,8 @@ if (command === "init") {
   await runRecover();
 } else if (command === "visualize") {
   await runVisualize();
+} else if (command === "report") {
+  await runReport();
 } else if (command === "template") {
   await runTemplate();
 } else if (command === "project") {
@@ -371,6 +375,22 @@ async function runVisualize(): Promise<void> {
       console.error(`${result.error.code}: ${result.error.message}`);
       process.exit(1);
     }
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runReport(): Promise<void> {
+  const workflowId = getArg("--workflow");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const state = await createCliStateStore().loadState(workflowId);
+    console.log(JSON.stringify(createWorkflowExecutionReport(state), null, 2));
   } catch (error) {
     printCliError(error);
   }

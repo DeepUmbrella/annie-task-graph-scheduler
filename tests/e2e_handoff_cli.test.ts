@@ -5,6 +5,8 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { createStateStore } from "../src/storage/state_store.js";
+import { createInitialWorkflowState, loadPlan } from "../src/validation/plan_loader.js";
 
 const execFileAsync = promisify(execFile);
 const cliPath = join(process.cwd(), "dist", "src", "cli.js");
@@ -122,4 +124,81 @@ test("plan validate supports structured JSON errors", async () => {
       return true;
     }
   );
+});
+
+test("report outputs workflow execution handoff report", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-handoff-report-"));
+  const store = createStateStore(rootDir);
+  const state = createInitialWorkflowState("wf_handoff_report", loadPlan({
+    plan_id: "plan_handoff_report",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Complete report"
+      },
+      {
+        id: "T2",
+        title: "Blocked delivery",
+        depends_on: ["T1"]
+      }
+    ]
+  }), "2026-04-28T00:00:00.000Z");
+  state.status = "blocked";
+  state.updated_at = "2026-04-28T00:20:00.000Z";
+  state.tasks.T1!.status = "failed";
+  state.tasks.T1!.failure_type = "implementation";
+  state.tasks.T1!.failure_reason = "Report failed.";
+  state.tasks.T2!.status = "blocked";
+  state.tasks.T2!.blocked_reason = "Blocked by dependency T1.";
+  state.waves.push({
+    id: "wave_001",
+    tasks: ["T1"],
+    status: "failed",
+    started_at: "2026-04-28T00:01:00.000Z",
+    completed_at: "2026-04-28T00:02:00.000Z",
+    review: {
+      status: "failed",
+      completed_tasks: [],
+      failed_tasks: ["T1"],
+      conflicts: [],
+      allow_next_wave: false
+    },
+    reason: "Report wave",
+    skipped_ready_tasks: []
+  });
+  await store.saveState(state);
+
+  const output = await runCli(["report", "--root", rootDir, "--workflow", "wf_handoff_report"]) as {
+    workflow_id: string;
+    plan_id: string;
+    status: string;
+    task_summary: { total: number; failed: number; blocked: number };
+    wave_summary: { reviews: Array<{ wave_id: string; status: string; allow_next_wave: boolean }> };
+    failures: Array<{ task_id: string; status: string }>;
+    handoff: { source: string; target: string; state_updated_at: string };
+  };
+
+  assert.equal(output.workflow_id, "wf_handoff_report");
+  assert.equal(output.plan_id, "plan_handoff_report");
+  assert.equal(output.status, "blocked");
+  assert.equal(output.task_summary.total, 2);
+  assert.equal(output.task_summary.failed, 1);
+  assert.equal(output.task_summary.blocked, 1);
+  assert.deepEqual(output.wave_summary.reviews, [{
+    wave_id: "wave_001",
+    status: "failed",
+    allow_next_wave: false,
+    completed_tasks: [],
+    failed_tasks: ["T1"],
+    conflicts: []
+  }]);
+  assert.deepEqual(output.failures.map((failure) => `${failure.task_id}:${failure.status}`), [
+    "T1:failed",
+    "T2:blocked"
+  ]);
+  assert.equal(output.handoff.source, "TaskGraphScheduler");
+  assert.equal(output.handoff.target, "ExecutionWorkflow");
+  assert.equal(output.handoff.state_updated_at, "2026-04-28T00:20:00.000Z");
 });

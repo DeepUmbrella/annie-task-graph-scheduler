@@ -39,7 +39,7 @@ progress/
 
 当前下一阶段：
 
-Phase 09 Workflow Handoff Contract 正在推进。T053 已完成，下一步进入 T054。
+Phase 09 Workflow Handoff Contract 正在推进。T053-T054 已完成，下一步进入 T055。
 
 ## 更新规则
 
@@ -89,5 +89,5 @@ npm test
 当前基线：
 
 ```txt
-120 passed
+122 passed
 ```

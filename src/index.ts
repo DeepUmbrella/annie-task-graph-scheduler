@@ -25,3 +25,4 @@ export * from "./communication/protocol_validator.js";
 export * from "./communication/openclaw_adapter.js";
 export * from "./storage/recovery_manager.js";
 export * from "./visualization/index.js";
+export * from "./reporting/index.js";
