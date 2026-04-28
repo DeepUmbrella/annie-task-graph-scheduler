@@ -210,6 +210,13 @@ Phase 08:
 - MessageBus / MailboxStore recovery hardening
 - PRD hardening acceptance coverage
 
+Phase 09 planned:
+
+- Plan handoff validation CLI
+- Workflow execution report
+- Handoff examples and docs
+- Workflow handoff acceptance coverage
+
 ## Important Behavioral Constraints
 
 - StateStore is the source of truth for workflow state.
@@ -261,6 +268,7 @@ Phase 05: done
 Phase 06: done
 Phase 07: done
 Phase 08: done
+Phase 09: planned, next T053
 npm run typecheck: pass
 npm run build: pass
 npm test: 118 passed
