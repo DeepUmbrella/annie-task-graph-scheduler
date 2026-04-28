@@ -26,9 +26,10 @@ It turns a `WritingPlansWorkflow` DAG plan into safe execution waves with:
 Read these first:
 
 1. `docs/annie_task_graph_scheduler_prd (1).md`
-2. `docs/task_graph_scheduler_implementation_plan.md`
-3. `progress/README.md`
-4. Latest phase summary under `progress/phase-XX/phase-summary.md`
+2. `docs/multi_agent_autonomous_workflow_prd.md`
+3. `docs/task_graph_scheduler_implementation_plan.md`
+4. `progress/README.md`
+5. Latest phase summary under `progress/phase-XX/phase-summary.md`
 
 Progress files are part of the product process, not optional notes. For detailed progress update rules, use `progress/README.md`.
 
@@ -216,6 +217,14 @@ Phase 09:
 - Workflow execution report
 - Handoff examples and docs
 - Workflow handoff acceptance coverage
+
+Next product direction:
+
+- Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
+- Team lead/controller is a normal team member in `agents[]`
+- Team agents can communicate with same-team peers through MessageBus/Mailbox
+- Per-agent collaboration allowlists are not part of the preferred model
+- Permissions and ProtocolValidator decide which message types are allowed
 
 ## Important Behavioral Constraints
 

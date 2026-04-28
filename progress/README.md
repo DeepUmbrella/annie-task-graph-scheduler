@@ -4,6 +4,8 @@
 
 细粒度任务进度写在 `progress/`。跨客户端交接规则、当前大阶段状态和协作注意事项写在根目录 `agent.md`。
 
+多 Agent 自主协同工作方向的补充 PRD 写在 `docs/multi_agent_autonomous_workflow_prd.md`。
+
 ## 目录约定
 
 ```txt
