@@ -8,7 +8,7 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 
 ## 阶段状态
 
-`todo`
+`done`
 
 ## 关联文档
 
@@ -23,7 +23,7 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 | T053 | done | [Plan handoff validation CLI](./tasks/task-053-plan-handoff-validation-cli.md) |
 | T054 | done | [Workflow execution report](./tasks/task-054-workflow-execution-report.md) |
 | T055 | done | [Handoff examples and docs](./tasks/task-055-handoff-examples-docs.md) |
-| T056 | todo | [Phase 09 验收测试](./tasks/task-056-phase-09-acceptance.md) |
+| T056 | done | [Phase 09 验收测试](./tasks/task-056-phase-09-acceptance.md) |
 
 ## 当前进度
 
@@ -32,7 +32,8 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 - 已完成 T053：Plan handoff validation CLI。
 - 已完成 T054：Workflow execution report。
 - 已完成 T055：Handoff examples and docs。
-- 下一步进入 T056：Phase 09 验收测试。
+- 已完成 T056：Phase 09 验收测试。
+- Phase 09 已完成。
 
 ## 阶段完成标准
 
@@ -40,3 +41,11 @@ Phase 09 不接真实 Annie Workflow System API，不改变 plan schema，不引
 2. CLI 可以输出 workflow execution report。
 3. docs / fixtures 描述上游 plan 输入和下游 report 输出。
 4. Phase 01-08 回归测试继续通过。
+
+## 验收结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 123 passed
+```

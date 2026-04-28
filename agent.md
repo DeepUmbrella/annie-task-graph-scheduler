@@ -210,7 +210,7 @@ Phase 08:
 - MessageBus / MailboxStore recovery hardening
 - PRD hardening acceptance coverage
 
-Phase 09 planned:
+Phase 09:
 
 - Plan handoff validation CLI
 - Workflow execution report
@@ -268,7 +268,7 @@ Phase 05: done
 Phase 06: done
 Phase 07: done
 Phase 08: done
-Phase 09: in_progress, T053-T055 done, next T056
+Phase 09: done
 npm run typecheck: pass
 npm run build: pass
 npm test: 123 passed
