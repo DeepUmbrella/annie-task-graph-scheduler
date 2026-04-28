@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,18 @@
 - `src/cli.ts`
 - `src/validation/*`
 - `tests/e2e_handoff_cli.test.ts`
+
+## 完成记录
+
+- 新增 CLI `plan validate --plan <plan.json>`。
+- 输出 handoff summary：plan metadata、task count、topological order、dependency edges、risk counts、capabilities、preferred agents、expected files count 和 execution policy summary。
+- 错误复用现有 plan loader / DAG validator，并支持 `--json-errors`。
+- 未改变 plan schema。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 120 passed
+```

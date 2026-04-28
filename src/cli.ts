@@ -6,6 +6,7 @@ import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
+import type { LoadedPlan } from "./validation/plan_loader.js";
 import { TaskGraphSchedulerError } from "./errors.js";
 import { collectResult } from "./execution/result_collector.js";
 import { reviewWave } from "./execution/review_gate.js";
@@ -56,6 +57,7 @@ Commands:
   memory extract --workflow <workflow_id>
   memory write --workflow <workflow_id>
   memory list [--category <category>]
+  plan validate --plan <plan.json>
 
 Global options:
   --json-errors  Print CLI errors as JSON to stderr
@@ -88,6 +90,8 @@ if (command === "init") {
   await runQueue();
 } else if (command === "memory") {
   await runMemory();
+} else if (command === "plan") {
+  await runPlan();
 } else {
   console.error(`Command "${command}" is not implemented yet.`);
   process.exit(1);
@@ -558,6 +562,23 @@ async function runMemory(): Promise<void> {
   }
 }
 
+async function runPlan(): Promise<void> {
+  const subcommand = process.argv[3];
+
+  try {
+    if (subcommand === "validate") {
+      const planPath = getRequiredArg("--plan", "Missing required --plan <plan.json>.");
+      const loaded = await loadPlanFile(planPath);
+      console.log(JSON.stringify(createPlanValidationSummary(loaded, planPath), null, 2));
+    } else {
+      console.error(`Unknown plan subcommand "${subcommand}". Use validate.`);
+      process.exit(1);
+    }
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
 async function loadGlobalQueueInputs(): Promise<Array<{ project: ProjectRef; workflow: ProjectWorkflowRef; state: WorkflowState }>> {
   const projectId = getArg("--project");
   const workflowId = getArg("--workflow");
@@ -669,6 +690,88 @@ function extractAllMemoryCandidates(state: WorkflowState): MemoryCandidate[] {
     ...extractPreferenceMemoryCandidates(state),
     ...extractTemplateMemoryCandidates(state)
   ];
+}
+
+function createPlanValidationSummary(loaded: LoadedPlan, planPath: string) {
+  const tasks = loaded.plan.tasks;
+  const dependencyEdges = tasks.flatMap((task) =>
+    (task.depends_on ?? []).map((dependencyId) => ({
+      from: dependencyId,
+      to: task.id
+    }))
+  );
+
+  return {
+    valid: true,
+    path: planPath,
+    plan_id: loaded.plan.plan_id,
+    plan_type: loaded.plan.plan_type,
+    task_count: tasks.length,
+    topological_order: createTopologicalOrder(tasks),
+    dependency_edge_count: dependencyEdges.length,
+    dependency_edges: dependencyEdges,
+    risks: countValues(tasks.map((task) => task.risk ?? "low")),
+    required_capabilities: uniqueSorted(tasks.flatMap((task) => task.required_capabilities ?? [])),
+    preferred_agents: uniqueSorted(tasks.map((task) => task.preferred_agent).filter((agent): agent is string => Boolean(agent))),
+    expected_files_count: tasks.reduce((count, task) => count + (task.expected_files?.length ?? 0), 0),
+    execution_policy: {
+      max_parallel_tasks: loaded.execution_policy.max_parallel_tasks,
+      max_agents: loaded.execution_policy.max_agents,
+      same_file_conflict_policy: loaded.execution_policy.same_file_conflict_policy,
+      review_after_each_wave: loaded.execution_policy.review_after_each_wave,
+      stop_on_critical_failure: loaded.execution_policy.stop_on_critical_failure,
+      selection_order: loaded.execution_policy.scheduling.selection_order,
+      conflict_mode: loaded.execution_policy.conflicts.mode,
+      max_retries: loaded.execution_policy.retry.max_retries
+    }
+  };
+}
+
+function createTopologicalOrder(tasks: LoadedPlan["plan"]["tasks"]): string[] {
+  const taskIds = new Set(tasks.map((task) => task.id));
+  const graph = new Map(tasks.map((task) => [task.id, [] as string[]]));
+  const indegree = new Map(tasks.map((task) => [task.id, 0]));
+
+  for (const task of tasks) {
+    for (const dependencyId of task.depends_on ?? []) {
+      if (!taskIds.has(dependencyId)) {
+        continue;
+      }
+      graph.get(dependencyId)?.push(task.id);
+      indegree.set(task.id, (indegree.get(task.id) ?? 0) + 1);
+    }
+  }
+
+  const pending = tasks
+    .map((task) => task.id)
+    .filter((taskId) => (indegree.get(taskId) ?? 0) === 0);
+  const order: string[] = [];
+
+  while (pending.length > 0) {
+    const taskId = pending.shift() as string;
+    order.push(taskId);
+
+    for (const downstreamId of graph.get(taskId) ?? []) {
+      const nextIndegree = (indegree.get(downstreamId) ?? 0) - 1;
+      indegree.set(downstreamId, nextIndegree);
+      if (nextIndegree === 0) {
+        pending.push(downstreamId);
+      }
+    }
+  }
+
+  return order;
+}
+
+function countValues(values: string[]): Record<string, number> {
+  return values.reduce<Record<string, number>>((counts, value) => {
+    counts[value] = (counts[value] ?? 0) + 1;
+    return counts;
+  }, {});
+}
+
+function uniqueSorted(values: string[]): string[] {
+  return [...new Set(values)].sort((a, b) => a.localeCompare(b));
 }
 
 function parseMemoryCategory(value: string): MemoryCategory {
