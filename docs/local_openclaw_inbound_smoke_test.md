@@ -51,6 +51,7 @@ When a message is received, the terminal running `npm run serve` prints:
 [annie-tgs:inbound] received OpenClaw message path=/openclaw/messages summary=...
 [annie-tgs:inbound] persisted .annie/inbound/openclaw-messages.jsonl
 [annie-tgs:intent] created intent_id=... goal="创建一个网站" path=.annie/intents/intent_....json
+[annie-tgs:planner] handed off intent_id=... to=team-lead-agent inbox=.annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl
 ```
 
 The persisted JSONL log is:
@@ -63,6 +64,12 @@ The created workflow intent is written under:
 
 ```txt
 .annie/intents/<intent_id>.json
+```
+
+The planner request mailbox entry is written under:
+
+```txt
+.annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl
 ```
 
 Each line contains:
@@ -109,8 +116,11 @@ Expected response:
   "received_at": "...",
   "log_path": ".annie/inbound/openclaw-messages.jsonl",
   "intent_id": "intent_...",
-  "intent_path": ".annie/intents/intent_....json"
+  "intent_path": ".annie/intents/intent_....json",
+  "planner_agent_id": "team-lead-agent",
+  "planner_inbox_path": ".annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl",
+  "planning_message_id": "msg_..."
 }
 ```
 
-This step verifies inbound delivery into TaskGraphScheduler and creation of a workflow intent. It does not yet trigger planning, DAG generation, or agent dispatch.
+This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, and handoff to the local planner mailbox. It does not yet call a real planner agent, generate a DAG, or dispatch execution tasks.

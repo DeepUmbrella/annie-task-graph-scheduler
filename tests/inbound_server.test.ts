@@ -25,6 +25,9 @@ test("receiveInboundPayload writes OpenClaw messages to the inbound log", async 
   assert.equal(record.path, "/openclaw/messages");
   assert.equal(record.intent.goal, "Create a website");
   assert.equal(record.intent.raw_message_ref.inbound_log_path, logPath);
+  assert.equal(record.planner_handoff.planner_agent_id, "team-lead-agent");
+  assert.equal(record.planner_handoff.message.type, "PLANNING_REQUEST");
+  assert.equal(record.planner_handoff.message.payload.intent_id, record.intent.intent_id);
 
   const rawLog = await readFile(logPath, "utf8");
   const records = rawLog
@@ -49,4 +52,13 @@ test("receiveInboundPayload writes OpenClaw messages to the inbound log", async 
   };
   assert.equal(intent.intent_id, record.intent.intent_id);
   assert.equal(intent.goal, "Create a website");
+
+  const plannerInboxRaw = await readFile(record.planner_handoff.planner_inbox_path, "utf8");
+  const plannerMessages = plannerInboxRaw
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => JSON.parse(line) as { type: string; payload: { goal: string } });
+  assert.equal(plannerMessages.length, 1);
+  assert.equal(plannerMessages[0]?.type, "PLANNING_REQUEST");
+  assert.equal(plannerMessages[0]?.payload.goal, "Create a website");
 });

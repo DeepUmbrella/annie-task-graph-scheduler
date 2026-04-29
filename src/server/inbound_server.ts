@@ -3,6 +3,8 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { TaskGraphSchedulerError } from "../errors.js";
 import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
+import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
+import { createDefaultTeamSnapshot } from "../team/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -37,6 +39,7 @@ export interface ReceiveInboundPayloadOptions {
 export interface ReceivedInboundPayload extends InboundMessageRecord {
   intent: WorkflowIntent;
   intent_path: string;
+  planner_handoff: PlannerHandoffResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -113,13 +116,17 @@ async function handleInboundRequest(
     console.info(`[annie-tgs:inbound] received OpenClaw message path=${request.url} summary=${messageSummary}`);
     console.info(`[annie-tgs:inbound] persisted ${options.logPath}`);
     console.info(`[annie-tgs:intent] created intent_id=${record.intent.intent_id} goal=${JSON.stringify(record.intent.goal)} path=${record.intent_path}`);
+    console.info(`[annie-tgs:planner] handed off intent_id=${record.intent.intent_id} to=${record.planner_handoff.planner_agent_id} inbox=${record.planner_handoff.planner_inbox_path}`);
 
     writeJson(response, 202, {
       ok: true,
       received_at: record.received_at,
       log_path: options.logPath,
       intent_id: record.intent.intent_id,
-      intent_path: record.intent_path
+      intent_path: record.intent_path,
+      planner_agent_id: record.planner_handoff.planner_agent_id,
+      planner_inbox_path: record.planner_handoff.planner_inbox_path,
+      planning_message_id: record.planner_handoff.message.message_id
     });
   } catch (error) {
     const details = error instanceof TaskGraphSchedulerError
@@ -151,11 +158,16 @@ export async function receiveInboundPayload(
     receivedAt: record.received_at,
     now: record.received_at
   });
+  const plannerHandoff = await handoffIntentToPlanner(created.intent, createDefaultTeamSnapshot(record.received_at), {
+    rootDir: options.rootDir,
+    now: record.received_at
+  });
 
   return {
     ...record,
     intent: created.intent,
-    intent_path: created.path
+    intent_path: created.path,
+    planner_handoff: plannerHandoff
   };
 }
 
