@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,19 @@
 
 - `src/team/*`
 - `tests/team.test.ts`
+
+## 完成记录
+
+- 新增 `TeamSnapshot`、`TeamAgent`、`TeamPermissions`。
+- 新增默认本地 team：`default-dev-team`。
+- `team-lead-agent` 作为 controller 存在于 `agents[]`。
+- 未引入 per-agent collaboration allowlist。
+- 新增同 team peers 查询。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 128 passed
+```

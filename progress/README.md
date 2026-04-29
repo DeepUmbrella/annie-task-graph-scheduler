@@ -43,7 +43,7 @@ progress/
 
 当前下一阶段：
 
-Phase 11 Intent To Planner Agent Handoff 已规划。下一步进入 T060。
+Phase 11 Intent To Planner Agent Handoff 正在推进。T060 已完成，下一步进入 T061。
 
 ## 更新规则
 
@@ -93,5 +93,5 @@ npm test
 当前基线：
 
 ```txt
-126 passed
+128 passed
 ```
