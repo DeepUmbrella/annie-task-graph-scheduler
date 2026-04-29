@@ -40,10 +40,11 @@ progress/
 - [Phase 09 Workflow Handoff Contract](./phase-09/phase-summary.md) - done
 - [Phase 10 OpenClaw Inbound Intake Smoke Loop](./phase-10/phase-summary.md) - done
 - [Phase 11 Intent To Planner Agent Handoff](./phase-11/phase-summary.md) - done
+- [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - in_progress
 
 当前下一阶段：
 
-Phase 11 Intent To Planner Agent Handoff 已完成。当前链路已到 OpenClaw inbound message -> workflow intent -> team-lead-agent planner mailbox。下一阶段尚未规划。
+Phase 12 Real OpenClaw Planner Transport 正在推进。下一步进入 T064。
 
 ## 更新规则
 

@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { OpenClawAdapter, toOpenClawEnvelope, type OpenClawEnvelope } from "../src/communication/openclaw_adapter.js";
+import {
+  OpenClawAdapter,
+  OpenClawCliClient,
+  toOpenClawAgentArgs,
+  toOpenClawEnvelope,
+  type OpenClawEnvelope
+} from "../src/communication/openclaw_adapter.js";
 import type { Message } from "../src/models/message.js";
 
 function createMessage(): Message {
@@ -59,4 +65,59 @@ test("OpenClawAdapter delegates transport to injected client", async () => {
   assert.equal(sent.length, 1);
   assert.equal(sent[0]?.session_id, "session_backend_001");
   assert.equal(sent[0]?.metadata.type, "TASK_ASSIGNED");
+});
+
+test("toOpenClawAgentArgs creates CLI args for an agent turn", () => {
+  const envelope = toOpenClawEnvelope(createMessage(), {
+    "backend-agent": "session_backend_001"
+  });
+
+  assert.deepEqual(toOpenClawAgentArgs(envelope, {
+    local: true,
+    thinking: "medium",
+    timeout_seconds: 30
+  }), [
+    "agent",
+    "--agent",
+    "backend-agent",
+    "--message",
+    envelope.message,
+    "--json",
+    "--session-id",
+    "session_backend_001",
+    "--local",
+    "--thinking",
+    "medium",
+    "--timeout",
+    "30"
+  ]);
+});
+
+test("OpenClawCliClient invokes injected runner without calling real OpenClaw", async () => {
+  const calls: Array<{ command: string; args: string[] }> = [];
+  const client = new OpenClawCliClient({
+    command: "openclaw-test",
+    runner: async (command, args) => {
+      calls.push({ command, args });
+      return { stdout: "{\"ok\":true}", stderr: "" };
+    }
+  });
+
+  await client.send(toOpenClawEnvelope(createMessage()));
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0]?.command, "openclaw-test");
+  assert.deepEqual(calls[0]?.args.slice(0, 5), [
+    "agent",
+    "--agent",
+    "backend-agent",
+    "--message",
+    JSON.stringify({
+      type: "TASK_ASSIGNED",
+      payload: {
+        title: "Implement backend"
+      }
+    })
+  ]);
+  assert.ok(calls[0]?.args.includes("--json"));
 });

@@ -233,6 +233,13 @@ Phase 11 completed:
 - Inbound auto-handoff to planner mailbox
 - Planning request mailbox acceptance coverage
 
+Phase 12 planned:
+
+- Real OpenClaw CLI client
+- Explicit `serve --openclaw-planner-agent <agent_id>` transport
+- No default controller/planner agent selection
+- Preserve local mock transport as the default path
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -295,6 +302,7 @@ Phase 08: done
 Phase 09: done
 Phase 10: done
 Phase 11: done
+Phase 12: in_progress, T064 done, next T065
 npm run typecheck: pass
 npm run build: pass
 npm test: 129 passed
