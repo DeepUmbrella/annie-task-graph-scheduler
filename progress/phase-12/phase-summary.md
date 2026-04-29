@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -20,15 +20,16 @@
 |---|---|---|
 | T064 | done | [Real OpenClaw CLI client](./tasks/task-064-real-openclaw-cli-client.md) |
 | T065 | done | [Serve real planner transport](./tasks/task-065-serve-real-planner-transport.md) |
-| T066 | todo | [Phase 12 验收测试](./tasks/task-066-phase-12-acceptance.md) |
+| T066 | done | [Phase 12 验收测试](./tasks/task-066-phase-12-acceptance.md) |
 
 ## 当前进度
 
 - Phase 01-11 已完成。
-- Phase 12 已规划。
+- Phase 12 已完成。
 - 已完成 T064：Real OpenClaw CLI client。
 - 已完成 T065：Serve real planner transport。
-- 下一步进入 T066：Phase 12 验收测试。
+- 已完成 T066：Phase 12 验收测试。
+- 当前链路：OpenClaw inbound message -> workflow intent -> planner mailbox -> optional real OpenClaw CLI planner delivery。
 
 ## 阶段完成标准
 

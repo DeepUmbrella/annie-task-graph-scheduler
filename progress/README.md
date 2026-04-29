@@ -40,11 +40,11 @@ progress/
 - [Phase 09 Workflow Handoff Contract](./phase-09/phase-summary.md) - done
 - [Phase 10 OpenClaw Inbound Intake Smoke Loop](./phase-10/phase-summary.md) - done
 - [Phase 11 Intent To Planner Agent Handoff](./phase-11/phase-summary.md) - done
-- [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - in_progress
+- [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 12 Real OpenClaw Planner Transport 正在推进。下一步进入 T064。
+Phase 12 Real OpenClaw Planner Transport 已完成。当前链路已到 OpenClaw inbound message -> workflow intent -> planner mailbox -> optional real OpenClaw CLI planner delivery。下一阶段尚未规划。
 
 ## 更新规则
 
@@ -94,5 +94,5 @@ npm test
 当前基线：
 
 ```txt
-129 passed
+132 passed
 ```

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -29,3 +29,19 @@
 - `progress/phase-12/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- Phase 12 所有 task 已标记为 `done`。
+- `serve --openclaw-planner-agent <agent_id>` 可显式开启真实 OpenClaw CLI planner delivery。
+- 默认 `serve` 继续使用 mock transport。
+- smoke-test 文档已说明真实 OpenClaw agent id 获取方式和启动参数。
+- Phase 12 明确保持边界：不自动选择 controller/planner，不解析 planner 输出，不生成 DAG。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 132 passed
+```

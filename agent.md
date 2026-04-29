@@ -233,7 +233,7 @@ Phase 11 completed:
 - Inbound auto-handoff to planner mailbox
 - Planning request mailbox acceptance coverage
 
-Phase 12 planned:
+Phase 12 completed:
 
 - Real OpenClaw CLI client
 - Explicit `serve --openclaw-planner-agent <agent_id>` transport
@@ -302,8 +302,8 @@ Phase 08: done
 Phase 09: done
 Phase 10: done
 Phase 11: done
-Phase 12: in_progress, T064-T065 done, next T066
+Phase 12: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 129 passed
+npm test: 132 passed
 ```
