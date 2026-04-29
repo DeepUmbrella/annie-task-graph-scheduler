@@ -19,7 +19,7 @@
 | ID | 状态 | 任务 |
 |---|---|---|
 | T067 | done | [Clarification message protocol](./tasks/task-067-clarification-message-protocol.md) |
-| T068 | todo | [Planner reply intake](./tasks/task-068-planner-reply-intake.md) |
+| T068 | done | [Planner reply intake](./tasks/task-068-planner-reply-intake.md) |
 | T069 | todo | [Planner reply HTTP endpoint](./tasks/task-069-planner-reply-http-endpoint.md) |
 | T070 | todo | [Phase 13 验收测试](./tasks/task-070-phase-13-acceptance.md) |
 
@@ -28,7 +28,8 @@
 - Phase 01-12 已完成。
 - Phase 13 已规划。
 - 已完成 T067：Clarification message protocol。
-- 下一步进入 T068：Planner reply intake。
+- 已完成 T068：Planner reply intake。
+- 下一步进入 T069：Planner reply HTTP endpoint。
 
 ## 阶段完成标准
 

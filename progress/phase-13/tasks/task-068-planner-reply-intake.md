@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,19 @@
 
 - `src/planner_reply/*`
 - `tests/planner_reply_intake.test.ts`
+
+## 完成记录
+
+- 新增 `src/planner_reply/intake.ts`。
+- 支持从 `intent_id` / `workflow_id`、`from` / `agent_id`、`message` / `text` 等字段读取 planner reply。
+- 从自然语言回复中提取澄清问题列表。
+- 生成 `REQUIREMENT_CLARIFICATION_REQUEST` 并写入 Annie inbox。
+- 测试覆盖真实 `develop-team` 回复样例。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/planner_reply_intake.test.js: 4 passed
+```
