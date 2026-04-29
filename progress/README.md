@@ -38,10 +38,11 @@ progress/
 - [Phase 07 Long-term Memory Integration Boundary](./phase-07/phase-summary.md) - done
 - [Phase 08 PRD Acceptance Hardening](./phase-08/phase-summary.md) - done
 - [Phase 09 Workflow Handoff Contract](./phase-09/phase-summary.md) - done
+- [Phase 10 OpenClaw Inbound Intake Smoke Loop](./phase-10/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 09 Workflow Handoff Contract 已完成。当前暂无已规划的下一阶段；如继续推进，应先根据 PRD 和当前实现状态规划 Phase 10。
+Phase 10 OpenClaw Inbound Intake Smoke Loop 已完成。当前暂无已规划的下一阶段；如继续推进，应先根据 PRD 和当前实现状态规划 Phase 11。
 
 ## 更新规则
 
@@ -91,5 +92,5 @@ npm test
 当前基线：
 
 ```txt
-123 passed
+126 passed
 ```

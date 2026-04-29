@@ -218,6 +218,14 @@ Phase 09:
 - Handoff examples and docs
 - Workflow handoff acceptance coverage
 
+Phase 10:
+
+- Local OpenClaw inbound HTTP server
+- `serve` CLI command
+- inbound message JSONL persistence
+- workflow intent creation from inbound payload
+- local smoke-test documentation
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -278,7 +286,8 @@ Phase 06: done
 Phase 07: done
 Phase 08: done
 Phase 09: done
+Phase 10: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 123 passed
+npm test: 126 passed
 ```
