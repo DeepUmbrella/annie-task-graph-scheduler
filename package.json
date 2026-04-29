@@ -12,6 +12,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "node --test dist/tests/**/*.test.js",
     "test:e2e": "node --test dist/tests/e2e_mvp_flow.test.js",
+    "serve": "node dist/src/cli.js serve",
     "clean": "rm -rf dist"
   },
   "keywords": [

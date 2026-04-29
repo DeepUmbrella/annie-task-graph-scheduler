@@ -5,6 +5,7 @@ import { createStateStore } from "./storage/state_store.js";
 import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
 import { createWorkflowExecutionReport } from "./reporting/index.js";
+import { startInboundServer } from "./server/inbound_server.js";
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import type { LoadedPlan } from "./validation/plan_loader.js";
@@ -48,6 +49,7 @@ Commands:
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
   report --workflow <workflow_id>
+  serve [--host <host>] [--port <port>]
   template list
   template show --template <template_id>
   template instantiate --template <template_id> --plan-id <plan_id>
@@ -86,6 +88,8 @@ if (command === "init") {
   await runVisualize();
 } else if (command === "report") {
   await runReport();
+} else if (command === "serve") {
+  await runServe();
 } else if (command === "template") {
   await runTemplate();
 } else if (command === "project") {
@@ -391,6 +395,42 @@ async function runReport(): Promise<void> {
   try {
     const state = await createCliStateStore().loadState(workflowId);
     console.log(JSON.stringify(createWorkflowExecutionReport(state), null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runServe(): Promise<void> {
+  const port = Number(getArg("--port") ?? "4317");
+  const host = getArg("--host") ?? "127.0.0.1";
+  const rootDir = getArg("--root") ?? ".annie";
+
+  if (!Number.isInteger(port) || port <= 0 || port > 65535) {
+    printCliError(new TaskGraphSchedulerError("Port is invalid.", "CLI_PORT_INVALID", {
+      port
+    }));
+  }
+
+  try {
+    const started = await startInboundServer({
+      host,
+      port,
+      rootDir
+    });
+
+    console.log(JSON.stringify({
+      ok: true,
+      service: "annie-task-graph-scheduler",
+      url: started.url,
+      endpoints: {
+        health: `${started.url}/health`,
+        openclaw_messages: `${started.url}/openclaw/messages`,
+        annie_messages: `${started.url}/annie/messages`
+      },
+      inbound_log_path: started.logPath
+    }, null, 2));
+    console.log(`[annie-tgs:server] listening on ${started.url}`);
+    console.log(`[annie-tgs:server] inbound log file ${started.logPath}`);
   } catch (error) {
     printCliError(error);
   }
