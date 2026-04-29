@@ -44,6 +44,12 @@ Send OpenClaw/Annie messages to:
 POST http://127.0.0.1:4317/openclaw/messages
 ```
 
+Send planner replies back to TaskGraphScheduler:
+
+```txt
+POST http://127.0.0.1:4317/openclaw/planner-replies
+```
+
 The alias below is also accepted:
 
 ```txt
@@ -67,6 +73,12 @@ When a message is received, the terminal running `npm run serve` prints:
 [annie-tgs:planner] handed off intent_id=... to=<planner-agent-id> status=delivered inbox=.annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
 ```
 
+When a planner reply is received, the terminal prints:
+
+```txt
+[annie-tgs:planner-reply] received from=<planner-agent-id> intent_id=<intent_id> questions=5 inbox=.annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl
+```
+
 The persisted JSONL log is:
 
 ```txt
@@ -83,6 +95,12 @@ The planner request mailbox entry is written under:
 
 ```txt
 .annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
+```
+
+The planner clarification request for Annie is written under:
+
+```txt
+.annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl
 ```
 
 Each line contains:
@@ -137,4 +155,33 @@ Expected response:
 }
 ```
 
-This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, and optionally delivery to a real OpenClaw planner agent when `--openclaw-planner-agent` is provided. It does not yet parse the real planner reply, generate a DAG, or dispatch execution tasks.
+## Manual Planner Reply Test
+
+After the real planner asks clarification questions, post that reply back:
+
+```txt
+curl -sS -X POST http://127.0.0.1:4317/openclaw/planner-replies \
+  -H 'content-type: application/json' \
+  -d '{
+    "intent_id":"intent_20260429195002_创建一个网站_ds5hzo",
+    "from":"develop-team",
+    "message":"网站类型 — 是什么网站？\n技术栈偏好 — 有指定的前端框架或后端技术吗？\n目标受众 — 主要给谁看？\n功能需求 — 需要哪些核心功能？\n现有资源 — 有设计稿、域名、服务器、代码仓库吗？"
+  }'
+```
+
+Expected response:
+
+```json
+{
+  "ok": true,
+  "received_at": "...",
+  "intent_id": "intent_...",
+  "from": "develop-team",
+  "clarification_message_id": "msg_...",
+  "clarification_delivery_status": "delivered",
+  "question_count": 5,
+  "annie_inbox_path": ".annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl"
+}
+```
+
+This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, optional delivery to a real OpenClaw planner agent, and planner clarification reply intake. It does not yet parse TaskDagPlan, generate a DAG, or dispatch execution tasks.

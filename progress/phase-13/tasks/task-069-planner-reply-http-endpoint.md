@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,20 @@
 - `src/server/inbound_server.ts`
 - `tests/inbound_server.test.ts`
 - `docs/local_openclaw_inbound_smoke_test.md`
+
+## 完成记录
+
+- 新增 `POST /openclaw/planner-replies`。
+- endpoint 会把 planner reply 转成 `REQUIREMENT_CLARIFICATION_REQUEST`。
+- response 返回 clarification message id、delivery status、问题数量和 Annie inbox path。
+- CLI startup metadata 增加 planner reply endpoint。
+- smoke-test 文档已补充 planner reply 回写步骤。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/inbound_server.test.js: 3 passed
+node --test dist/tests/planner_reply_intake.test.js: 4 passed
+```

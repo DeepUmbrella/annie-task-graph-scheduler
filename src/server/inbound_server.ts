@@ -5,6 +5,7 @@ import { TaskGraphSchedulerError } from "../errors.js";
 import type { TransportAdapter } from "../communication/openclaw_adapter.js";
 import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
 import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
+import { intakePlannerReply, type PlannerReplyIntakeResult } from "../planner_reply/index.js";
 import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 
 export interface InboundServerOptions {
@@ -45,6 +46,13 @@ export interface ReceivedInboundPayload extends InboundMessageRecord {
   intent: WorkflowIntent;
   intent_path: string;
   planner_handoff: PlannerHandoffResult;
+}
+
+export interface ReceivedPlannerReply {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  clarification: PlannerReplyIntakeResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -110,6 +118,27 @@ async function handleInboundRequest(
     }
 
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
+      if (request.method === "POST" && request.url === "/openclaw/planner-replies") {
+        const payload = await readJsonBody(request);
+        const record = await receivePlannerReply(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:planner-reply] received from=${record.clarification.message.from} intent_id=${record.clarification.message.workflow_id} questions=${record.clarification.questions.length} inbox=${record.clarification.annie_inbox_path}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          intent_id: record.clarification.message.workflow_id,
+          from: record.clarification.message.from,
+          clarification_message_id: record.clarification.message.message_id,
+          clarification_delivery_status: record.clarification.message.status,
+          question_count: record.clarification.questions.length,
+          annie_inbox_path: record.clarification.annie_inbox_path
+        });
+        return;
+      }
+
       writeJson(response, 404, {
         ok: false,
         error: "NOT_FOUND"
@@ -154,6 +183,28 @@ async function handleInboundRequest(
       ...details
     });
   }
+}
+
+export async function receivePlannerReply(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedPlannerReply> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const clarification = await intakePlannerReply(payload, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/openclaw/planner-replies",
+    payload,
+    clarification
+  };
 }
 
 export async function receiveInboundPayload(
