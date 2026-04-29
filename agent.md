@@ -226,6 +226,13 @@ Phase 10:
 - workflow intent creation from inbound payload
 - local smoke-test documentation
 
+Phase 11 planned:
+
+- Minimal team snapshot model
+- Intent to planner agent handoff
+- Inbound auto-handoff to planner mailbox
+- Planning request mailbox acceptance coverage
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -287,6 +294,7 @@ Phase 07: done
 Phase 08: done
 Phase 09: done
 Phase 10: done
+Phase 11: planned, next T060
 npm run typecheck: pass
 npm run build: pass
 npm test: 126 passed
