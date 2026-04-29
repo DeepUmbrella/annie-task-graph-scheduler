@@ -226,7 +226,7 @@ Phase 10:
 - workflow intent creation from inbound payload
 - local smoke-test documentation
 
-Phase 11 planned:
+Phase 11 completed:
 
 - Minimal team snapshot model
 - Intent to planner agent handoff
@@ -294,7 +294,7 @@ Phase 07: done
 Phase 08: done
 Phase 09: done
 Phase 10: done
-Phase 11: in_progress, T060-T062 done, next T063
+Phase 11: done
 npm run typecheck: pass
 npm run build: pass
 npm test: 129 passed
