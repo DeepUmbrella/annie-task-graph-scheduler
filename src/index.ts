@@ -27,3 +27,4 @@ export * from "./storage/recovery_manager.js";
 export * from "./visualization/index.js";
 export * from "./reporting/index.js";
 export * from "./server/inbound_server.js";
+export * from "./intake/index.js";

@@ -2,6 +2,7 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { TaskGraphSchedulerError } from "../errors.js";
+import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -16,6 +17,7 @@ export interface StartedInboundServer {
   port: number;
   url: string;
   logPath: string;
+  intentsDir: string;
 }
 
 export interface InboundMessageRecord {
@@ -27,8 +29,14 @@ export interface InboundMessageRecord {
 
 export interface ReceiveInboundPayloadOptions {
   logPath: string;
+  rootDir?: string;
   path?: string;
   now?: () => string;
+}
+
+export interface ReceivedInboundPayload extends InboundMessageRecord {
+  intent: WorkflowIntent;
+  intent_path: string;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -41,6 +49,7 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
   const server = createServer((request, response) => {
     void handleInboundRequest(request, response, {
       logPath,
+      rootDir,
       now
     });
   });
@@ -61,7 +70,8 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
     host,
     port: actualPort,
     url: `http://${host}:${actualPort}`,
-    logPath
+    logPath,
+    intentsDir: intentsDir(rootDir)
   };
 }
 
@@ -72,7 +82,7 @@ export function inboundLogPath(rootDir = ".annie"): string {
 async function handleInboundRequest(
   request: IncomingMessage,
   response: ServerResponse,
-  options: { logPath: string; now: () => string }
+  options: { logPath: string; rootDir: string; now: () => string }
 ): Promise<void> {
   try {
     if (request.method === "GET" && request.url === "/health") {
@@ -94,6 +104,7 @@ async function handleInboundRequest(
     const payload = await readJsonBody(request);
     const record = await receiveInboundPayload(payload, {
       logPath: options.logPath,
+      rootDir: options.rootDir,
       path: request.url,
       now: options.now
     });
@@ -101,11 +112,14 @@ async function handleInboundRequest(
     const messageSummary = summarizePayload(payload);
     console.info(`[annie-tgs:inbound] received OpenClaw message path=${request.url} summary=${messageSummary}`);
     console.info(`[annie-tgs:inbound] persisted ${options.logPath}`);
+    console.info(`[annie-tgs:intent] created intent_id=${record.intent.intent_id} goal=${JSON.stringify(record.intent.goal)} path=${record.intent_path}`);
 
     writeJson(response, 202, {
       ok: true,
       received_at: record.received_at,
-      log_path: options.logPath
+      log_path: options.logPath,
+      intent_id: record.intent.intent_id,
+      intent_path: record.intent_path
     });
   } catch (error) {
     const details = error instanceof TaskGraphSchedulerError
@@ -122,7 +136,7 @@ async function handleInboundRequest(
 export async function receiveInboundPayload(
   payload: unknown,
   options: ReceiveInboundPayloadOptions
-): Promise<InboundMessageRecord> {
+): Promise<ReceivedInboundPayload> {
   const record: InboundMessageRecord = {
     received_at: (options.now ?? (() => new Date().toISOString()))(),
     source: "openclaw",
@@ -131,7 +145,18 @@ export async function receiveInboundPayload(
   };
 
   await appendInboundRecord(options.logPath, record);
-  return record;
+  const created = await createWorkflowIntentFromInboundPayload(payload, {
+    rootDir: options.rootDir,
+    inboundLogPath: options.logPath,
+    receivedAt: record.received_at,
+    now: record.received_at
+  });
+
+  return {
+    ...record,
+    intent: created.intent,
+    intent_path: created.path
+  };
 }
 
 async function appendInboundRecord(logPath: string, record: InboundMessageRecord): Promise<void> {

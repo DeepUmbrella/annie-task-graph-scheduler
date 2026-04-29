@@ -50,12 +50,19 @@ When a message is received, the terminal running `npm run serve` prints:
 ```txt
 [annie-tgs:inbound] received OpenClaw message path=/openclaw/messages summary=...
 [annie-tgs:inbound] persisted .annie/inbound/openclaw-messages.jsonl
+[annie-tgs:intent] created intent_id=... goal="创建一个网站" path=.annie/intents/intent_....json
 ```
 
 The persisted JSONL log is:
 
 ```txt
 .annie/inbound/openclaw-messages.jsonl
+```
+
+The created workflow intent is written under:
+
+```txt
+.annie/intents/<intent_id>.json
 ```
 
 Each line contains:
@@ -65,6 +72,23 @@ Each line contains:
   "received_at": "2026-04-30T00:00:00.000Z",
   "source": "openclaw",
   "path": "/openclaw/messages",
+  "payload": {}
+}
+```
+
+Each intent file contains:
+
+```json
+{
+  "intent_id": "intent_...",
+  "goal": "创建一个网站",
+  "source": "openclaw",
+  "status": "received",
+  "created_at": "...",
+  "raw_message_ref": {
+    "inbound_log_path": ".annie/inbound/openclaw-messages.jsonl",
+    "received_at": "..."
+  },
   "payload": {}
 }
 ```
@@ -83,8 +107,10 @@ Expected response:
 {
   "ok": true,
   "received_at": "...",
-  "log_path": ".annie/inbound/openclaw-messages.jsonl"
+  "log_path": ".annie/inbound/openclaw-messages.jsonl",
+  "intent_id": "intent_...",
+  "intent_path": ".annie/intents/intent_....json"
 }
 ```
 
-This step only verifies inbound delivery into TaskGraphScheduler. It does not yet trigger planning, DAG generation, or agent dispatch.
+This step verifies inbound delivery into TaskGraphScheduler and creation of a workflow intent. It does not yet trigger planning, DAG generation, or agent dispatch.

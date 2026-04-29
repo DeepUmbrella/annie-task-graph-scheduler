@@ -16,12 +16,15 @@ test("receiveInboundPayload writes OpenClaw messages to the inbound log", async 
     message: "Create a website"
   }, {
     logPath,
+    rootDir,
     path: "/openclaw/messages",
     now: () => "2026-04-28T12:00:00.000Z"
   });
 
   assert.equal(record.received_at, "2026-04-28T12:00:00.000Z");
   assert.equal(record.path, "/openclaw/messages");
+  assert.equal(record.intent.goal, "Create a website");
+  assert.equal(record.intent.raw_message_ref.inbound_log_path, logPath);
 
   const rawLog = await readFile(logPath, "utf8");
   const records = rawLog
@@ -39,4 +42,11 @@ test("receiveInboundPayload writes OpenClaw messages to the inbound log", async 
   assert.equal(records[0]?.source, "openclaw");
   assert.equal(records[0]?.path, "/openclaw/messages");
   assert.equal(records[0]?.payload.message, "Create a website");
+
+  const intent = JSON.parse(await readFile(record.intent_path, "utf8")) as {
+    intent_id: string;
+    goal: string;
+  };
+  assert.equal(intent.intent_id, record.intent.intent_id);
+  assert.equal(intent.goal, "Create a website");
 });
