@@ -67,6 +67,41 @@ test("rejects invalid protocol directions", async () => {
   );
 });
 
+test("accepts requirement clarification requests from planner to Annie", async () => {
+  const { bus } = await createBus();
+  const message = bus.createMessage({
+    workflow_id: "intent_001",
+    task_id: "planning",
+    wave_id: "planning",
+    from: "develop-team",
+    to: "annie",
+    type: "REQUIREMENT_CLARIFICATION_REQUEST",
+    payload: {
+      questions: ["网站类型是什么？"]
+    }
+  });
+
+  assert.equal(message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
+  assert.equal(message.to, "annie");
+});
+
+test("rejects requirement clarification requests from orchestrator to agent", async () => {
+  const { bus } = await createBus();
+
+  assert.throws(
+    () => bus.createMessage({
+      workflow_id: "intent_001",
+      task_id: "planning",
+      wave_id: "planning",
+      from: "orchestrator",
+      to: "develop-team",
+      type: "REQUIREMENT_CLARIFICATION_REQUEST"
+    }),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "MESSAGE_DIRECTION_INVALID"
+  );
+});
+
 test("acknowledges and marks messages processed", async () => {
   const { bus } = await createBus();
   const delivered = await bus.sendMessage(bus.createMessage({

@@ -240,6 +240,13 @@ Phase 12 completed:
 - No default controller/planner agent selection
 - Preserve local mock transport as the default path
 
+Phase 13 planned:
+
+- `REQUIREMENT_CLARIFICATION_REQUEST` protocol
+- Planner reply intake into Annie mailbox
+- `POST /openclaw/planner-replies`
+- No TaskDagPlan parsing yet
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -303,6 +310,7 @@ Phase 09: done
 Phase 10: done
 Phase 11: done
 Phase 12: done
+Phase 13: in_progress, T067 done, next T068
 npm run typecheck: pass
 npm run build: pass
 npm test: 132 passed

@@ -46,6 +46,8 @@ function isDirectionAllowed(message: Message): boolean {
     case "TASK_FAILED":
     case "BLOCKER_REPORTED":
       return message.from !== "orchestrator" && message.to === "orchestrator";
+    case "REQUIREMENT_CLARIFICATION_REQUEST":
+      return message.from !== "orchestrator" && (message.to === "annie" || message.to === "orchestrator");
     case "HELP_REQUESTED":
     case "QUESTION_ASKED":
     case "ANSWER_PROVIDED":
