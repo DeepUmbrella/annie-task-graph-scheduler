@@ -1,5 +1,6 @@
 import { createMailboxStore, type MailboxStore } from "../communication/mailbox_store.js";
 import { createMessageBus } from "../communication/message_bus.js";
+import type { TransportAdapter } from "../communication/openclaw_adapter.js";
 import type { Message } from "../models/message.js";
 import type { WorkflowIntent } from "../intake/index.js";
 import { findControllerAgent, type TeamSnapshot } from "../team/index.js";
@@ -8,6 +9,7 @@ import { TaskGraphSchedulerError } from "../errors.js";
 export interface PlannerHandoffOptions {
   rootDir?: string;
   mailboxStore?: MailboxStore;
+  transport?: TransportAdapter;
   now?: string;
 }
 
@@ -33,7 +35,8 @@ export async function handoffIntentToPlanner(
   const rootDir = options.rootDir ?? ".annie";
   const mailboxStore = options.mailboxStore ?? createMailboxStore(rootDir);
   const bus = createMessageBus({
-    mailbox_store: mailboxStore
+    mailbox_store: mailboxStore,
+    transport: options.transport
   });
   const message = bus.createMessage({
     workflow_id: intent.intent_id,

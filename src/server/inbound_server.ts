@@ -2,14 +2,17 @@ import { createServer, type IncomingMessage, type Server, type ServerResponse } 
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { TaskGraphSchedulerError } from "../errors.js";
+import type { TransportAdapter } from "../communication/openclaw_adapter.js";
 import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
 import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
-import { createDefaultTeamSnapshot } from "../team/index.js";
+import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 
 export interface InboundServerOptions {
   host?: string;
   port?: number;
   rootDir?: string;
+  team?: TeamSnapshot;
+  plannerTransport?: TransportAdapter;
   now?: () => string;
 }
 
@@ -33,6 +36,8 @@ export interface ReceiveInboundPayloadOptions {
   logPath: string;
   rootDir?: string;
   path?: string;
+  team?: TeamSnapshot;
+  plannerTransport?: TransportAdapter;
   now?: () => string;
 }
 
@@ -53,6 +58,8 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
     void handleInboundRequest(request, response, {
       logPath,
       rootDir,
+      team: options.team,
+      plannerTransport: options.plannerTransport,
       now
     });
   });
@@ -85,7 +92,13 @@ export function inboundLogPath(rootDir = ".annie"): string {
 async function handleInboundRequest(
   request: IncomingMessage,
   response: ServerResponse,
-  options: { logPath: string; rootDir: string; now: () => string }
+  options: {
+    logPath: string;
+    rootDir: string;
+    team?: TeamSnapshot;
+    plannerTransport?: TransportAdapter;
+    now: () => string;
+  }
 ): Promise<void> {
   try {
     if (request.method === "GET" && request.url === "/health") {
@@ -109,6 +122,8 @@ async function handleInboundRequest(
       logPath: options.logPath,
       rootDir: options.rootDir,
       path: request.url,
+      team: options.team,
+      plannerTransport: options.plannerTransport,
       now: options.now
     });
 
@@ -116,7 +131,7 @@ async function handleInboundRequest(
     console.info(`[annie-tgs:inbound] received OpenClaw message path=${request.url} summary=${messageSummary}`);
     console.info(`[annie-tgs:inbound] persisted ${options.logPath}`);
     console.info(`[annie-tgs:intent] created intent_id=${record.intent.intent_id} goal=${JSON.stringify(record.intent.goal)} path=${record.intent_path}`);
-    console.info(`[annie-tgs:planner] handed off intent_id=${record.intent.intent_id} to=${record.planner_handoff.planner_agent_id} inbox=${record.planner_handoff.planner_inbox_path}`);
+    console.info(`[annie-tgs:planner] handed off intent_id=${record.intent.intent_id} to=${record.planner_handoff.planner_agent_id} status=${record.planner_handoff.message.status} inbox=${record.planner_handoff.planner_inbox_path}`);
 
     writeJson(response, 202, {
       ok: true,
@@ -125,6 +140,7 @@ async function handleInboundRequest(
       intent_id: record.intent.intent_id,
       intent_path: record.intent_path,
       planner_agent_id: record.planner_handoff.planner_agent_id,
+      planner_delivery_status: record.planner_handoff.message.status,
       planner_inbox_path: record.planner_handoff.planner_inbox_path,
       planning_message_id: record.planner_handoff.message.message_id
     });
@@ -158,8 +174,9 @@ export async function receiveInboundPayload(
     receivedAt: record.received_at,
     now: record.received_at
   });
-  const plannerHandoff = await handoffIntentToPlanner(created.intent, createDefaultTeamSnapshot(record.received_at), {
+  const plannerHandoff = await handoffIntentToPlanner(created.intent, options.team ?? createDefaultTeamSnapshot(record.received_at), {
     rootDir: options.rootDir,
+    transport: options.plannerTransport,
     now: record.received_at
   });
 

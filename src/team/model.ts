@@ -56,6 +56,31 @@ export function createDefaultTeamSnapshot(now = new Date().toISOString()): TeamS
   };
 }
 
+export function createPlannerTeamSnapshot(
+  plannerAgentId: string,
+  now = new Date().toISOString()
+): TeamSnapshot {
+  return {
+    team_id: `openclaw-${plannerAgentId}`,
+    source: "openclaw_config",
+    created_at: now,
+    agents: [
+      {
+        agent_id: plannerAgentId,
+        role: "controller",
+        capabilities: ["planning", "task_decomposition", "coordination"],
+        permissions: {
+          receive_task: true,
+          assign_task: true,
+          create_task: true,
+          review_wave: true,
+          request_help: true
+        }
+      }
+    ]
+  };
+}
+
 export function findControllerAgent(team: TeamSnapshot): TeamAgent | null {
   return team.agents.find((agent) =>
     agent.role === "controller"

@@ -16,11 +16,24 @@ Start the inbound server:
 npm run serve -- --root .annie --host 127.0.0.1 --port 4317
 ```
 
+By default the planner handoff uses the local mock transport. To send the planner request to a real OpenClaw agent, explicitly pass the planner agent id:
+
+```txt
+npm run serve -- --root .annie --host 127.0.0.1 --port 4317 --openclaw-planner-agent develop-team
+```
+
+The agent id must come from OpenClaw:
+
+```txt
+openclaw agents list --json
+```
+
 Expected startup output includes:
 
 ```txt
 [annie-tgs:server] listening on http://127.0.0.1:4317
 [annie-tgs:server] inbound log file .annie/inbound/openclaw-messages.jsonl
+[annie-tgs:server] planner transport mock
 ```
 
 ## Endpoint
@@ -51,7 +64,7 @@ When a message is received, the terminal running `npm run serve` prints:
 [annie-tgs:inbound] received OpenClaw message path=/openclaw/messages summary=...
 [annie-tgs:inbound] persisted .annie/inbound/openclaw-messages.jsonl
 [annie-tgs:intent] created intent_id=... goal="创建一个网站" path=.annie/intents/intent_....json
-[annie-tgs:planner] handed off intent_id=... to=team-lead-agent inbox=.annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl
+[annie-tgs:planner] handed off intent_id=... to=<planner-agent-id> status=delivered inbox=.annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
 ```
 
 The persisted JSONL log is:
@@ -69,7 +82,7 @@ The created workflow intent is written under:
 The planner request mailbox entry is written under:
 
 ```txt
-.annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl
+.annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
 ```
 
 Each line contains:
@@ -117,10 +130,11 @@ Expected response:
   "log_path": ".annie/inbound/openclaw-messages.jsonl",
   "intent_id": "intent_...",
   "intent_path": ".annie/intents/intent_....json",
-  "planner_agent_id": "team-lead-agent",
-  "planner_inbox_path": ".annie/workflows/<intent_id>/mailboxes/team-lead-agent/inbox.jsonl",
+  "planner_agent_id": "<planner-agent-id>",
+  "planner_delivery_status": "delivered",
+  "planner_inbox_path": ".annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl",
   "planning_message_id": "msg_..."
 }
 ```
 
-This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, and handoff to the local planner mailbox. It does not yet call a real planner agent, generate a DAG, or dispatch execution tasks.
+This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, and optionally delivery to a real OpenClaw planner agent when `--openclaw-planner-agent` is provided. It does not yet parse the real planner reply, generate a DAG, or dispatch execution tasks.

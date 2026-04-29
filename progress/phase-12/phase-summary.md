@@ -19,7 +19,7 @@
 | ID | 状态 | 任务 |
 |---|---|---|
 | T064 | done | [Real OpenClaw CLI client](./tasks/task-064-real-openclaw-cli-client.md) |
-| T065 | todo | [Serve real planner transport](./tasks/task-065-serve-real-planner-transport.md) |
+| T065 | done | [Serve real planner transport](./tasks/task-065-serve-real-planner-transport.md) |
 | T066 | todo | [Phase 12 验收测试](./tasks/task-066-phase-12-acceptance.md) |
 
 ## 当前进度
@@ -27,7 +27,8 @@
 - Phase 01-11 已完成。
 - Phase 12 已规划。
 - 已完成 T064：Real OpenClaw CLI client。
-- 下一步进入 T065：Serve real planner transport。
+- 已完成 T065：Serve real planner transport。
+- 下一步进入 T066：Phase 12 验收测试。
 
 ## 阶段完成标准
 

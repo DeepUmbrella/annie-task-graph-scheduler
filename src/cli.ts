@@ -6,6 +6,8 @@ import { recoverWorkflow } from "./storage/recovery_manager.js";
 import { exportVisualization, type VisualizationExport } from "./visualization/projection.js";
 import { createWorkflowExecutionReport } from "./reporting/index.js";
 import { startInboundServer } from "./server/inbound_server.js";
+import { OpenClawAdapter, OpenClawCliClient } from "./communication/openclaw_adapter.js";
+import { createPlannerTeamSnapshot } from "./team/index.js";
 import { createBuiltinRegistry } from "./templates/index.js";
 import { createInitialWorkflowState, instantiateTemplate, loadPlanFile } from "./validation/plan_loader.js";
 import type { LoadedPlan } from "./validation/plan_loader.js";
@@ -49,7 +51,7 @@ Commands:
   recover --workflow <workflow_id>
   visualize --workflow <workflow_id>
   report --workflow <workflow_id>
-  serve [--host <host>] [--port <port>]
+  serve [--host <host>] [--port <port>] [--openclaw-planner-agent <agent_id>]
   template list
   template show --template <template_id>
   template instantiate --template <template_id> --plan-id <plan_id>
@@ -404,6 +406,7 @@ async function runServe(): Promise<void> {
   const port = Number(getArg("--port") ?? "4317");
   const host = getArg("--host") ?? "127.0.0.1";
   const rootDir = getArg("--root") ?? ".annie";
+  const openClawPlannerAgent = getArg("--openclaw-planner-agent");
 
   if (!Number.isInteger(port) || port <= 0 || port > 65535) {
     printCliError(new TaskGraphSchedulerError("Port is invalid.", "CLI_PORT_INVALID", {
@@ -415,7 +418,14 @@ async function runServe(): Promise<void> {
     const started = await startInboundServer({
       host,
       port,
-      rootDir
+      rootDir,
+      team: openClawPlannerAgent ? createPlannerTeamSnapshot(openClawPlannerAgent) : undefined,
+      plannerTransport: openClawPlannerAgent ? new OpenClawAdapter(new OpenClawCliClient({
+        timeout_seconds: Number(getArg("--openclaw-timeout") ?? "600"),
+        thinking: getArg("--openclaw-thinking") ?? undefined,
+        local: hasFlag("--openclaw-local"),
+        deliver: hasFlag("--openclaw-deliver")
+      })) : undefined
     });
 
     console.log(JSON.stringify({
@@ -427,10 +437,13 @@ async function runServe(): Promise<void> {
         openclaw_messages: `${started.url}/openclaw/messages`,
         annie_messages: `${started.url}/annie/messages`
       },
-      inbound_log_path: started.logPath
+      inbound_log_path: started.logPath,
+      openclaw_planner_agent: openClawPlannerAgent ?? null,
+      planner_transport: openClawPlannerAgent ? "openclaw_cli" : "mock"
     }, null, 2));
     console.log(`[annie-tgs:server] listening on ${started.url}`);
     console.log(`[annie-tgs:server] inbound log file ${started.logPath}`);
+    console.log(`[annie-tgs:server] planner transport ${openClawPlannerAgent ? `openclaw_cli agent=${openClawPlannerAgent}` : "mock"}`);
   } catch (error) {
     printCliError(error);
   }

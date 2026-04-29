@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,21 @@
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
 - `tests/inbound_server.test.ts`
+
+## 完成记录
+
+- `handoffIntentToPlanner` 支持注入 `TransportAdapter`。
+- `receiveInboundPayload` / inbound server 支持注入 team 和 planner transport。
+- `serve --openclaw-planner-agent <agent_id>` 会创建真实 OpenClaw CLI transport。
+- 默认 `serve` 仍使用 mock transport。
+- response 和 planner log 增加 `planner_delivery_status`。
+- smoke-test 文档已补充真实 OpenClaw 启动方式。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/inbound_server.test.js: 2 passed
+node --test dist/tests/openclaw_adapter.test.js: 4 passed
+```
