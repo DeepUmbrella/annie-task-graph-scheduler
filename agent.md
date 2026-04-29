@@ -240,7 +240,7 @@ Phase 12 completed:
 - No default controller/planner agent selection
 - Preserve local mock transport as the default path
 
-Phase 13 planned:
+Phase 13 completed:
 
 - `REQUIREMENT_CLARIFICATION_REQUEST` protocol
 - Planner reply intake into Annie mailbox
@@ -310,8 +310,8 @@ Phase 09: done
 Phase 10: done
 Phase 11: done
 Phase 12: done
-Phase 13: in_progress, T067-T069 done, next T070
+Phase 13: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 132 passed
+npm test: 139 passed
 ```

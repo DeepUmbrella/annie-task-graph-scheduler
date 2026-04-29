@@ -41,11 +41,11 @@ progress/
 - [Phase 10 OpenClaw Inbound Intake Smoke Loop](./phase-10/phase-summary.md) - done
 - [Phase 11 Intent To Planner Agent Handoff](./phase-11/phase-summary.md) - done
 - [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - done
-- [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - in_progress
+- [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 13 Planner Reply Intake And Clarification Loop 正在推进。下一步进入 T067。
+Phase 13 Planner Reply Intake And Clarification Loop 已完成。当前链路已到 planner reply -> REQUIREMENT_CLARIFICATION_REQUEST -> Annie mailbox。下一阶段尚未规划。
 
 ## 更新规则
 
@@ -95,5 +95,5 @@ npm test
 当前基线：
 
 ```txt
-132 passed
+139 passed
 ```

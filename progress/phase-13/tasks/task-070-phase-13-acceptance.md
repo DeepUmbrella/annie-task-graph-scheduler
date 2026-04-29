@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,19 @@
 - `progress/phase-13/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- Phase 13 所有 task 已标记为 `done`。
+- planner reply 可以被转换为 `REQUIREMENT_CLARIFICATION_REQUEST`。
+- `POST /openclaw/planner-replies` 可以把澄清请求写入 Annie mailbox。
+- smoke-test 文档已补充 planner reply 回写步骤。
+- Phase 13 明确保持边界：不解析 TaskDagPlan，不生成 DAG，不调度执行 agent。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 139 passed
+```
