@@ -35,6 +35,7 @@ export function validateProtocolMessage(message: Message): void {
 
 function isDirectionAllowed(message: Message): boolean {
   switch (message.type) {
+    case "PLANNING_REQUEST":
     case "TASK_ASSIGNED":
     case "REVIEW_REQUESTED":
     case "APPROVAL_REQUIRED":

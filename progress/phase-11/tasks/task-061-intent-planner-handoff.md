@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,20 @@
 - `src/communication/protocol_validator.ts`
 - `src/planning/*`
 - `tests/planning_handoff.test.ts`
+
+## 完成记录
+
+- 新增 `PLANNING_REQUEST` message type。
+- ProtocolValidator 允许 orchestrator 向 agent 发送 `PLANNING_REQUEST`。
+- 新增 `handoffIntentToPlanner`。
+- planning request payload 包含 `intent_id`、`goal`、`team_id` 和 `required_output: TaskDagPlan`。
+- message 写入 controller inbox 和 orchestrator outbox。
+- 不调用真实 OpenClaw session。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 129 passed
+```

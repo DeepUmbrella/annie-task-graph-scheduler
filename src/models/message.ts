@@ -1,4 +1,5 @@
 export const messageTypes = [
+  "PLANNING_REQUEST",
   "TASK_ASSIGNED",
   "TASK_STARTED",
   "TASK_PROGRESS",
