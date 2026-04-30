@@ -285,6 +285,14 @@ Phase 16 completed:
 - Team context membership validation
 - Action policy derivation from registered nodes
 
+Phase 17 planned:
+
+- Runtime detector boundary
+- OpenClaw discovery adapter
+- Candidate node list
+- Discovery metadata persistence
+- `GET /nodes/candidates`
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -352,6 +360,7 @@ Phase 13: done
 Phase 14: done
 Phase 15: done
 Phase 16: done
+Phase 17: planned, next T085
 npm run typecheck: pass
 npm run build: pass
 npm test: 159 passed
