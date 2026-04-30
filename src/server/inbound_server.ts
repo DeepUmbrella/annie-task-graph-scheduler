@@ -3,9 +3,9 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { TaskGraphSchedulerError } from "../errors.js";
 import type { TransportAdapter } from "../communication/openclaw_adapter.js";
+import { intakeAgentMessage, type AgentMessageIntakeResult } from "../agent_message/index.js";
 import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
 import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
-import { intakePlannerReply, type PlannerReplyIntakeResult } from "../planner_reply/index.js";
 import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 
 export interface InboundServerOptions {
@@ -48,12 +48,14 @@ export interface ReceivedInboundPayload extends InboundMessageRecord {
   planner_handoff: PlannerHandoffResult;
 }
 
-export interface ReceivedPlannerReply {
+export interface ReceivedAgentMessage {
   received_at: string;
   path: string;
   payload: unknown;
-  clarification: PlannerReplyIntakeResult;
+  agent_message: AgentMessageIntakeResult;
 }
+
+export type ReceivedPlannerReply = ReceivedAgentMessage;
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
   const host = options.host ?? "127.0.0.1";
@@ -118,23 +120,29 @@ async function handleInboundRequest(
     }
 
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
-      if (request.method === "POST" && request.url === "/openclaw/planner-replies") {
+      if (request.method === "POST" && (request.url === "/openclaw/agent-messages" || request.url === "/openclaw/planner-replies")) {
         const payload = await readJsonBody(request);
-        const record = await receivePlannerReply(payload, {
+        const record = await receiveAgentMessage(payload, {
           rootDir: options.rootDir,
           path: request.url,
           now: options.now
         });
-        console.info(`[annie-tgs:planner-reply] received from=${record.clarification.message.from} intent_id=${record.clarification.message.workflow_id} questions=${record.clarification.questions.length} inbox=${record.clarification.annie_inbox_path}`);
+        console.info(`[annie-tgs:agent-message] received from=${record.agent_message.message.from} intent_id=${record.agent_message.message.workflow_id} type=${record.agent_message.message.type} questions=${record.agent_message.questions.length} inbox=${record.agent_message.inbox_path}`);
         writeJson(response, 202, {
           ok: true,
           received_at: record.received_at,
-          intent_id: record.clarification.message.workflow_id,
-          from: record.clarification.message.from,
-          clarification_message_id: record.clarification.message.message_id,
-          clarification_delivery_status: record.clarification.message.status,
-          question_count: record.clarification.questions.length,
-          annie_inbox_path: record.clarification.annie_inbox_path
+          intent_id: record.agent_message.message.workflow_id,
+          from: record.agent_message.message.from,
+          to: record.agent_message.message.to,
+          message_type: record.agent_message.message.type,
+          classification: record.agent_message.classification,
+          agent_message_id: record.agent_message.message.message_id,
+          delivery_status: record.agent_message.message.status,
+          clarification_message_id: record.agent_message.message.message_id,
+          clarification_delivery_status: record.agent_message.message.status,
+          question_count: record.agent_message.questions.length,
+          inbox_path: record.agent_message.inbox_path,
+          annie_inbox_path: record.agent_message.inbox_path
         });
         return;
       }
@@ -185,6 +193,28 @@ async function handleInboundRequest(
   }
 }
 
+export async function receiveAgentMessage(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedAgentMessage> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const agentMessage = await intakeAgentMessage(payload, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/openclaw/agent-messages",
+    payload,
+    agent_message: agentMessage
+  };
+}
+
 export async function receivePlannerReply(
   payload: unknown,
   options: {
@@ -193,18 +223,10 @@ export async function receivePlannerReply(
     now?: () => string;
   } = {}
 ): Promise<ReceivedPlannerReply> {
-  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
-  const clarification = await intakePlannerReply(payload, {
-    rootDir: options.rootDir,
-    now: receivedAt
+  return receiveAgentMessage(payload, {
+    ...options,
+    path: options.path ?? "/openclaw/planner-replies"
   });
-
-  return {
-    received_at: receivedAt,
-    path: options.path ?? "/openclaw/planner-replies",
-    payload,
-    clarification
-  };
 }
 
 export async function receiveInboundPayload(

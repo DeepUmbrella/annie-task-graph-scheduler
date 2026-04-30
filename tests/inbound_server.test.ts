@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, receiveInboundPayload, receivePlannerReply } from "../src/server/inbound_server.js";
+import { inboundLogPath, receiveAgentMessage, receiveInboundPayload, receivePlannerReply } from "../src/server/inbound_server.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
 import type { Message } from "../src/models/message.js";
@@ -111,17 +111,48 @@ test("receivePlannerReply writes clarification request to Annie inbox", async ()
   });
 
   assert.equal(record.path, "/openclaw/planner-replies");
-  assert.equal(record.clarification.message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
-  assert.equal(record.clarification.message.workflow_id, "intent_001");
-  assert.equal(record.clarification.message.from, "develop-team");
-  assert.equal(record.clarification.questions.length, 2);
+  assert.equal(record.agent_message.message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
+  assert.equal(record.agent_message.message.workflow_id, "intent_001");
+  assert.equal(record.agent_message.message.from, "develop-team");
+  assert.equal(record.agent_message.questions.length, 2);
 
-  const inboxRaw = await readFile(record.clarification.annie_inbox_path, "utf8");
+  const inboxRaw = await readFile(record.agent_message.inbox_path, "utf8");
   const inboxMessages = inboxRaw
     .split("\n")
     .filter((line) => line.trim().length > 0)
     .map((line) => JSON.parse(line) as { type: string; to: string });
   assert.equal(inboxMessages.length, 1);
   assert.equal(inboxMessages[0]?.type, "REQUIREMENT_CLARIFICATION_REQUEST");
+  assert.equal(inboxMessages[0]?.to, "annie");
+});
+
+test("receiveAgentMessage writes generic agent message to Annie inbox", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-agent-message-endpoint-"));
+  const record = await receiveAgentMessage({
+    intent_id: "intent_002",
+    from: "annie-dev",
+    to: "annie",
+    message: "范围确认 — 是否需要登录？"
+  }, {
+    rootDir,
+    path: "/openclaw/agent-messages",
+    now: () => "2026-05-01T00:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/openclaw/agent-messages");
+  assert.equal(record.agent_message.message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
+  assert.equal(record.agent_message.message.workflow_id, "intent_002");
+  assert.equal(record.agent_message.message.from, "annie-dev");
+  assert.equal(record.agent_message.message.to, "annie");
+  assert.equal(record.agent_message.questions.length, 1);
+
+  const inboxRaw = await readFile(record.agent_message.inbox_path, "utf8");
+  const inboxMessages = inboxRaw
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => JSON.parse(line) as { type: string; from: string; to: string });
+  assert.equal(inboxMessages.length, 1);
+  assert.equal(inboxMessages[0]?.type, "REQUIREMENT_CLARIFICATION_REQUEST");
+  assert.equal(inboxMessages[0]?.from, "annie-dev");
   assert.equal(inboxMessages[0]?.to, "annie");
 });

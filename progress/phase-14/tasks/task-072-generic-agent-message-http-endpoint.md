@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,19 @@
 
 - `src/server/inbound_server.ts`
 - `tests/inbound_server.test.ts`
+
+## 完成记录
+
+- 新增 `receiveAgentMessage`。
+- 新增 `POST /openclaw/agent-messages` 通用 endpoint。
+- `POST /openclaw/planner-replies` 保持兼容 alias。
+- response 增加通用字段：`agent_message_id`、`message_type`、`classification`、`inbox_path`。
+- 旧 clarification response 字段继续保留。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/inbound_server.test.js: 4 passed
+```
