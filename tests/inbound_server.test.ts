@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, receiveAgentMessage, receiveInboundPayload } from "../src/server/inbound_server.js";
+import { inboundLogPath, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration } from "../src/server/inbound_server.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
 import type { Message } from "../src/models/message.js";
@@ -129,4 +129,66 @@ test("receiveAgentMessage writes generic agent message to Annie inbox", async ()
   assert.equal(inboxMessages[0]?.type, "REQUIREMENT_CLARIFICATION_REQUEST");
   assert.equal(inboxMessages[0]?.from, "annie-dev");
   assert.equal(inboxMessages[0]?.to, "annie");
+});
+
+test("receiveNodeRegistration stores runtime-neutral node proposals", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-node-registration-"));
+  const record = await receiveNodeRegistration({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "develop-team",
+        node_type: "team",
+        requested_actions: ["send_message"]
+      },
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"]
+      }
+    ],
+    team_compositions: [
+      {
+        team_node_id: "develop-team",
+        lead_node_id: "annie-dev",
+        members: [
+          {
+            node_id: "annie-dev",
+            team_role: "lead_developer"
+          }
+        ]
+      }
+    ]
+  }, {
+    rootDir,
+    now: () => "2026-05-01T03:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/nodes/register");
+  assert.equal(record.registered_at, "2026-05-01T03:00:00.000Z");
+  assert.equal(record.snapshot.nodes.length, 2);
+  assert.equal(record.snapshot.team_compositions.length, 1);
+});
+
+test("listRegisteredNodes reads the snapshot used by GET /nodes", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-node-list-"));
+  await receiveNodeRegistration({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"]
+      }
+    ]
+  }, {
+    rootDir,
+    now: () => "2026-05-01T04:00:00.000Z"
+  });
+
+  const snapshot = await listRegisteredNodes({ rootDir });
+
+  assert.equal(snapshot.nodes.length, 1);
+  assert.equal(snapshot.nodes[0]?.node_id, "annie-dev");
+  assert.equal(snapshot.team_compositions.length, 0);
 });

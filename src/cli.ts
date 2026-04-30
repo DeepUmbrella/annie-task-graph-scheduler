@@ -435,10 +435,13 @@ async function runServe(): Promise<void> {
       endpoints: {
         health: `${started.url}/health`,
         openclaw_messages: `${started.url}/openclaw/messages`,
+        nodes_register: `${started.url}/nodes/register`,
+        nodes: `${started.url}/nodes`,
         agent_messages: `${started.url}/agent-messages`,
         annie_messages: `${started.url}/annie/messages`
       },
       inbound_log_path: started.logPath,
+      node_registry_path: started.nodeRegistryPath,
       openclaw_planner_agent: openClawPlannerAgent ?? null,
       planner_transport: openClawPlannerAgent ? "openclaw_cli" : "mock"
     }, null, 2));

@@ -7,6 +7,7 @@ import { intakeAgentMessage, type AgentMessageIntakeResult } from "../agent_mess
 import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent } from "../intake/index.js";
 import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
 import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
+import { createNodeRegistry, type NodeRegistrationProposal, type NodeRegistrySnapshot } from "../node_registry/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -24,6 +25,7 @@ export interface StartedInboundServer {
   url: string;
   logPath: string;
   intentsDir: string;
+  nodeRegistryPath: string;
 }
 
 export interface InboundMessageRecord {
@@ -53,6 +55,14 @@ export interface ReceivedAgentMessage {
   path: string;
   payload: unknown;
   agent_message: AgentMessageIntakeResult;
+}
+
+export interface NodeRegistrationResult {
+  registered_at: string;
+  path: string;
+  payload: NodeRegistrationProposal;
+  registry_path: string;
+  snapshot: NodeRegistrySnapshot;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -89,7 +99,8 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
     port: actualPort,
     url: `http://${host}:${actualPort}`,
     logPath,
-    intentsDir: intentsDir(rootDir)
+    intentsDir: intentsDir(rootDir),
+    nodeRegistryPath: createNodeRegistry(rootDir).registryPath()
   };
 }
 
@@ -117,7 +128,36 @@ async function handleInboundRequest(
       return;
     }
 
+    if (request.method === "GET" && request.url === "/nodes") {
+      const snapshot = await listRegisteredNodes({
+        rootDir: options.rootDir
+      });
+      writeJson(response, 200, {
+        ok: true,
+        ...snapshot
+      });
+      return;
+    }
+
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
+      if (request.method === "POST" && request.url === "/nodes/register") {
+        const payload = await readJsonBody(request);
+        const record = await receiveNodeRegistration(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:nodes] registered nodes=${record.snapshot.nodes.length} teams=${record.snapshot.team_compositions.length} registry=${record.registry_path}`);
+        writeJson(response, 202, {
+          ok: true,
+          registered_at: record.registered_at,
+          node_count: record.snapshot.nodes.length,
+          team_count: record.snapshot.team_compositions.length,
+          registry_path: record.registry_path
+        });
+        return;
+      }
+
       if (request.method === "POST" && request.url === "/agent-messages") {
         const payload = await readJsonBody(request);
         const record = await receiveAgentMessage(payload, {
@@ -189,6 +229,36 @@ async function handleInboundRequest(
       ...details
     });
   }
+}
+
+export async function receiveNodeRegistration(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<NodeRegistrationResult> {
+  const registeredAt = (options.now ?? (() => new Date().toISOString()))();
+  const registry = createNodeRegistry(options.rootDir);
+  const proposal = payload as NodeRegistrationProposal;
+  const snapshot = await registry.registerProposal(proposal, {
+    now: registeredAt
+  });
+
+  return {
+    registered_at: registeredAt,
+    path: options.path ?? "/nodes/register",
+    payload: proposal,
+    registry_path: registry.registryPath(),
+    snapshot
+  };
+}
+
+export async function listRegisteredNodes(options: {
+  rootDir?: string;
+} = {}): Promise<NodeRegistrySnapshot> {
+  return createNodeRegistry(options.rootDir).loadSnapshot();
 }
 
 export async function receiveAgentMessage(
