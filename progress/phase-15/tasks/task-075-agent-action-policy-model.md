@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,19 @@
 
 - `src/agent_action/*`
 - `tests/agent_action.test.ts`
+
+## 完成记录
+
+- 新增 runtime-agnostic `AgentActionPolicy` / `AgentActionPermission`。
+- 新增 `send_message` action type。
+- 新增 `assertAgentActionAllowed`。
+- 默认 policy 包含 OpenClaw runtime 节点和非 OpenClaw local 节点。
+- 测试覆盖允许、未知节点、action 不允许和 message type 不允许。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/agent_action.test.js: 4 passed
+```

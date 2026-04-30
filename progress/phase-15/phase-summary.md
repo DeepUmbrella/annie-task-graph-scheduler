@@ -8,7 +8,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -20,7 +20,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T075 | todo | [Agent action policy model](./tasks/task-075-agent-action-policy-model.md) |
+| T075 | done | [Agent action policy model](./tasks/task-075-agent-action-policy-model.md) |
 | T076 | todo | [Self-routed agent message intake](./tasks/task-076-self-routed-agent-message-intake.md) |
 | T077 | todo | [Remove planner reply compatibility](./tasks/task-077-remove-planner-reply-compatibility.md) |
 | T078 | todo | [Docs and progress update](./tasks/task-078-docs-and-progress-update.md) |
@@ -29,7 +29,9 @@
 ## 当前进度
 
 - Phase 01-14 已完成。
-- Phase 15 已规划，等待开始实施。
+- Phase 15 已开始实施。
+- 已完成 T075：Agent action policy model。
+- 下一步进入 T076：Self-routed agent message intake。
 
 ## 阶段完成标准
 
