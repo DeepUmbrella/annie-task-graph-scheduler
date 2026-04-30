@@ -21,7 +21,7 @@
 | T080 | done | [Node registry models](./tasks/task-080-node-registry-models.md) |
 | T081 | done | [Local node registry persistence](./tasks/task-081-local-node-registry-persistence.md) |
 | T082 | done | [Node registration HTTP endpoints](./tasks/task-082-node-registration-http-endpoints.md) |
-| T083 | todo | [Team context and action policy integration](./tasks/task-083-team-context-and-action-policy-integration.md) |
+| T083 | done | [Team context and action policy integration](./tasks/task-083-team-context-and-action-policy-integration.md) |
 | T084 | todo | [Phase 16 验收测试](./tasks/task-084-phase-16-acceptance.md) |
 
 ## 当前进度
@@ -31,7 +31,8 @@
 - T080：Node registry models 已完成，支持 individual node、team node、单成员 team 和 team composition 基础校验。
 - T081：Local node registry persistence 已完成，registry 使用 `.annie/nodes/registry.json` 并支持 proposal 持久化和重复注册更新。
 - T082：Node registration HTTP endpoints 已完成，新增 runtime-neutral `/nodes/register` 和 `GET /nodes`。
-- 下一步：T083 Team context and action policy integration。
+- T083：Team context and action policy integration 已完成，支持 team context membership validation 和从 Node Registry 派生 action policy。
+- 下一步：T084 Phase 16 acceptance。
 
 ## 阶段完成标准
 

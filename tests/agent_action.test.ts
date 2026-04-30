@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import {
   assertAgentActionAllowed,
   createDefaultAgentActionPolicy,
+  createSendMessagePermission,
   type AgentActionPolicy
 } from "../src/agent_action/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
@@ -15,6 +16,14 @@ test("default agent action policy allows runtime-agnostic local nodes", () => {
     action: "send_message",
     message_type: "REQUIREMENT_CLARIFICATION_REQUEST"
   });
+});
+
+test("createSendMessagePermission exposes shared message type permissions", () => {
+  const permission = createSendMessagePermission();
+
+  assert.equal(permission.action, "send_message");
+  assert.ok(permission.message_types.includes("REQUIREMENT_CLARIFICATION_REQUEST"));
+  assert.ok(permission.message_types.includes("HELP_REQUESTED"));
 });
 
 test("agent action policy rejects unknown nodes", () => {

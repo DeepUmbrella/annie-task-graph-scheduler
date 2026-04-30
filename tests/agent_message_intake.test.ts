@@ -8,6 +8,7 @@ import {
   intakeAgentMessage,
   parseAgentMessagePayload
 } from "../src/agent_message/index.js";
+import { buildAgentActionPolicyFromNodeRegistry, normalizeNodeRegistrationProposal } from "../src/node_registry/index.js";
 import type { AgentActionPolicy } from "../src/agent_action/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
 
@@ -140,4 +141,34 @@ test("intakeAgentMessage rejects actions not allowed by policy", async () => {
     (error) => error instanceof TaskGraphSchedulerError
       && error.code === "AGENT_ACTION_NOT_ALLOWED"
   );
+});
+
+test("intakeAgentMessage accepts policy derived from node registry", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-agent-message-registry-policy-"));
+  const snapshot = normalizeNodeRegistrationProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"]
+      }
+    ]
+  }, "2026-05-01T00:00:00.000Z");
+  const policy = buildAgentActionPolicyFromNodeRegistry(snapshot);
+
+  const result = await intakeAgentMessage({
+    intent_id: "intent_003",
+    from: "annie-dev",
+    action: "send_message",
+    to: "annie",
+    message_type: "REQUIREMENT_CLARIFICATION_REQUEST",
+    message: replyText
+  }, {
+    rootDir,
+    actionPolicy: policy
+  });
+
+  assert.equal(result.message.from, "annie-dev");
+  assert.equal(result.message.to, "annie");
 });

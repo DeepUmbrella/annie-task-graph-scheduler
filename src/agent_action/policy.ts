@@ -30,6 +30,14 @@ export interface AgentActionCheck {
   message_type: MessageType;
 }
 
+export const sendMessageActionMessageTypes: MessageType[] = [
+  "REQUIREMENT_CLARIFICATION_REQUEST",
+  "QUESTION_ASKED",
+  "ANSWER_PROVIDED",
+  "HELP_REQUESTED",
+  "BLOCKER_REPORTED"
+];
+
 export function createDefaultAgentActionPolicy(): AgentActionPolicy {
   return {
     policy_id: "default-agent-action-policy",
@@ -75,21 +83,19 @@ export function isAgentActionType(value: string): value is AgentActionType {
   return agentActionTypes.includes(value as AgentActionType);
 }
 
+export function createSendMessagePermission(): AgentActionPermission {
+  return {
+    action: "send_message",
+    message_types: sendMessageActionMessageTypes
+  };
+}
+
 function createSendMessageNodePolicy(nodeId: string, runtime?: string): AgentActionNodePolicy {
   return {
     node_id: nodeId,
     runtime,
     permissions: [
-      {
-        action: "send_message",
-        message_types: [
-          "REQUIREMENT_CLARIFICATION_REQUEST",
-          "QUESTION_ASKED",
-          "ANSWER_PROVIDED",
-          "HELP_REQUESTED",
-          "BLOCKER_REPORTED"
-        ]
-      }
+      createSendMessagePermission()
     ]
   };
 }

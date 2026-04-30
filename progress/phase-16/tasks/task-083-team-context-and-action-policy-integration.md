@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,22 @@
 - `src/agent_message/intake.ts`
 - `tests/node_registry.test.ts`
 - `tests/agent_message_intake.test.ts`
+
+## 实施记录
+
+- 新增 `validateTeamContext(snapshot, nodeId, context)`。
+- 校验 node 必须已注册。
+- 校验 team composition 必须存在。
+- 校验 node 必须属于 claimed team。
+- 可选校验 claimed role 与 team composition role 一致。
+- 新增 `buildAgentActionPolicyFromNodeRegistry(snapshot)`。
+- action policy 只从 active node 的 `granted_actions` 派生。
+- 抽出共享 `createSendMessagePermission()`，避免默认 policy 和 registry policy 分叉。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/node_registry.test.js` passed.
+- `node --test dist/tests/agent_action.test.js` passed.
+- `node --test dist/tests/agent_message_intake.test.js` passed.

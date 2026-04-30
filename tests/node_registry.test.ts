@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { createNodeRegistry, normalizeNodeRegistrationProposal } from "../src/node_registry/index.js";
+import { createNodeRegistry, normalizeNodeRegistrationProposal, validateTeamContext } from "../src/node_registry/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
 
 test("normalizes individual node registration proposals", () => {
@@ -212,4 +212,77 @@ test("node registry repeated registration updates existing node", async () => {
   assert.deepEqual(snapshot.nodes[0]?.declared_capabilities, ["backend"]);
   assert.equal(snapshot.nodes[0]?.registered_at, "2026-05-01T01:00:00.000Z");
   assert.equal(snapshot.nodes[0]?.updated_at, "2026-05-01T02:00:00.000Z");
+});
+
+test("validateTeamContext accepts registered team members", () => {
+  const snapshot = normalizeNodeRegistrationProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "develop-team",
+        node_type: "team"
+      },
+      {
+        node_id: "annie-dev",
+        node_type: "individual"
+      }
+    ],
+    team_compositions: [
+      {
+        team_node_id: "develop-team",
+        lead_node_id: "annie-dev",
+        members: [
+          {
+            node_id: "annie-dev",
+            team_role: "lead_developer"
+          }
+        ]
+      }
+    ]
+  }, "2026-05-01T00:00:00.000Z");
+
+  assert.doesNotThrow(() => validateTeamContext(snapshot, "annie-dev", {
+    team_node_id: "develop-team",
+    role: "lead_developer"
+  }));
+});
+
+test("validateTeamContext rejects non-members", () => {
+  const snapshot = normalizeNodeRegistrationProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "develop-team",
+        node_type: "team"
+      },
+      {
+        node_id: "annie-dev",
+        node_type: "individual"
+      },
+      {
+        node_id: "review-agent",
+        node_type: "individual"
+      }
+    ],
+    team_compositions: [
+      {
+        team_node_id: "develop-team",
+        lead_node_id: "annie-dev",
+        members: [
+          {
+            node_id: "annie-dev",
+            team_role: "lead_developer"
+          }
+        ]
+      }
+    ]
+  }, "2026-05-01T00:00:00.000Z");
+
+  assert.throws(
+    () => validateTeamContext(snapshot, "review-agent", {
+      team_node_id: "develop-team"
+    }),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "TEAM_CONTEXT_NODE_NOT_MEMBER"
+  );
 });
