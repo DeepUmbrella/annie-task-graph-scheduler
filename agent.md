@@ -254,6 +254,14 @@ Phase 14 completed:
 - Keep `POST /openclaw/planner-replies` as compatibility alias
 - Preserve Phase 13 behavior while removing planner-specific core naming
 
+Phase 15 planned:
+
+- Agent / node chooses its own action and `to`
+- Scheduler validates action policy, writes mailbox, and records/audits
+- Remove `/openclaw/planner-replies` compatibility endpoint
+- Remove `planner_reply` compatibility module
+- `agent_message` payload must explicitly include `action` and `to`
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -319,6 +327,7 @@ Phase 11: done
 Phase 12: done
 Phase 13: done
 Phase 14: done
+Phase 15: planned
 npm run typecheck: pass
 npm run build: pass
 npm test: 145 passed

@@ -43,10 +43,11 @@ progress/
 - [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - done
 - [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - done
 - [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - done
+- [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 14 Generic Agent Message Intake 已完成。当前链路已到 OpenClaw agent message -> generic intake -> classified Annie Message -> target mailbox。下一阶段尚未规划。
+Phase 15 Agent Action Policy And Self-Routed Messages 已规划，等待开始实施。
 
 ## 更新规则
 
