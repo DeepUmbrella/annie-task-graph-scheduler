@@ -20,7 +20,7 @@
 |---|---|---|
 | T071 | done | [Generic agent message intake module](./tasks/task-071-generic-agent-message-intake-module.md) |
 | T072 | done | [Generic agent message HTTP endpoint](./tasks/task-072-generic-agent-message-http-endpoint.md) |
-| T073 | todo | [Docs and compatibility update](./tasks/task-073-docs-and-compatibility-update.md) |
+| T073 | done | [Docs and compatibility update](./tasks/task-073-docs-and-compatibility-update.md) |
 | T074 | todo | [Phase 14 验收测试](./tasks/task-074-phase-14-acceptance.md) |
 
 ## 当前进度
@@ -29,7 +29,8 @@
 - Phase 14 已规划。
 - 已完成 T071：Generic agent message intake module。
 - 已完成 T072：Generic agent message HTTP endpoint。
-- 下一步进入 T073：Docs and compatibility update。
+- 已完成 T073：Docs and compatibility update。
+- 下一步进入 T074：Phase 14 验收测试。
 
 ## 阶段完成标准
 

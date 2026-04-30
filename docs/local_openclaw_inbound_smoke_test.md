@@ -44,7 +44,13 @@ Send OpenClaw/Annie messages to:
 POST http://127.0.0.1:4317/openclaw/messages
 ```
 
-Send planner replies back to TaskGraphScheduler:
+Send any OpenClaw agent message back to TaskGraphScheduler:
+
+```txt
+POST http://127.0.0.1:4317/openclaw/agent-messages
+```
+
+The old planner-specific path is kept as a compatibility alias:
 
 ```txt
 POST http://127.0.0.1:4317/openclaw/planner-replies
@@ -73,10 +79,10 @@ When a message is received, the terminal running `npm run serve` prints:
 [annie-tgs:planner] handed off intent_id=... to=<planner-agent-id> status=delivered inbox=.annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
 ```
 
-When a planner reply is received, the terminal prints:
+When an agent message is received, the terminal prints:
 
 ```txt
-[annie-tgs:planner-reply] received from=<planner-agent-id> intent_id=<intent_id> questions=5 inbox=.annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl
+[annie-tgs:agent-message] received from=<agent-id> intent_id=<intent_id> type=REQUIREMENT_CLARIFICATION_REQUEST questions=5 inbox=.annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl
 ```
 
 The persisted JSONL log is:
@@ -97,7 +103,7 @@ The planner request mailbox entry is written under:
 .annie/workflows/<intent_id>/mailboxes/<planner-agent-id>/inbox.jsonl
 ```
 
-The planner clarification request for Annie is written under:
+The agent clarification request for Annie is written under:
 
 ```txt
 .annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl
@@ -155,12 +161,12 @@ Expected response:
 }
 ```
 
-## Manual Planner Reply Test
+## Manual Agent Message Test
 
-After the real planner asks clarification questions, post that reply back:
+After a real agent asks clarification questions, post that reply back:
 
 ```txt
-curl -sS -X POST http://127.0.0.1:4317/openclaw/planner-replies \
+curl -sS -X POST http://127.0.0.1:4317/openclaw/agent-messages \
   -H 'content-type: application/json' \
   -d '{
     "intent_id":"intent_20260429195002_创建一个网站_ds5hzo",
@@ -177,11 +183,17 @@ Expected response:
   "received_at": "...",
   "intent_id": "intent_...",
   "from": "develop-team",
+  "to": "annie",
+  "message_type": "REQUIREMENT_CLARIFICATION_REQUEST",
+  "classification": "requirement_clarification_request",
+  "agent_message_id": "msg_...",
+  "delivery_status": "delivered",
   "clarification_message_id": "msg_...",
   "clarification_delivery_status": "delivered",
   "question_count": 5,
+  "inbox_path": ".annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl",
   "annie_inbox_path": ".annie/workflows/<intent_id>/mailboxes/annie/inbox.jsonl"
 }
 ```
 
-This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, optional delivery to a real OpenClaw planner agent, and planner clarification reply intake. It does not yet parse TaskDagPlan, generate a DAG, or dispatch execution tasks.
+This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, optional delivery to a real OpenClaw planner agent, and generic agent message intake. It does not yet parse TaskDagPlan, generate a DAG, or dispatch execution tasks.

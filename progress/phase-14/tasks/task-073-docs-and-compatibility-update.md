@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,16 @@
 - `progress/README.md`
 - `agent.md`
 - `progress/phase-13/phase-summary.md`
+
+## 完成记录
+
+- smoke-test 文档推荐使用 `/openclaw/agent-messages`。
+- 文档说明 `/openclaw/planner-replies` 是兼容 alias。
+- Phase 13 summary 标注已由 Phase 14 泛化。
+- 文档中的 log、response 和 mailbox 描述已改为 agent message 语义。
+
+## 验证结果
+
+```txt
+Documentation-only change; full validation belongs to T074.
+```

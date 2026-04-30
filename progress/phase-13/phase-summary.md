@@ -27,6 +27,7 @@
 
 - Phase 01-12 已完成。
 - Phase 13 已完成。
+- Phase 14 已将 Phase 13 的 planner-specific intake 泛化为 agent message intake；`/openclaw/planner-replies` 保留为兼容 alias。
 - 已完成 T067：Clarification message protocol。
 - 已完成 T068：Planner reply intake。
 - 已完成 T069：Planner reply HTTP endpoint。
