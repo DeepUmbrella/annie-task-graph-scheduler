@@ -21,8 +21,8 @@
 | ID | 状态 | 任务 |
 |---|---|---|
 | T075 | done | [Agent action policy model](./tasks/task-075-agent-action-policy-model.md) |
-| T076 | todo | [Self-routed agent message intake](./tasks/task-076-self-routed-agent-message-intake.md) |
-| T077 | todo | [Remove planner reply compatibility](./tasks/task-077-remove-planner-reply-compatibility.md) |
+| T076 | done | [Self-routed agent message intake](./tasks/task-076-self-routed-agent-message-intake.md) |
+| T077 | done | [Remove planner reply compatibility](./tasks/task-077-remove-planner-reply-compatibility.md) |
 | T078 | todo | [Docs and progress update](./tasks/task-078-docs-and-progress-update.md) |
 | T079 | todo | [Phase 15 验收测试](./tasks/task-079-phase-15-acceptance.md) |
 
@@ -31,7 +31,9 @@
 - Phase 01-14 已完成。
 - Phase 15 已开始实施。
 - 已完成 T075：Agent action policy model。
-- 下一步进入 T076：Self-routed agent message intake。
+- 已完成 T076：Self-routed agent message intake。
+- 已完成 T077：Remove runtime-specific agent message routes。
+- 下一步进入 T078：Docs and progress update。
 
 ## 阶段完成标准
 

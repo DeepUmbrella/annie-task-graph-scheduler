@@ -1,12 +1,22 @@
 import { createMailboxStore, type MailboxStore } from "../communication/mailbox_store.js";
 import { createMessageBus } from "../communication/message_bus.js";
-import type { Message } from "../models/message.js";
+import {
+  assertAgentActionAllowed,
+  createDefaultAgentActionPolicy,
+  isAgentActionType,
+  type AgentActionPolicy,
+  type AgentActionType
+} from "../agent_action/index.js";
+import { messageTypes, type Message, type MessageType } from "../models/message.js";
 import { TaskGraphSchedulerError } from "../errors.js";
 
 export interface AgentMessagePayload {
   intent_id: string;
   from: string;
+  runtime: string | null;
+  action: AgentActionType;
   to: string;
+  message_type: MessageType;
   text: string;
   raw_payload: unknown;
 }
@@ -14,6 +24,7 @@ export interface AgentMessagePayload {
 export interface AgentMessageIntakeOptions {
   rootDir?: string;
   mailboxStore?: MailboxStore;
+  actionPolicy?: AgentActionPolicy;
   now?: string;
 }
 
@@ -31,23 +42,31 @@ export async function intakeAgentMessage(
   const agentMessage = parseAgentMessagePayload(payload);
   const rootDir = options.rootDir ?? ".annie";
   const mailboxStore = options.mailboxStore ?? createMailboxStore(rootDir);
+  const actionPolicy = options.actionPolicy ?? createDefaultAgentActionPolicy();
   const bus = createMessageBus({
     mailbox_store: mailboxStore
   });
   const questions = extractClarificationQuestions(agentMessage.text);
+  assertAgentActionAllowed(actionPolicy, {
+    node_id: agentMessage.from,
+    action: agentMessage.action,
+    message_type: agentMessage.message_type
+  });
   const message = bus.createMessage({
     workflow_id: agentMessage.intent_id,
     task_id: "planning",
     wave_id: "planning",
     from: agentMessage.from,
     to: agentMessage.to,
-    type: "REQUIREMENT_CLARIFICATION_REQUEST",
+    type: agentMessage.message_type,
     priority: "high",
     payload: {
       intent_id: agentMessage.intent_id,
+      action: agentMessage.action,
       questions,
       reply_text: agentMessage.text,
       raw_payload: agentMessage.raw_payload,
+      runtime: agentMessage.runtime,
       classification: "requirement_clarification_request"
     },
     created_at: options.now
@@ -69,7 +88,10 @@ export function parseAgentMessagePayload(payload: unknown): AgentMessagePayload 
 
   const intentId = firstString(payload, ["intent_id", "workflow_id"]);
   const from = firstString(payload, ["from", "agent_id", "planner_agent_id"]);
-  const to = firstString(payload, ["to", "target", "recipient"]) ?? "annie";
+  const runtime = firstString(payload, ["runtime", "runtime_id"]);
+  const action = firstString(payload, ["action"]);
+  const to = firstString(payload, ["to", "target", "recipient"]);
+  const messageType = firstString(payload, ["message_type", "type"]);
   const text = firstString(payload, ["message", "text", "reply", "content"]);
 
   if (!intentId) {
@@ -78,6 +100,25 @@ export function parseAgentMessagePayload(payload: unknown): AgentMessagePayload 
   if (!from) {
     throw new TaskGraphSchedulerError("Agent message payload requires from.", "AGENT_MESSAGE_FROM_REQUIRED");
   }
+  if (!action) {
+    throw new TaskGraphSchedulerError("Agent message payload requires action.", "AGENT_MESSAGE_ACTION_REQUIRED");
+  }
+  if (!isAgentActionType(action)) {
+    throw new TaskGraphSchedulerError("Agent message action is not supported.", "AGENT_MESSAGE_ACTION_INVALID", {
+      action
+    });
+  }
+  if (!to) {
+    throw new TaskGraphSchedulerError("Agent message payload requires to.", "AGENT_MESSAGE_TO_REQUIRED");
+  }
+  if (!messageType) {
+    throw new TaskGraphSchedulerError("Agent message payload requires message_type.", "AGENT_MESSAGE_TYPE_REQUIRED");
+  }
+  if (!isMessageType(messageType)) {
+    throw new TaskGraphSchedulerError("Agent message_type is not supported.", "AGENT_MESSAGE_TYPE_INVALID", {
+      message_type: messageType
+    });
+  }
   if (!text) {
     throw new TaskGraphSchedulerError("Agent message payload requires message text.", "AGENT_MESSAGE_TEXT_REQUIRED");
   }
@@ -85,7 +126,10 @@ export function parseAgentMessagePayload(payload: unknown): AgentMessagePayload 
   return {
     intent_id: intentId,
     from,
+    runtime,
+    action,
     to,
+    message_type: messageType,
     text,
     raw_payload: payload
   };
@@ -121,4 +165,8 @@ function firstString(payload: Record<string, unknown>, keys: string[]): string |
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMessageType(value: string): value is MessageType {
+  return messageTypes.includes(value as MessageType);
 }

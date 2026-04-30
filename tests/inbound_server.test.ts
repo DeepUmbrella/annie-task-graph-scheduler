@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, receiveAgentMessage, receiveInboundPayload, receivePlannerReply } from "../src/server/inbound_server.js";
+import { inboundLogPath, receiveAgentMessage, receiveInboundPayload } from "../src/server/inbound_server.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
 import type { Message } from "../src/models/message.js";
@@ -98,48 +98,22 @@ test("receiveInboundPayload can hand off planning requests through injected Open
   assert.equal(sent[0]?.payload.intent_id, record.intent.intent_id);
 });
 
-test("receivePlannerReply writes clarification request to Annie inbox", async () => {
-  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-planner-reply-endpoint-"));
-  const record = await receivePlannerReply({
-    intent_id: "intent_001",
-    from: "develop-team",
-    message: "网站类型 — 是什么网站？\n功能需求 — 需要哪些核心功能？"
-  }, {
-    rootDir,
-    path: "/openclaw/planner-replies",
-    now: () => "2026-04-30T00:00:00.000Z"
-  });
-
-  assert.equal(record.path, "/openclaw/planner-replies");
-  assert.equal(record.agent_message.message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
-  assert.equal(record.agent_message.message.workflow_id, "intent_001");
-  assert.equal(record.agent_message.message.from, "develop-team");
-  assert.equal(record.agent_message.questions.length, 2);
-
-  const inboxRaw = await readFile(record.agent_message.inbox_path, "utf8");
-  const inboxMessages = inboxRaw
-    .split("\n")
-    .filter((line) => line.trim().length > 0)
-    .map((line) => JSON.parse(line) as { type: string; to: string });
-  assert.equal(inboxMessages.length, 1);
-  assert.equal(inboxMessages[0]?.type, "REQUIREMENT_CLARIFICATION_REQUEST");
-  assert.equal(inboxMessages[0]?.to, "annie");
-});
-
 test("receiveAgentMessage writes generic agent message to Annie inbox", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-agent-message-endpoint-"));
   const record = await receiveAgentMessage({
     intent_id: "intent_002",
     from: "annie-dev",
+    action: "send_message",
     to: "annie",
+    message_type: "REQUIREMENT_CLARIFICATION_REQUEST",
     message: "范围确认 — 是否需要登录？"
   }, {
     rootDir,
-    path: "/openclaw/agent-messages",
+    path: "/agent-messages",
     now: () => "2026-05-01T00:00:00.000Z"
   });
 
-  assert.equal(record.path, "/openclaw/agent-messages");
+  assert.equal(record.path, "/agent-messages");
   assert.equal(record.agent_message.message.type, "REQUIREMENT_CLARIFICATION_REQUEST");
   assert.equal(record.agent_message.message.workflow_id, "intent_002");
   assert.equal(record.agent_message.message.from, "annie-dev");

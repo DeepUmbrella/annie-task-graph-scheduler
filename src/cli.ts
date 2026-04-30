@@ -435,8 +435,7 @@ async function runServe(): Promise<void> {
       endpoints: {
         health: `${started.url}/health`,
         openclaw_messages: `${started.url}/openclaw/messages`,
-        openclaw_agent_messages: `${started.url}/openclaw/agent-messages`,
-        openclaw_planner_replies: `${started.url}/openclaw/planner-replies`,
+        agent_messages: `${started.url}/agent-messages`,
         annie_messages: `${started.url}/annie/messages`
       },
       inbound_log_path: started.logPath,

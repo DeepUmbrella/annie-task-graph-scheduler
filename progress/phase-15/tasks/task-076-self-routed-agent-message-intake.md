@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,19 @@
 
 - `src/agent_message/intake.ts`
 - `tests/agent_message_intake.test.ts`
+
+## 完成记录
+
+- `agent_message` payload 必须显式提供 `action`。
+- `agent_message` payload 必须显式提供 `to`。
+- `agent_message` payload 必须显式提供 `message_type`。
+- 移除 `to ?? "annie"` fallback。
+- intake 使用 agent action policy 校验 action / message type。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/agent_message_intake.test.js: 7 passed
+```

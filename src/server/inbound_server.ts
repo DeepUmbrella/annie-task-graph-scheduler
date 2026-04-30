@@ -55,8 +55,6 @@ export interface ReceivedAgentMessage {
   agent_message: AgentMessageIntakeResult;
 }
 
-export type ReceivedPlannerReply = ReceivedAgentMessage;
-
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
   const host = options.host ?? "127.0.0.1";
   const port = options.port ?? 4317;
@@ -120,7 +118,7 @@ async function handleInboundRequest(
     }
 
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
-      if (request.method === "POST" && (request.url === "/openclaw/agent-messages" || request.url === "/openclaw/planner-replies")) {
+      if (request.method === "POST" && request.url === "/agent-messages") {
         const payload = await readJsonBody(request);
         const record = await receiveAgentMessage(payload, {
           rootDir: options.rootDir,
@@ -209,24 +207,10 @@ export async function receiveAgentMessage(
 
   return {
     received_at: receivedAt,
-    path: options.path ?? "/openclaw/agent-messages",
+    path: options.path ?? "/agent-messages",
     payload,
     agent_message: agentMessage
   };
-}
-
-export async function receivePlannerReply(
-  payload: unknown,
-  options: {
-    rootDir?: string;
-    path?: string;
-    now?: () => string;
-  } = {}
-): Promise<ReceivedPlannerReply> {
-  return receiveAgentMessage(payload, {
-    ...options,
-    path: options.path ?? "/openclaw/planner-replies"
-  });
 }
 
 export async function receiveInboundPayload(
