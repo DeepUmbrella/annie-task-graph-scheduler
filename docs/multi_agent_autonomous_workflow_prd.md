@@ -419,6 +419,13 @@ Already implemented in this repository:
 - workflow report
 - memory candidate extraction and local store
 - handoff docs and examples
+- runtime-neutral agent message intake through `POST /agent-messages`
+- runtime-agnostic `RegisteredNode` and `TeamComposition` models
+- local Node Registry persistence at `.annie/nodes/registry.json`
+- runtime-neutral `POST /nodes/register` and `GET /nodes`
+- single-member team registration support
+- team context membership validation boundary
+- action policy derivation from registered nodes
 
 Not yet implemented:
 
@@ -428,6 +435,7 @@ Not yet implemented:
 - real OpenClaw `sessions_spawn` / `sessions_send` integration
 - team-scoped permission-aware message validation
 - user approval/clarification loop
+- runtime discovery and candidate node interview flow
 
 ## 10. Suggested Next Phase
 
@@ -769,6 +777,22 @@ Phase 16 should implement:
 5. Registry persistence.
 6. Single-member team support.
 7. Team context validation boundary.
+
+Phase 16 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 16:
+
+1. `src/node_registry/model.ts` defines and validates registry models.
+2. `src/node_registry/registry.ts` persists `.annie/nodes/registry.json`.
+3. `POST /nodes/register` registers proposal snapshots.
+4. `GET /nodes` returns the registry snapshot.
+5. `validateTeamContext` verifies node membership in a claimed team context.
+6. `buildAgentActionPolicyFromNodeRegistry` grants actions from active registered nodes.
+7. Single-member team composition is supported.
 
 Phase 17 should implement:
 

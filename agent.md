@@ -274,6 +274,17 @@ Phase 16 planned:
 - `GET /nodes`
 - Team context validation boundary
 
+Phase 16 completed:
+
+- Runtime-agnostic `RegisteredNode` and `TeamComposition` models
+- `NodeRegistrationProposal` validation
+- Local `.annie/nodes/registry.json` persistence
+- Runtime-neutral `POST /nodes/register`
+- Runtime-neutral `GET /nodes`
+- Single-member team support
+- Team context membership validation
+- Action policy derivation from registered nodes
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -340,11 +351,8 @@ Phase 12: done
 Phase 13: done
 Phase 14: done
 Phase 15: done
-Phase 16: in_progress, T080-T083 done, next T084
+Phase 16: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/node_registry.test.js: 9 passed
-node --test dist/tests/agent_action.test.js: 5 passed
-node --test dist/tests/agent_message_intake.test.js: 8 passed
-node --test dist/tests/inbound_server.test.js: 5 passed
+npm test: 159 passed
 ```
