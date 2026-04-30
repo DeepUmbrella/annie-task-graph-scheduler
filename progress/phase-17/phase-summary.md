@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T085 | todo | [Runtime discovery models](./tasks/task-085-runtime-discovery-models.md) |
+| T085 | done | [Runtime discovery models](./tasks/task-085-runtime-discovery-models.md) |
 | T086 | todo | [Runtime discovery store](./tasks/task-086-runtime-discovery-store.md) |
 | T087 | todo | [OpenClaw discovery adapter](./tasks/task-087-openclaw-discovery-adapter.md) |
 | T088 | todo | [Candidate nodes endpoint and CLI surface](./tasks/task-088-candidate-nodes-endpoint-and-cli-surface.md) |
@@ -27,8 +27,8 @@
 ## 当前进度
 
 - Phase 01-16 已完成。
-- Phase 17 已规划。
-- 下一步：T085 Runtime discovery models。
+- T085：Runtime discovery models 已完成，CandidateNode 与 RegisteredNode 边界已拆开。
+- 下一步：T086 Runtime discovery store。
 
 ## 阶段完成标准
 

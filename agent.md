@@ -360,8 +360,8 @@ Phase 13: done
 Phase 14: done
 Phase 15: done
 Phase 16: done
-Phase 17: planned, next T085
+Phase 17: in_progress, T085 done, next T086
 npm run typecheck: pass
 npm run build: pass
-npm test: 159 passed
+node --test dist/tests/runtime_discovery.test.js: 4 passed
 ```

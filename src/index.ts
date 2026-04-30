@@ -30,3 +30,5 @@ export * from "./server/inbound_server.js";
 export * from "./intake/index.js";
 export * from "./team/index.js";
 export * from "./planning/index.js";
+export * from "./node_registry/index.js";
+export * from "./runtime_discovery/index.js";

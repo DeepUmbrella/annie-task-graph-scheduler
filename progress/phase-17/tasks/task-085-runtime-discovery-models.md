@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,18 @@
 
 - `src/runtime_discovery/*`
 - `tests/runtime_discovery.test.ts`
+
+## 实施记录
+
+- 新增 `RuntimeCandidate`。
+- 新增 `CandidateNode`。
+- 新增 `RuntimeDiscoverySnapshot`。
+- 支持 available / unavailable runtime metadata。
+- CandidateNode 只包含 hints、declared capabilities 和 requested actions。
+- CandidateNode 不包含 `granted_actions`，避免 discovery 自动获得权限。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/runtime_discovery.test.js` passed.
