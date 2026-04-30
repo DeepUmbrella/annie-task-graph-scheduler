@@ -247,6 +247,13 @@ Phase 13 completed:
 - `POST /openclaw/planner-replies`
 - No TaskDagPlan parsing yet
 
+Phase 14 planned:
+
+- Generalize planner reply intake into agent message intake
+- Add `POST /openclaw/agent-messages`
+- Keep `POST /openclaw/planner-replies` as compatibility alias
+- Preserve Phase 13 behavior while removing planner-specific core naming
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -311,6 +318,7 @@ Phase 10: done
 Phase 11: done
 Phase 12: done
 Phase 13: done
+Phase 14: in_progress, T071 done, next T072
 npm run typecheck: pass
 npm run build: pass
 npm test: 139 passed
