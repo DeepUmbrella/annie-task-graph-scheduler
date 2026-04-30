@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T080 | todo | [Node registry models](./tasks/task-080-node-registry-models.md) |
+| T080 | done | [Node registry models](./tasks/task-080-node-registry-models.md) |
 | T081 | todo | [Local node registry persistence](./tasks/task-081-local-node-registry-persistence.md) |
 | T082 | todo | [Node registration HTTP endpoints](./tasks/task-082-node-registration-http-endpoints.md) |
 | T083 | todo | [Team context and action policy integration](./tasks/task-083-team-context-and-action-policy-integration.md) |
@@ -28,7 +28,8 @@
 
 - Phase 01-15 已完成。
 - Phase 16 已规划。
-- 下一步进入 T080：Node registry models。
+- T080：Node registry models 已完成，支持 individual node、team node、单成员 team 和 team composition 基础校验。
+- 下一步：T081 Local node registry persistence。
 
 ## 阶段完成标准
 

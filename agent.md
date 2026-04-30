@@ -340,8 +340,8 @@ Phase 12: done
 Phase 13: done
 Phase 14: done
 Phase 15: done
-Phase 16: in_progress, next T080
+Phase 16: in_progress, T080 done, next T081
 npm run typecheck: pass
 npm run build: pass
-npm test: 146 passed
+node --test dist/tests/node_registry.test.js: 4 passed
 ```

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,18 @@
 
 - `src/node_registry/*`
 - `tests/node_registry.test.ts`
+
+## 实施记录
+
+- 新增 runtime-agnostic node registry 核心模型。
+- 新增 `NodeRegistrationProposal` normalization。
+- 支持 individual node、team node 和单成员 team。
+- 校验 team composition 只能指向 team node。
+- 校验 team lead 必须属于 team members。
+- 校验 team member 必须是已注册 node 或同 proposal 内 node。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/node_registry.test.js` passed.
