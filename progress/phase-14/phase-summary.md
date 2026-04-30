@@ -31,12 +31,13 @@
 - 已完成 T072：Generic agent message HTTP endpoint。
 - 已完成 T073：Docs and compatibility update。
 - 已完成 T074：Phase 14 验收测试。
+- Phase 15 已将 Phase 14 的 runtime-specific `/openclaw/agent-messages` 路由替换为 `/agent-messages`，并移除 planner reply 兼容路径。
 - 当前链路：OpenClaw agent message -> generic intake -> classified Annie Message -> target mailbox。
 
 ## 阶段完成标准
 
 1. 核心 intake 模块不再以 planner reply 命名。
 2. 通用 agent message 可以进入 Annie mailbox。
-3. planner reply 旧入口保持兼容。
+3. planner reply 旧入口在 Phase 14 内保持兼容；Phase 15 已计划移除该兼容路径。
 4. 文档明确 Phase 14 对 Phase 13 的泛化修正。
 5. Phase 01-13 回归测试继续通过。

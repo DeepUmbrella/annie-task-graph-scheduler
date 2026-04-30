@@ -44,16 +44,10 @@ Send OpenClaw/Annie messages to:
 POST http://127.0.0.1:4317/openclaw/messages
 ```
 
-Send any OpenClaw agent message back to TaskGraphScheduler:
+Send any node / agent message back to TaskGraphScheduler:
 
 ```txt
-POST http://127.0.0.1:4317/openclaw/agent-messages
-```
-
-The old planner-specific path is kept as a compatibility alias:
-
-```txt
-POST http://127.0.0.1:4317/openclaw/planner-replies
+POST http://127.0.0.1:4317/agent-messages
 ```
 
 The alias below is also accepted:
@@ -166,11 +160,15 @@ Expected response:
 After a real agent asks clarification questions, post that reply back:
 
 ```txt
-curl -sS -X POST http://127.0.0.1:4317/openclaw/agent-messages \
+curl -sS -X POST http://127.0.0.1:4317/agent-messages \
   -H 'content-type: application/json' \
   -d '{
     "intent_id":"intent_20260429195002_创建一个网站_ds5hzo",
     "from":"develop-team",
+    "runtime":"openclaw",
+    "action":"send_message",
+    "to":"annie",
+    "message_type":"REQUIREMENT_CLARIFICATION_REQUEST",
     "message":"网站类型 — 是什么网站？\n技术栈偏好 — 有指定的前端框架或后端技术吗？\n目标受众 — 主要给谁看？\n功能需求 — 需要哪些核心功能？\n现有资源 — 有设计稿、域名、服务器、代码仓库吗？"
   }'
 ```
@@ -196,4 +194,4 @@ Expected response:
 }
 ```
 
-This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, optional delivery to a real OpenClaw planner agent, and generic agent message intake. It does not yet parse TaskDagPlan, generate a DAG, or dispatch execution tasks.
+This step verifies inbound delivery into TaskGraphScheduler, creation of a workflow intent, handoff to the local planner mailbox, optional delivery to a real OpenClaw planner agent, and runtime-neutral self-routed agent message intake. It does not yet parse TaskDagPlan, generate a DAG, or dispatch execution tasks.
