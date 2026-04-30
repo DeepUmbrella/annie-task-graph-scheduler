@@ -42,11 +42,11 @@ progress/
 - [Phase 11 Intent To Planner Agent Handoff](./phase-11/phase-summary.md) - done
 - [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - done
 - [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - done
-- [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - in_progress
+- [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 14 Generic Agent Message Intake 正在推进。下一步进入 T071。
+Phase 14 Generic Agent Message Intake 已完成。当前链路已到 OpenClaw agent message -> generic intake -> classified Annie Message -> target mailbox。下一阶段尚未规划。
 
 ## 更新规则
 
@@ -96,5 +96,5 @@ npm test
 当前基线：
 
 ```txt
-139 passed
+145 passed
 ```

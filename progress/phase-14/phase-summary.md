@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -21,16 +21,17 @@
 | T071 | done | [Generic agent message intake module](./tasks/task-071-generic-agent-message-intake-module.md) |
 | T072 | done | [Generic agent message HTTP endpoint](./tasks/task-072-generic-agent-message-http-endpoint.md) |
 | T073 | done | [Docs and compatibility update](./tasks/task-073-docs-and-compatibility-update.md) |
-| T074 | todo | [Phase 14 验收测试](./tasks/task-074-phase-14-acceptance.md) |
+| T074 | done | [Phase 14 验收测试](./tasks/task-074-phase-14-acceptance.md) |
 
 ## 当前进度
 
 - Phase 01-13 已完成。
-- Phase 14 已规划。
+- Phase 14 已完成。
 - 已完成 T071：Generic agent message intake module。
 - 已完成 T072：Generic agent message HTTP endpoint。
 - 已完成 T073：Docs and compatibility update。
-- 下一步进入 T074：Phase 14 验收测试。
+- 已完成 T074：Phase 14 验收测试。
+- 当前链路：OpenClaw agent message -> generic intake -> classified Annie Message -> target mailbox。
 
 ## 阶段完成标准
 

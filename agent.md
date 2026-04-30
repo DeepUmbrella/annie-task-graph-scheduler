@@ -247,7 +247,7 @@ Phase 13 completed:
 - `POST /openclaw/planner-replies`
 - No TaskDagPlan parsing yet
 
-Phase 14 planned:
+Phase 14 completed:
 
 - Generalize planner reply intake into agent message intake
 - Add `POST /openclaw/agent-messages`
@@ -318,8 +318,8 @@ Phase 10: done
 Phase 11: done
 Phase 12: done
 Phase 13: done
-Phase 14: in_progress, T071-T073 done, next T074
+Phase 14: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 139 passed
+npm test: 145 passed
 ```

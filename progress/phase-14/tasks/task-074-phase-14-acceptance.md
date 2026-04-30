@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,19 @@
 - `progress/phase-14/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- Phase 14 所有 task 已标记为 `done`。
+- 通用 `/openclaw/agent-messages` endpoint 可用。
+- 旧 `/openclaw/planner-replies` endpoint 保持兼容。
+- `planner_reply` 核心逻辑已迁移到 `agent_message`。
+- Phase 14 明确保持边界：不解析 TaskDagPlan，不实现复杂 classifier，不移除旧 API。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 145 passed
+```
