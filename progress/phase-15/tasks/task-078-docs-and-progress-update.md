@@ -17,7 +17,9 @@
 
 ## 验收标准
 
+- 文档不再推荐 `/openclaw/agent-messages`。
 - 文档不再推荐 `/openclaw/planner-replies`。
+- 文档推荐 `/agent-messages`。
 - 文档示例 payload 包含 `action` 和 `to`。
 - 文档说明 node 不一定来自 OpenClaw。
 

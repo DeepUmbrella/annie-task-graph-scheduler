@@ -36,6 +36,8 @@
 1. agent message 必须显式声明 `action`。
 2. agent message 必须显式声明 `to`。
 3. action 必须通过 agent action policy 校验。
-4. `/openclaw/planner-replies` 被移除。
-5. node identity / policy 不绑定到 OpenClaw。
-6. Phase 01-14 回归测试继续通过。
+4. runtime-neutral `/agent-messages` 是唯一 agent message intake route。
+5. `/openclaw/agent-messages` 被移除。
+6. `/openclaw/planner-replies` 被移除。
+7. node identity / policy 不绑定到 OpenClaw。
+8. Phase 01-14 回归测试继续通过。

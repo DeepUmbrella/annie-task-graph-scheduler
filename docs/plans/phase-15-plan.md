@@ -5,7 +5,7 @@
 Phase 14 把 planner reply intake 泛化为 agent message intake，但仍有两个不符合目标架构的遗留点：
 
 1. `agent_message` 在缺少 `to` 时默认发给 `annie`。
-2. `/openclaw/planner-replies` 和 `planner_reply` 兼容层仍然存在。
+2. `/openclaw/agent-messages`、`/openclaw/planner-replies` 和 `planner_reply` 兼容层仍然存在。
 
 用户确认的新边界是：
 
@@ -31,6 +31,8 @@ OpenClaw 在本阶段只是一个可能的 runtime / transport adapter。Action 
 - `agent_message` payload 必须显式提供 `to`。
 - `agent_message` payload 必须显式提供 action，最小支持 `send_message`。
 - scheduler / intake 校验 action 是否被允许。
+- 新增 runtime-neutral `/agent-messages` endpoint，作为唯一 agent message intake route。
+- 删除 `/openclaw/agent-messages` endpoint。
 - 删除 `/openclaw/planner-replies` endpoint。
 - 删除 `src/planner_reply/*` 和旧 planner reply tests。
 - 更新文档，不再提旧 endpoint 兼容。
@@ -73,7 +75,7 @@ TaskGraphScheduler should not:
 
 1. Guess `to`.
 2. Infer the agent's next action without an action field.
-3. Keep planner-specific intake paths as primary workflow.
+3. Keep runtime-specific agent message intake paths as primary workflow.
 
 ## Task 列表
 
@@ -92,8 +94,10 @@ TaskGraphScheduler should not:
 - message type 使用 payload 显式声明，最小支持 `REQUIREMENT_CLARIFICATION_REQUEST`。
 - 移除 `to ?? "annie"` fallback。
 
-### T077 Remove planner reply compatibility
+### T077 Remove runtime-specific agent message routes
 
+- 新增 `POST /agent-messages`。
+- 删除 `POST /openclaw/agent-messages`。
 - 删除 `POST /openclaw/planner-replies`。
 - 删除 `receivePlannerReply`。
 - 删除 `src/planner_reply/*`。
@@ -102,7 +106,7 @@ TaskGraphScheduler should not:
 
 ### T078 Docs and progress update
 
-- 更新 smoke-test 文档，只保留 `/openclaw/agent-messages`。
+- 更新 smoke-test 文档，只保留 `/agent-messages`。
 - 更新 Phase 14 summary，标注 Phase 15 移除了旧兼容路径。
 - 更新 progress README 和 agent handoff 状态。
 
@@ -114,19 +118,20 @@ TaskGraphScheduler should not:
 
 ## 验收标准
 
-1. `/openclaw/agent-messages` payload 缺少 `to` 时失败。
-2. `/openclaw/agent-messages` payload 缺少 `action` 时失败。
+1. `/agent-messages` payload 缺少 `to` 时失败。
+2. `/agent-messages` payload 缺少 `action` 时失败。
 3. 不允许的 action 失败。
 4. 允许的 `send_message` action 成功写入目标 mailbox。
-5. `/openclaw/planner-replies` 不再存在。
-6. `src/planner_reply/*` 不再存在。
-7. policy 不要求 node 必须来自 OpenClaw。
-8. 所有测试通过。
+5. `/openclaw/agent-messages` 不再存在。
+6. `/openclaw/planner-replies` 不再存在。
+7. `src/planner_reply/*` 不再存在。
+8. policy 不要求 node 必须来自 OpenClaw。
+9. 所有测试通过。
 
 ## 预期启动/调用方式
 
 ```txt
-POST /openclaw/agent-messages
+POST /agent-messages
 ```
 
 示例 payload：
