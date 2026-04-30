@@ -44,10 +44,11 @@ progress/
 - [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - done
 - [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - done
 - [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - done
+- [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - in_progress
 
 当前下一阶段：
 
-Phase 15 Agent Action Policy And Self-Routed Messages 已完成。当前链路已到 runtime-neutral node action -> action policy validation -> self-routed Annie Message -> target mailbox。下一阶段尚未规划。
+Phase 16 Node Registry And Team Composition 正在推进。下一步进入 T080。
 
 ## 更新规则
 

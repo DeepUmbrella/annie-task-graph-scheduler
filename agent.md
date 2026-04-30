@@ -265,6 +265,15 @@ Phase 15 completed:
 - Remove `planner_reply` compatibility module
 - `agent_message` payload must explicitly include `action` and `to`
 
+Phase 16 planned:
+
+- Runtime-agnostic Node Registry
+- Team Composition model
+- Single-member team support
+- `POST /nodes/register`
+- `GET /nodes`
+- Team context validation boundary
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -331,6 +340,7 @@ Phase 12: done
 Phase 13: done
 Phase 14: done
 Phase 15: done
+Phase 16: in_progress, next T080
 npm run typecheck: pass
 npm run build: pass
 npm test: 146 passed
