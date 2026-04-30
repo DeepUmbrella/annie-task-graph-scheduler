@@ -254,7 +254,7 @@ Phase 14 completed:
 - Keep `POST /openclaw/planner-replies` as compatibility alias
 - Preserve Phase 13 behavior while removing planner-specific core naming
 
-Phase 15 planned:
+Phase 15 completed:
 
 - Runtime-agnostic agent / node chooses its own action and `to`
 - Nodes do not have to be OpenClaw agents; OpenClaw is only one runtime / transport adapter
@@ -330,8 +330,8 @@ Phase 11: done
 Phase 12: done
 Phase 13: done
 Phase 14: done
-Phase 15: in_progress, T075-T078 done, next T079
+Phase 15: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 145 passed
+npm test: 146 passed
 ```

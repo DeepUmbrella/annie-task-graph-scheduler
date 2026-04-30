@@ -43,11 +43,11 @@ progress/
 - [Phase 12 Real OpenClaw Planner Transport](./phase-12/phase-summary.md) - done
 - [Phase 13 Planner Reply Intake And Clarification Loop](./phase-13/phase-summary.md) - done
 - [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - done
-- [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - in_progress
+- [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 15 Agent Action Policy And Self-Routed Messages 正在推进。T075-T077 已完成，下一步进入 T078/T079 收口。
+Phase 15 Agent Action Policy And Self-Routed Messages 已完成。当前链路已到 runtime-neutral node action -> action policy validation -> self-routed Annie Message -> target mailbox。下一阶段尚未规划。
 
 ## 更新规则
 
@@ -97,5 +97,5 @@ npm test
 当前基线：
 
 ```txt
-145 passed
+146 passed
 ```
