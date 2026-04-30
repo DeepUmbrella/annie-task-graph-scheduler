@@ -6,7 +6,7 @@
 
 ## 目标
 
-定义每个 agent / node 可以执行哪些 action。
+定义每个 runtime-agnostic agent / node 可以执行哪些 action。
 
 ## 范围
 
@@ -14,11 +14,13 @@
 - 定义 action type，最小支持 `send_message`。
 - 定义 policy / permission model。
 - 提供默认 local policy。
+- policy 不绑定 OpenClaw agent config。
 
 ## 验收标准
 
 - 可以校验 agent 是否允许执行 action。
 - 可以校验 action 是否允许发送指定 message type。
+- 可以为非 OpenClaw node 定义权限。
 - 测试覆盖允许和拒绝路径。
 
 ## 关联代码

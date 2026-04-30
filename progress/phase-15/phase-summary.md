@@ -2,7 +2,9 @@
 
 ## 阶段目标
 
-让每个 agent / node 自己声明 action 和消息目标，TaskGraphScheduler 只负责校验、投递和记录。
+让每个 runtime-agnostic agent / node 自己声明 action 和消息目标，TaskGraphScheduler 只负责校验、投递和记录。
+
+这些 node 不一定来自 OpenClaw；OpenClaw 只是可能的 runtime / transport adapter。
 
 ## 阶段状态
 
@@ -35,4 +37,5 @@
 2. agent message 必须显式声明 `to`。
 3. action 必须通过 agent action policy 校验。
 4. `/openclaw/planner-replies` 被移除。
-5. Phase 01-14 回归测试继续通过。
+5. node identity / policy 不绑定到 OpenClaw。
+6. Phase 01-14 回归测试继续通过。

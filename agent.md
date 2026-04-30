@@ -256,7 +256,8 @@ Phase 14 completed:
 
 Phase 15 planned:
 
-- Agent / node chooses its own action and `to`
+- Runtime-agnostic agent / node chooses its own action and `to`
+- Nodes do not have to be OpenClaw agents; OpenClaw is only one runtime / transport adapter
 - Scheduler validates action policy, writes mailbox, and records/audits
 - Remove `/openclaw/planner-replies` compatibility endpoint
 - Remove `planner_reply` compatibility module

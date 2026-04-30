@@ -6,7 +6,7 @@
 
 ## 目标
 
-更新文档，说明 agent 自己决定 action / to，旧 planner endpoint 已移除。
+更新文档，说明 runtime-agnostic node 自己决定 action / to，旧 planner endpoint 已移除。
 
 ## 范围
 
@@ -19,6 +19,7 @@
 
 - 文档不再推荐 `/openclaw/planner-replies`。
 - 文档示例 payload 包含 `action` 和 `to`。
+- 文档说明 node 不一定来自 OpenClaw。
 
 ## 关联代码
 
