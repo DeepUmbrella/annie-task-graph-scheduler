@@ -324,6 +324,15 @@ Phase 19 planned:
 - Agent message `team_context` intake
 - Registry-derived delegation policy
 
+Phase 19 completed:
+
+- `delegate_to_member` action
+- Delegation permission for `TASK_ASSIGNED`
+- Team-scoped delegation validator
+- Agent message `team_context` parsing
+- Delegation mailbox delivery
+- Registry-derived delegation policy
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -393,10 +402,8 @@ Phase 15: done
 Phase 16: done
 Phase 17: done
 Phase 18: done
-Phase 19: in_progress, T095-T098 done, next T099
+Phase 19: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/agent_action.test.js: 7 passed
-node --test dist/tests/team_delegation.test.js: 4 passed
-node --test dist/tests/agent_message_intake.test.js: 13 passed
+npm test: 188 passed
 ```

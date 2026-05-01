@@ -432,6 +432,10 @@ Already implemented in this repository:
 - node registration interview template
 - runtime reply parser for `NodeRegistrationProposal`
 - registration approval boundary for `granted_actions`
+- team delegation action `delegate_to_member`
+- team-scoped delegation validation
+- agent message `team_context` intake
+- registry-derived delegation policy for `TASK_ASSIGNED`
 
 Not yet implemented:
 
@@ -842,3 +846,25 @@ Implemented in Phase 18:
 4. Default registration approval grants no actions.
 5. Node Registry no longer copies `requested_actions` into `granted_actions`.
 6. Registry-derived action policy only allows explicitly granted actions.
+
+Phase 19 should implement:
+
+1. `delegate_to_member` action.
+2. Team-scoped delegation validation.
+3. Agent message `team_context` intake.
+4. Registry-derived delegation policy.
+
+Phase 19 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 19:
+
+1. `delegate_to_member` is a supported action.
+2. Delegation permission allows `TASK_ASSIGNED`.
+3. `validateTeamDelegation` checks sender team context, target membership, and action policy.
+4. `intakeAgentMessage` can deliver delegation messages to member inboxes.
+5. Delegation messages preserve `team_context` in payload.
+6. Delegation intake writes mailbox messages and does not mutate workflow state.

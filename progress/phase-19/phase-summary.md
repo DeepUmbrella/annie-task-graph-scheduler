@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -22,7 +22,7 @@
 | T096 | done | [Team delegation validator](./tasks/task-096-team-delegation-validator.md) |
 | T097 | done | [Agent message team context intake](./tasks/task-097-agent-message-team-context-intake.md) |
 | T098 | done | [Registry-derived delegation policy](./tasks/task-098-registry-derived-delegation-policy.md) |
-| T099 | todo | [Phase 19 验收测试](./tasks/task-099-phase-19-acceptance.md) |
+| T099 | done | [Phase 19 验收测试](./tasks/task-099-phase-19-acceptance.md) |
 
 ## 当前进度
 
@@ -31,7 +31,8 @@
 - T096：Team delegation validator 已完成。
 - T097：Agent message team context intake 已完成。
 - T098：Registry-derived delegation policy 已完成。
-- 下一步：T099 Phase 19 acceptance。
+- T099：Phase 19 acceptance 已完成。
+- Phase 19 已完成。
 
 ## 阶段完成标准
 

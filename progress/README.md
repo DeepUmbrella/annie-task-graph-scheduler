@@ -47,11 +47,11 @@ progress/
 - [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - done
 - [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
 - [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - done
-- [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - planned
+- [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 19 Team Delegation Actions 已规划。下一步进入 T095。
+Phase 20 Plan Proposal Intake 待规划。Phase 19 已完成 `delegate_to_member` action、team-scoped delegation validation、agent message `team_context` intake，以及 registry-derived delegation policy。
 
 ## 更新规则
 
@@ -101,5 +101,5 @@ npm test
 当前基线：
 
 ```txt
-178 passed
+188 passed
 ```
