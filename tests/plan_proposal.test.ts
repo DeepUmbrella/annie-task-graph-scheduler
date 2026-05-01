@@ -1,6 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parsePlanProposalPayload } from "../src/plan_proposal/index.js";
+import { mkdtemp, readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { createPlanProposalStore, parsePlanProposalPayload } from "../src/plan_proposal/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
 
 function validPlan() {
@@ -66,4 +69,37 @@ test("parsePlanProposalPayload rejects invalid DAG plans", () => {
     (error) => error instanceof TaskGraphSchedulerError
       && error.code === "PLAN_VALIDATION_FAILED"
   );
+});
+
+test("plan proposal store returns empty snapshot when file does not exist", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-plan-proposal-"));
+  const store = createPlanProposalStore(rootDir);
+
+  const snapshot = await store.loadSnapshot();
+
+  assert.equal(snapshot.version, 1);
+  assert.equal(snapshot.proposals.length, 0);
+  assert.equal(snapshot.updated_at, null);
+});
+
+test("plan proposal store saves and reads proposals", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-plan-proposal-"));
+  const store = createPlanProposalStore(rootDir);
+  const payload = parsePlanProposalPayload({
+    intent_id: "intent_001",
+    from: "develop-team",
+    plan: validPlan()
+  });
+
+  const proposal = await store.saveProposal(payload, {
+    now: "2026-05-01T00:00:00.000Z"
+  });
+  const raw = await readFile(store.proposalsPath(), "utf8");
+  const persisted = JSON.parse(raw);
+  const proposals = await store.listProposals();
+
+  assert.equal(proposal.proposal_id, "proposal_1777593600000_plan_site");
+  assert.equal(persisted.proposals.length, 1);
+  assert.equal(proposals[0]?.plan.plan_id, "plan_site");
+  assert.equal(proposals[0]?.validation_status, "valid");
 });

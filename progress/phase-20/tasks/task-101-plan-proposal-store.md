@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,17 @@
 
 - `src/plan_proposal/store.ts`
 - `tests/plan_proposal.test.ts`
+
+## 实施记录
+
+- 新增 `createPlanProposalStore(rootDir)`。
+- 新增 `.annie/plans/proposals.json`。
+- 文件不存在时返回 empty snapshot。
+- 保存 proposal 后可读取。
+- proposal 持久化不创建 workflow state。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/plan_proposal.test.js` passed.
