@@ -36,10 +36,12 @@ export function validateProtocolMessage(message: Message): void {
 function isDirectionAllowed(message: Message): boolean {
   switch (message.type) {
     case "PLANNING_REQUEST":
-    case "TASK_ASSIGNED":
     case "REVIEW_REQUESTED":
     case "APPROVAL_REQUIRED":
       return message.from === "orchestrator" && message.to !== "orchestrator";
+    case "TASK_ASSIGNED":
+      return (message.from === "orchestrator" && message.to !== "orchestrator")
+        || message.payload.action === "delegate_to_member";
     case "TASK_STARTED":
     case "TASK_PROGRESS":
     case "TASK_COMPLETED":

@@ -20,7 +20,7 @@
 |---|---|---|
 | T095 | done | [Delegation action model](./tasks/task-095-delegation-action-model.md) |
 | T096 | done | [Team delegation validator](./tasks/task-096-team-delegation-validator.md) |
-| T097 | todo | [Agent message team context intake](./tasks/task-097-agent-message-team-context-intake.md) |
+| T097 | done | [Agent message team context intake](./tasks/task-097-agent-message-team-context-intake.md) |
 | T098 | todo | [Registry-derived delegation policy](./tasks/task-098-registry-derived-delegation-policy.md) |
 | T099 | todo | [Phase 19 验收测试](./tasks/task-099-phase-19-acceptance.md) |
 
@@ -29,7 +29,8 @@
 - Phase 01-18 已完成。
 - T095：Delegation action model 已完成。
 - T096：Team delegation validator 已完成。
-- 下一步：T097 Agent message team context intake。
+- T097：Agent message team context intake 已完成。
+- 下一步：T098 Registry-derived delegation policy。
 
 ## 阶段完成标准
 

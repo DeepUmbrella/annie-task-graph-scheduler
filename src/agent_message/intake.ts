@@ -9,6 +9,8 @@ import {
 } from "../agent_action/index.js";
 import { messageTypes, type Message, type MessageType } from "../models/message.js";
 import { TaskGraphSchedulerError } from "../errors.js";
+import type { NodeRegistrySnapshot, TeamContext } from "../node_registry/index.js";
+import { validateTeamDelegation } from "../team_delegation/index.js";
 
 export interface AgentMessagePayload {
   intent_id: string;
@@ -17,6 +19,7 @@ export interface AgentMessagePayload {
   action: AgentActionType;
   to: string;
   message_type: MessageType;
+  team_context: TeamContext | null;
   text: string;
   raw_payload: unknown;
 }
@@ -25,6 +28,7 @@ export interface AgentMessageIntakeOptions {
   rootDir?: string;
   mailboxStore?: MailboxStore;
   actionPolicy?: AgentActionPolicy;
+  nodeRegistrySnapshot?: NodeRegistrySnapshot;
   now?: string;
 }
 
@@ -32,7 +36,7 @@ export interface AgentMessageIntakeResult {
   message: Message;
   inbox_path: string;
   questions: string[];
-  classification: "requirement_clarification_request";
+  classification: "requirement_clarification_request" | "team_delegation";
 }
 
 export async function intakeAgentMessage(
@@ -47,11 +51,29 @@ export async function intakeAgentMessage(
     mailbox_store: mailboxStore
   });
   const questions = extractClarificationQuestions(agentMessage.text);
-  assertAgentActionAllowed(actionPolicy, {
-    node_id: agentMessage.from,
-    action: agentMessage.action,
-    message_type: agentMessage.message_type
-  });
+  const classification = classifyAgentMessage(agentMessage);
+  if (agentMessage.action === "delegate_to_member") {
+    if (!options.nodeRegistrySnapshot) {
+      throw new TaskGraphSchedulerError("Delegation requires a node registry snapshot.", "AGENT_MESSAGE_NODE_REGISTRY_REQUIRED");
+    }
+    if (!agentMessage.team_context) {
+      throw new TaskGraphSchedulerError("Delegation requires team_context.", "AGENT_MESSAGE_TEAM_CONTEXT_REQUIRED");
+    }
+    validateTeamDelegation({
+      snapshot: options.nodeRegistrySnapshot,
+      actionPolicy,
+      from: agentMessage.from,
+      to: agentMessage.to,
+      message_type: agentMessage.message_type,
+      team_context: agentMessage.team_context
+    });
+  } else {
+    assertAgentActionAllowed(actionPolicy, {
+      node_id: agentMessage.from,
+      action: agentMessage.action,
+      message_type: agentMessage.message_type
+    });
+  }
   const message = bus.createMessage({
     workflow_id: agentMessage.intent_id,
     task_id: "planning",
@@ -67,7 +89,8 @@ export async function intakeAgentMessage(
       reply_text: agentMessage.text,
       raw_payload: agentMessage.raw_payload,
       runtime: agentMessage.runtime,
-      classification: "requirement_clarification_request"
+      team_context: agentMessage.team_context,
+      classification
     },
     created_at: options.now
   });
@@ -77,7 +100,7 @@ export async function intakeAgentMessage(
     message: delivered,
     inbox_path: mailboxStore.mailboxPath(agentMessage.intent_id, agentMessage.to, "inbox"),
     questions,
-    classification: "requirement_clarification_request"
+    classification
   };
 }
 
@@ -93,6 +116,7 @@ export function parseAgentMessagePayload(payload: unknown): AgentMessagePayload 
   const to = firstString(payload, ["to", "target", "recipient"]);
   const messageType = firstString(payload, ["message_type", "type"]);
   const text = firstString(payload, ["message", "text", "reply", "content"]);
+  const teamContext = parseTeamContext(payload.team_context);
 
   if (!intentId) {
     throw new TaskGraphSchedulerError("Agent message payload requires intent_id.", "AGENT_MESSAGE_INTENT_REQUIRED");
@@ -130,9 +154,14 @@ export function parseAgentMessagePayload(payload: unknown): AgentMessagePayload 
     action,
     to,
     message_type: messageType,
+    team_context: teamContext,
     text,
     raw_payload: payload
   };
+}
+
+function classifyAgentMessage(message: AgentMessagePayload): AgentMessageIntakeResult["classification"] {
+  return message.action === "delegate_to_member" ? "team_delegation" : "requirement_clarification_request";
 }
 
 export function extractClarificationQuestions(text: string): string[] {
@@ -165,6 +194,22 @@ function firstString(payload: Record<string, unknown>, keys: string[]): string |
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function parseTeamContext(value: unknown): TeamContext | null {
+  if (!isRecord(value)) {
+    return null;
+  }
+
+  const teamNodeId = firstString(value, ["team_node_id"]);
+  if (!teamNodeId) {
+    return null;
+  }
+
+  return {
+    team_node_id: teamNodeId,
+    role: firstString(value, ["role"]) ?? undefined
+  };
 }
 
 function isMessageType(value: string): value is MessageType {
