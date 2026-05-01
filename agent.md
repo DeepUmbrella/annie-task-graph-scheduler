@@ -386,6 +386,16 @@ Phase 22 completed:
 - Active wave idempotency
 - No dispatch and no OpenClaw call in this phase
 
+Phase 23 planned:
+
+- Wave task dispatch model
+- Task `assigned` status before `running`
+- Dispatch selection from registered nodes
+- Mailbox `TASK_ASSIGNED` delivery
+- Runtime-neutral dispatch endpoint
+- Dispatch CLI command
+- No OpenClaw transport call in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -459,6 +469,7 @@ Phase 19: done
 Phase 20: done
 Phase 21: done
 Phase 22: done
+Phase 23: planned, next T116
 npm run typecheck: pass
 npm run build: pass
 npm test: 205 passed

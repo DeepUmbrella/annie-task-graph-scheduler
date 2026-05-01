@@ -51,10 +51,11 @@ progress/
 - [Phase 20 Plan Proposal Intake](./phase-20/phase-summary.md) - done
 - [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
 - [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - done
+- [Phase 23 Wave Task Dispatch](./phase-23/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 22 Workflow Scheduling Loop 已完成。下一阶段建议进入 Phase 23 Wave Task Dispatch：将 scheduled wave 的任务分发到已注册节点，但仍不接入真实 OpenClaw transport。
+Phase 23 Wave Task Dispatch 已规划。下一步进入 T116。
 
 ## 更新规则
 
