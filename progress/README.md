@@ -48,10 +48,11 @@ progress/
 - [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
 - [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - done
 - [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - done
+- [Phase 20 Plan Proposal Intake](./phase-20/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 20 Plan Proposal Intake 待规划。Phase 19 已完成 `delegate_to_member` action、team-scoped delegation validation、agent message `team_context` intake，以及 registry-derived delegation policy。
+Phase 20 Plan Proposal Intake 已规划。下一步进入 T100。
 
 ## 更新规则
 

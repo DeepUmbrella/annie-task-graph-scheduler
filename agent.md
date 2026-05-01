@@ -333,6 +333,14 @@ Phase 19 completed:
 - Delegation mailbox delivery
 - Registry-derived delegation policy
 
+Phase 20 planned:
+
+- Plan proposal model and parser
+- Plan proposal persistence
+- `POST /plan-proposals`
+- `GET /plan-proposals`
+- No automatic workflow initialization from proposal intake
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -403,6 +411,7 @@ Phase 16: done
 Phase 17: done
 Phase 18: done
 Phase 19: done
+Phase 20: planned, next T100
 npm run typecheck: pass
 npm run build: pass
 npm test: 188 passed
