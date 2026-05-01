@@ -411,7 +411,7 @@ Phase 16: done
 Phase 17: done
 Phase 18: done
 Phase 19: done
-Phase 20: in_progress, T100-T102 done, T103 in_progress
+Phase 20: in_progress, T100-T103 done, next T104
 npm run typecheck: pass
 npm run build: pass
 node --test dist/tests/plan_proposal.test.js: 6 passed

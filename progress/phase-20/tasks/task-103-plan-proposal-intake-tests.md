@@ -2,7 +2,7 @@
 
 ## 状态
 
-`in_progress`
+`done`
 
 ## 目标
 
@@ -24,3 +24,18 @@
 
 - `tests/plan_proposal.test.ts`
 - `tests/inbound_server.test.ts`
+
+## 实施记录
+
+- 覆盖 valid proposal。
+- 覆盖 invalid DAG。
+- 覆盖 fenced JSON。
+- 覆盖 proposal 持久化。
+- 覆盖 proposal intake 不创建 workflow state。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/plan_proposal.test.js` passed.
+- `node --test dist/tests/inbound_server.test.js` passed.

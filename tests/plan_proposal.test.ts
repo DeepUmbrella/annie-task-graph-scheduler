@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { mkdtemp, readFile } from "node:fs/promises";
+import { access, mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createPlanProposalStore, parsePlanProposalPayload } from "../src/plan_proposal/index.js";
@@ -102,4 +102,26 @@ test("plan proposal store saves and reads proposals", async () => {
   assert.equal(persisted.proposals.length, 1);
   assert.equal(proposals[0]?.plan.plan_id, "plan_site");
   assert.equal(proposals[0]?.validation_status, "valid");
+});
+
+test("plan proposal store does not create workflow state", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-plan-proposal-"));
+  const store = createPlanProposalStore(rootDir);
+  const payload = parsePlanProposalPayload({
+    intent_id: "intent_001",
+    from: "develop-team",
+    plan: validPlan()
+  });
+
+  await store.saveProposal(payload, {
+    now: "2026-05-01T00:00:00.000Z"
+  });
+
+  await assert.rejects(
+    () => access(join(rootDir, "workflows", "intent_001", "state.json")),
+    (error) => typeof error === "object"
+      && error !== null
+      && "code" in error
+      && (error as { code?: string }).code === "ENOENT"
+  );
 });
