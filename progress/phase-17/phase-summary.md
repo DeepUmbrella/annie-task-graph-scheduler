@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -22,7 +22,7 @@
 | T086 | done | [Runtime discovery store](./tasks/task-086-runtime-discovery-store.md) |
 | T087 | done | [OpenClaw discovery adapter](./tasks/task-087-openclaw-discovery-adapter.md) |
 | T088 | done | [Candidate nodes endpoint and CLI surface](./tasks/task-088-candidate-nodes-endpoint-and-cli-surface.md) |
-| T089 | todo | [Phase 17 验收测试](./tasks/task-089-phase-17-acceptance.md) |
+| T089 | done | [Phase 17 验收测试](./tasks/task-089-phase-17-acceptance.md) |
 
 ## 当前进度
 
@@ -31,7 +31,8 @@
 - T086：Runtime discovery store 已完成，snapshot 保存到 `.annie/discovery/runtime-candidates.json`。
 - T087：OpenClaw discovery adapter 已完成，可将 `openclaw agents list --json` 转换为 candidate nodes。
 - T088：Candidate nodes endpoint and CLI surface 已完成，新增 runtime-neutral `GET /nodes/candidates`。
-- 下一步：T089 Phase 17 acceptance。
+- T089：Phase 17 acceptance 已完成。
+- Phase 17 已完成。
 
 ## 阶段完成标准
 

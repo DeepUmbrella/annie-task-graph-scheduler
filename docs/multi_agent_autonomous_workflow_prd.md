@@ -423,9 +423,12 @@ Already implemented in this repository:
 - runtime-agnostic `RegisteredNode` and `TeamComposition` models
 - local Node Registry persistence at `.annie/nodes/registry.json`
 - runtime-neutral `POST /nodes/register` and `GET /nodes`
+- runtime-neutral `GET /nodes/candidates`
 - single-member team registration support
 - team context membership validation boundary
 - action policy derivation from registered nodes
+- runtime discovery candidate model and local discovery snapshot persistence
+- OpenClaw discovery adapter for `openclaw agents list --json`
 
 Not yet implemented:
 
@@ -435,7 +438,7 @@ Not yet implemented:
 - real OpenClaw `sessions_spawn` / `sessions_send` integration
 - team-scoped permission-aware message validation
 - user approval/clarification loop
-- runtime discovery and candidate node interview flow
+- candidate node interview flow
 
 ## 10. Suggested Next Phase
 
@@ -800,6 +803,21 @@ Phase 17 should implement:
 2. OpenClaw discovery adapter.
 3. Candidate node list.
 4. Discovery metadata persistence.
+
+Phase 17 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 17:
+
+1. `src/runtime_discovery/model.ts` defines runtime and candidate node discovery models.
+2. `src/runtime_discovery/store.ts` persists `.annie/discovery/runtime-candidates.json`.
+3. `src/runtime_discovery/openclaw_discovery.ts` maps `openclaw agents list --json` output into candidate nodes.
+4. OpenClaw discovery failures are represented as unavailable runtime metadata.
+5. `GET /nodes/candidates` returns the discovery snapshot.
+6. Discovery does not write Node Registry and does not grant actions.
 
 Phase 18 should implement:
 

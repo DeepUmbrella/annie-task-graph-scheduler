@@ -45,11 +45,11 @@ progress/
 - [Phase 14 Generic Agent Message Intake](./phase-14/phase-summary.md) - done
 - [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - done
 - [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - done
-- [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - planned
+- [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 17 Runtime Discovery And Candidate Nodes 已规划。下一步进入 T085。
+Phase 18 Node Registration Interview 待规划。Phase 17 已完成 runtime discovery model、OpenClaw discovery adapter、candidate discovery persistence，以及 `GET /nodes/candidates`。
 
 ## 更新规则
 
@@ -99,5 +99,5 @@ npm test
 当前基线：
 
 ```txt
-159 passed
+169 passed
 ```

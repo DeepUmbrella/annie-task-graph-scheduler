@@ -293,6 +293,15 @@ Phase 17 planned:
 - Discovery metadata persistence
 - `GET /nodes/candidates`
 
+Phase 17 completed:
+
+- Runtime discovery models
+- Candidate node model separated from RegisteredNode
+- Local `.annie/discovery/runtime-candidates.json` persistence
+- OpenClaw discovery adapter for `openclaw agents list --json`
+- Runtime unavailable metadata handling
+- Runtime-neutral `GET /nodes/candidates`
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -360,9 +369,8 @@ Phase 13: done
 Phase 14: done
 Phase 15: done
 Phase 16: done
-Phase 17: in_progress, T085-T088 done, next T089
+Phase 17: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/runtime_discovery.test.js: 9 passed
-node --test dist/tests/inbound_server.test.js: 6 passed
+npm test: 169 passed
 ```
