@@ -1,4 +1,5 @@
 import type { NextWaveResult } from "../scheduler/scheduler.js";
+import type { TaskStatusChange } from "../scheduler/dependency_resolver.js";
 import type { WorkflowState } from "../models/workflow.js";
 
 export const workflowSchedulingDecisionStatuses = [
@@ -30,6 +31,7 @@ export interface WorkflowSchedulingDecision {
 export interface WorkflowSchedulingResult {
   workflow_id: string;
   decision: WorkflowSchedulingDecision;
+  status_changes: TaskStatusChange[];
   state: WorkflowState;
   next_wave: NextWaveResult | null;
   state_path: string;

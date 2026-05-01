@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 
 - `src/cli.ts`
 - `src/workflow_scheduling/schedule_next_wave.ts`
+
+## 完成记录
+
+- 复用现有 `next-wave` CLI command。
+- CLI 改为调用 `scheduleNextWorkflowWave`。
+- 保留 `ready_task_ids`、`blocked_task_ids`、`status_changes`、`wave` 等既有输出字段。
+- 新增 scheduling decision、state path、audit path 输出。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/e2e_execution_cli.test.js: pending test update in T114 because Phase 22 adds scheduling audit events
+```

@@ -36,7 +36,7 @@ export async function scheduleNextWorkflowWave(
       decision
     }));
 
-    return createResult(state, stateStore, decision, null);
+    return createResult(state, stateStore, decision, [], null);
   }
 
   if (isWorkflowCompleted(state)) {
@@ -57,7 +57,7 @@ export async function scheduleNextWorkflowWave(
       decision
     }));
 
-    return createResult(completedState, stateStore, decision, null);
+    return createResult(completedState, stateStore, decision, [], null);
   }
 
   if (state.status === "failed") {
@@ -69,7 +69,7 @@ export async function scheduleNextWorkflowWave(
       decision
     }));
 
-    return createResult(state, stateStore, decision, null);
+    return createResult(state, stateStore, decision, [], null);
   }
 
   const dependencyResolution = resolveDependencies(state);
@@ -97,7 +97,7 @@ export async function scheduleNextWorkflowWave(
       }
     });
 
-    return createResult(nextState, stateStore, decision, nextWave);
+    return createResult(nextState, stateStore, decision, dependencyResolution.status_changes, nextWave);
   }
 
   const nextState: WorkflowState = {
@@ -125,18 +125,20 @@ export async function scheduleNextWorkflowWave(
     }
   });
 
-  return createResult(nextState, stateStore, decision, nextWave);
+  return createResult(nextState, stateStore, decision, dependencyResolution.status_changes, nextWave);
 }
 
 function createResult(
   state: WorkflowState,
   stateStore: StateStore,
   decision: WorkflowSchedulingDecision,
+  statusChanges: TaskStatusChange[],
   nextWave: WorkflowSchedulingResult["next_wave"]
 ): WorkflowSchedulingResult {
   return {
     workflow_id: state.workflow_id,
     decision,
+    status_changes: statusChanges,
     state,
     next_wave: nextWave,
     state_path: stateStore.statePath(state.workflow_id),

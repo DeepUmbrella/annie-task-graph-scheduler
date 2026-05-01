@@ -15,8 +15,7 @@ import { TaskGraphSchedulerError } from "./errors.js";
 import { collectResult } from "./execution/result_collector.js";
 import { reviewWave } from "./execution/review_gate.js";
 import { assignWorkers } from "./execution/worker_pool.js";
-import { resolveDependencies } from "./scheduler/dependency_resolver.js";
-import { generateNextWave } from "./scheduler/scheduler.js";
+import { scheduleNextWorkflowWave } from "./workflow_scheduling/index.js";
 import {
   buildGlobalAgentPool,
   buildGlobalTaskQueue,
@@ -187,29 +186,23 @@ async function runNextWave(): Promise<void> {
   }
 
   try {
-    const store = createCliStateStore();
-    const state = await store.loadState(workflowId);
-    const dependencyResolution = resolveDependencies(state);
-    const nextWave = generateNextWave(dependencyResolution.state);
-    const nextState: WorkflowState = {
-      ...dependencyResolution.state,
-      waves: nextWave.wave
-        ? [...dependencyResolution.state.waves, nextWave.wave]
-        : dependencyResolution.state.waves
-    };
-    await store.saveState(nextState);
-    for (const event of createSchedulerStatusAuditEvents(nextState, dependencyResolution.status_changes)) {
-      await store.appendAuditEvent(event);
-    }
+    const scheduling = await scheduleNextWorkflowWave({
+      workflow_id: workflowId
+    }, {
+      rootDir: getArg("--root") ?? ".annie"
+    });
 
     console.log(JSON.stringify({
-      workflow_id: nextState.workflow_id,
-      ready_task_ids: nextWave.ready_task_ids,
-      blocked_task_ids: dependencyResolution.blocked_task_ids,
-      status_changes: dependencyResolution.status_changes,
-      wave: nextWave.wave,
-      skipped_ready_tasks: nextWave.skipped_ready_tasks,
-      decision: nextWave.decision
+      workflow_id: scheduling.workflow_id,
+      ready_task_ids: scheduling.next_wave?.ready_task_ids ?? scheduling.decision.ready_task_ids,
+      blocked_task_ids: scheduling.decision.blocked_task_ids,
+      status_changes: scheduling.status_changes,
+      wave: scheduling.next_wave?.wave ?? null,
+      skipped_ready_tasks: scheduling.next_wave?.skipped_ready_tasks ?? [],
+      decision: scheduling.decision,
+      scheduler_decision: scheduling.next_wave?.decision ?? null,
+      state_path: scheduling.state_path,
+      audit_path: scheduling.audit_path
     }, null, 2));
   } catch (error) {
     printCliError(error);
@@ -932,25 +925,6 @@ function createReviewAuditEvents(previous: WorkflowState, next: WorkflowState, w
   }
 
   return events;
-}
-
-function createSchedulerStatusAuditEvents(
-  state: WorkflowState,
-  statusChanges: Array<{ task_id: string; from: string; to: string; reason: string }>
-): AuditEvent[] {
-  return statusChanges.map((change) => ({
-    event_id: createCliAuditEventId(state.updated_at),
-    workflow_id: state.workflow_id,
-    type: "TASK_STATUS_CHANGED",
-    payload: {
-      task_id: change.task_id,
-      from: change.from,
-      to: change.to,
-      reason: change.reason,
-      source: "dependency_resolver"
-    },
-    created_at: state.updated_at
-  }));
 }
 
 function createCliAuditEventId(now: string): string {
