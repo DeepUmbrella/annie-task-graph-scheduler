@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,16 @@
 
 - `src/team_delegation/*`
 - `tests/team_delegation.test.ts`
+
+## 实施记录
+
+- 新增 `validateTeamDelegation`。
+- 校验 sender 的 team context。
+- 校验 target 是同 team member。
+- 校验 action policy 允许 `delegate_to_member` + `TASK_ASSIGNED`。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/team_delegation.test.js` passed.
