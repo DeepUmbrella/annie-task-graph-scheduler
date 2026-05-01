@@ -2,7 +2,7 @@
 
 ## 状态
 
-`in_progress`
+`done`
 
 ## 目标
 
@@ -23,3 +23,17 @@
 
 - `tests/workflow_bootstrap.test.ts`
 - `tests/inbound_server.test.ts`
+
+## 实施记录
+
+- 覆盖 bootstrap 创建 workflow state。
+- 覆盖 missing proposal。
+- 覆盖 bootstrap 不自动创建 wave。
+- 覆盖 inbound bootstrap helper。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/workflow_bootstrap.test.js` passed.
+- `node --test dist/tests/inbound_server.test.js` passed.
