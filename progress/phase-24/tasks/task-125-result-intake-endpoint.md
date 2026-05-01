@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
+
+## 完成记录
+
+- 新增 `POST /agent-results`。
+- 新增 `receiveAgentResult` helper。
+- 新增 agent result payload parser。
+- `serve` endpoint 列表输出 `agent_results`。
+- Endpoint 复用 `intakeAgentResult`，不自动 review。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+```

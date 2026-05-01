@@ -20,7 +20,7 @@
 |---|---|---|
 | T123 | done | [Result intake model](./tasks/task-123-result-intake-model.md) |
 | T124 | done | [Result intake service](./tasks/task-124-result-intake-service.md) |
-| T125 | todo | [Result intake endpoint](./tasks/task-125-result-intake-endpoint.md) |
+| T125 | done | [Result intake endpoint](./tasks/task-125-result-intake-endpoint.md) |
 | T126 | todo | [Result intake CLI](./tasks/task-126-result-intake-cli.md) |
 | T127 | todo | [Result intake tests](./tasks/task-127-result-intake-tests.md) |
 | T128 | todo | [Phase 24 验收测试](./tasks/task-128-phase-24-acceptance.md) |
@@ -30,7 +30,8 @@
 - Phase 01-23 已完成。
 - T123：Result intake model 已完成。
 - T124：Result intake service 已完成。
-- 下一步：T125 Result intake endpoint。
+- T125：Result intake endpoint 已完成。
+- 下一步：T126 Result intake CLI。
 
 ## 阶段完成标准
 

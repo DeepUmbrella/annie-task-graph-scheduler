@@ -13,6 +13,7 @@ import { createPlanProposalStore, parsePlanProposalPayload, type PlanProposal, t
 import { bootstrapWorkflowFromProposal, type WorkflowBootstrapResult } from "../workflow_bootstrap/index.js";
 import { scheduleNextWorkflowWave, type WorkflowSchedulingResult } from "../workflow_scheduling/index.js";
 import { dispatchWorkflowWave, type WorkflowDispatchResult } from "../workflow_dispatch/index.js";
+import { intakeAgentResult, type ResultIntakeResult } from "../result_intake/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -99,6 +100,13 @@ export interface ReceivedWorkflowDispatch {
   path: string;
   payload: unknown;
   dispatch: WorkflowDispatchResult;
+}
+
+export interface ReceivedAgentResult {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  result_intake: ResultIntakeResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -259,6 +267,28 @@ async function handleInboundRequest(
           rejections: record.dispatch.rejections,
           state_path: record.dispatch.state_path,
           audit_path: record.dispatch.audit_path
+        });
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/agent-results") {
+        const payload = await readJsonBody(request);
+        const record = await receiveAgentResult(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:agent-result] workflow_id=${record.result_intake.workflow_id} task_id=${record.result_intake.task_id} from=${record.result_intake.from} status=${record.result_intake.decision.next_task_status}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          workflow_id: record.result_intake.workflow_id,
+          task_id: record.result_intake.task_id,
+          wave_id: record.result_intake.wave_id,
+          from: record.result_intake.from,
+          decision: record.result_intake.decision,
+          state_path: record.result_intake.state_path,
+          audit_path: record.result_intake.audit_path
         });
         return;
       }
@@ -441,6 +471,57 @@ export async function receiveWorkflowDispatch(
     path: options.path ?? "/workflow-dispatch",
     payload,
     dispatch
+  };
+}
+
+export async function receiveAgentResult(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedAgentResult> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const input = parseAgentResultPayload(payload);
+  const resultIntake = await intakeAgentResult(input, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/agent-results",
+    payload,
+    result_intake: resultIntake
+  };
+}
+
+function parseAgentResultPayload(payload: unknown): Parameters<typeof intakeAgentResult>[0] {
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    throw new TaskGraphSchedulerError("Agent result payload must be an object.", "AGENT_RESULT_PAYLOAD_INVALID");
+  }
+
+  const record = payload as Record<string, unknown>;
+  const workflowId = typeof record.workflow_id === "string" ? record.workflow_id.trim() : "";
+  const from = typeof record.from === "string" ? record.from.trim() : "";
+  const waveId = typeof record.wave_id === "string" && record.wave_id.trim().length > 0
+    ? record.wave_id.trim()
+    : undefined;
+  const result = record.result;
+
+  if (workflowId.length === 0) {
+    throw new TaskGraphSchedulerError("Agent result payload requires workflow_id.", "AGENT_RESULT_WORKFLOW_REQUIRED");
+  }
+  if (from.length === 0) {
+    throw new TaskGraphSchedulerError("Agent result payload requires from.", "AGENT_RESULT_FROM_REQUIRED");
+  }
+
+  return {
+    workflow_id: workflowId,
+    from,
+    wave_id: waveId,
+    result: result as Parameters<typeof intakeAgentResult>[0]["result"]
   };
 }
 
