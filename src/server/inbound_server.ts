@@ -11,6 +11,7 @@ import { createNodeRegistry, type NodeRegistrationProposal, type NodeRegistrySna
 import { createRuntimeDiscoveryStore, type RuntimeDiscoverySnapshot } from "../runtime_discovery/index.js";
 import { createPlanProposalStore, parsePlanProposalPayload, type PlanProposal, type PlanProposalSnapshot } from "../plan_proposal/index.js";
 import { bootstrapWorkflowFromProposal, type WorkflowBootstrapResult } from "../workflow_bootstrap/index.js";
+import { scheduleNextWorkflowWave, type WorkflowSchedulingResult } from "../workflow_scheduling/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -83,6 +84,13 @@ export interface ReceivedWorkflowBootstrap {
   path: string;
   payload: unknown;
   bootstrap: WorkflowBootstrapResult;
+}
+
+export interface ReceivedWorkflowNextWave {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  scheduling: WorkflowSchedulingResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -201,6 +209,26 @@ async function handleInboundRequest(
           workflow_status: record.bootstrap.state.status,
           state_path: record.bootstrap.state_path,
           audit_path: record.bootstrap.audit_path
+        });
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/workflow-next-wave") {
+        const payload = await readJsonBody(request);
+        const record = await receiveWorkflowNextWave(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:workflow-next-wave] workflow_id=${record.scheduling.workflow_id} decision=${record.scheduling.decision.status} wave_id=${record.scheduling.decision.wave_id ?? "none"} state=${record.scheduling.state_path}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          workflow_id: record.scheduling.workflow_id,
+          decision: record.scheduling.decision,
+          wave: record.scheduling.next_wave?.wave ?? null,
+          state_path: record.scheduling.state_path,
+          audit_path: record.scheduling.audit_path
         });
         return;
       }
@@ -337,6 +365,46 @@ export async function receiveWorkflowBootstrap(
     path: options.path ?? "/workflow-bootstrap",
     payload,
     bootstrap
+  };
+}
+
+export async function receiveWorkflowNextWave(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedWorkflowNextWave> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const input = parseWorkflowNextWavePayload(payload);
+  const scheduling = await scheduleNextWorkflowWave(input, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/workflow-next-wave",
+    payload,
+    scheduling
+  };
+}
+
+function parseWorkflowNextWavePayload(payload: unknown): { workflow_id: string } {
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    throw new TaskGraphSchedulerError("Workflow next-wave payload must be an object.", "WORKFLOW_NEXT_WAVE_PAYLOAD_INVALID");
+  }
+
+  const record = payload as Record<string, unknown>;
+  const workflowId = typeof record.workflow_id === "string" ? record.workflow_id.trim() : "";
+
+  if (workflowId.length === 0) {
+    throw new TaskGraphSchedulerError("Workflow next-wave payload requires workflow_id.", "WORKFLOW_NEXT_WAVE_WORKFLOW_REQUIRED");
+  }
+
+  return {
+    workflow_id: workflowId
   };
 }
 

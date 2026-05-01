@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
+
+## 完成记录
+
+- 新增 `POST /workflow-next-wave`。
+- 新增 `receiveWorkflowNextWave` helper。
+- 新增 workflow next-wave payload parser。
+- `serve` endpoint 列表输出 `workflow_next_wave`。
+- Endpoint 复用 `scheduleNextWorkflowWave`，不 dispatch、不调用 OpenClaw。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+```
