@@ -52,11 +52,11 @@ progress/
 - [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
 - [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - done
 - [Phase 23 Wave Task Dispatch](./phase-23/phase-summary.md) - done
-- [Phase 24 Agent Result Intake](./phase-24/phase-summary.md) - planned
+- [Phase 24 Agent Result Intake](./phase-24/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 24 Agent Result Intake 已规划。下一步进入 T123。
+Phase 24 Agent Result Intake 已完成。下一阶段建议进入 Phase 25 Review And Wave Advancement：连接 review gate、reviewer agent 决策和安全推进下一波。
 
 ## 更新规则
 
@@ -106,5 +106,5 @@ npm test
 当前基线：
 
 ```txt
-210 passed
+215 passed
 ```

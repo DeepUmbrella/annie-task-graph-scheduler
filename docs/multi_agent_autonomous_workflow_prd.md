@@ -1057,6 +1057,22 @@ Acceptance:
 3. Unauthorized result submissions are rejected.
 4. Result intake writes state and audit records.
 
+Phase 24 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 24:
+
+1. `src/result_intake/model.ts` defines runtime-neutral result intake decisions.
+2. `src/result_intake/intake_result.ts` validates sender assignment and task status.
+3. Assigned tasks can be implicitly acknowledged into `running` before ResultCollector runs.
+4. ResultCollector moves completed tasks to `reviewing` and failed tasks through retry policy.
+5. `POST /agent-results` accepts runtime-neutral task result payloads.
+6. `agent-result` CLI submits result JSON files.
+7. Result intake does not automatically review waves or schedule the next wave.
+
 ### 13.5 Phase 25: Review And Wave Advancement
 
 Phase 25 should connect completed wave results to ReviewGate and controlled next-wave progression.

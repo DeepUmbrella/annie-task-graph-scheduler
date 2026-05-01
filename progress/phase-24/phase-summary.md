@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -23,7 +23,7 @@
 | T125 | done | [Result intake endpoint](./tasks/task-125-result-intake-endpoint.md) |
 | T126 | done | [Result intake CLI](./tasks/task-126-result-intake-cli.md) |
 | T127 | done | [Result intake tests](./tasks/task-127-result-intake-tests.md) |
-| T128 | todo | [Phase 24 验收测试](./tasks/task-128-phase-24-acceptance.md) |
+| T128 | done | [Phase 24 验收测试](./tasks/task-128-phase-24-acceptance.md) |
 
 ## 当前进度
 
@@ -33,7 +33,8 @@
 - T125：Result intake endpoint 已完成。
 - T126：Result intake CLI 已完成。
 - T127：Result intake tests 已完成。
-- 下一步：T128 Phase 24 acceptance。
+- T128：Phase 24 acceptance 已完成。
+- Phase 24 已完成，当前验收基线为 215 passed。
 
 ## 阶段完成标准
 

@@ -417,6 +417,17 @@ Phase 24 planned:
 - Result intake CLI command
 - No automatic review or next-wave in this phase
 
+Phase 24 completed:
+
+- Result intake model
+- `intakeAgentResult` service
+- Runtime-neutral `POST /agent-results`
+- `agent-result` CLI command
+- Sender must match task `assigned_to`
+- Assigned tasks can be implicitly acknowledged and moved through ResultCollector
+- Result intake moves completed tasks to `reviewing`, failed tasks through retry policy
+- No automatic review or next-wave in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -491,8 +502,8 @@ Phase 20: done
 Phase 21: done
 Phase 22: done
 Phase 23: done
-Phase 24: planned, next T123
+Phase 24: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 210 passed
+npm test: 215 passed
 ```
