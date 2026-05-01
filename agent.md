@@ -396,6 +396,17 @@ Phase 23 planned:
 - Dispatch CLI command
 - No OpenClaw transport call in this phase
 
+Phase 23 completed:
+
+- Workflow dispatch model
+- Task `assigned` status and transition support
+- Dispatch target selection from registered nodes
+- `dispatchWorkflowWave` mailbox delivery service
+- Runtime-neutral `POST /workflow-dispatch`
+- `workflow-dispatch` CLI command
+- Dispatch writes `TASK_ASSIGNED` to node inbox and keeps task out of `running`
+- No OpenClaw transport call in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -469,8 +480,8 @@ Phase 19: done
 Phase 20: done
 Phase 21: done
 Phase 22: done
-Phase 23: planned, next T116
+Phase 23: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 205 passed
+npm test: 210 passed
 ```

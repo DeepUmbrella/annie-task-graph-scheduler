@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -24,7 +24,7 @@
 | T119 | done | [Dispatch endpoint](./tasks/task-119-dispatch-endpoint.md) |
 | T120 | done | [Dispatch CLI](./tasks/task-120-dispatch-cli.md) |
 | T121 | done | [Dispatch tests](./tasks/task-121-dispatch-tests.md) |
-| T122 | todo | [Phase 23 验收测试](./tasks/task-122-phase-23-acceptance.md) |
+| T122 | done | [Phase 23 验收测试](./tasks/task-122-phase-23-acceptance.md) |
 
 ## 当前进度
 
@@ -35,7 +35,8 @@
 - T119：Dispatch endpoint 已完成。
 - T120：Dispatch CLI 已完成。
 - T121：Dispatch tests 已完成。
-- 下一步：T122 Phase 23 acceptance。
+- T122：Phase 23 acceptance 已完成。
+- Phase 23 已完成，当前验收基线为 210 passed。
 
 ## 阶段完成标准
 

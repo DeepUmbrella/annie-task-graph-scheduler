@@ -1016,6 +1016,22 @@ Acceptance:
 4. Dispatch can be retried without duplicate task assignment messages.
 5. Tasks do not become `running` until assignment acknowledgement is received.
 
+Phase 23 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 23:
+
+1. `src/workflow_dispatch/model.ts` defines runtime-neutral dispatch decisions.
+2. Task status now supports `assigned` before `running`.
+3. `src/workflow_dispatch/selection.ts` selects registered nodes by preferred node and capabilities.
+4. `src/workflow_dispatch/dispatch_wave.ts` sends `TASK_ASSIGNED` mailbox messages from `orchestrator`.
+5. `POST /workflow-dispatch` triggers explicit mailbox dispatch.
+6. `workflow-dispatch` CLI runs dispatch without changing tasks to `running`.
+7. Dispatch is idempotent for already assigned tasks and does not call OpenClaw.
+
 ### 13.4 Phase 24: Agent Result Intake
 
 Phase 24 should provide the runtime-neutral path for execution agents to submit structured task results.
