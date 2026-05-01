@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap, receiveWorkflowDispatch, receiveWorkflowNextWave } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveAgentResult, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap, receiveWorkflowDispatch, receiveWorkflowNextWave } from "../src/server/inbound_server.js";
 import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
@@ -406,4 +406,53 @@ test("receiveWorkflowDispatch dispatches a scheduled workflow", async () => {
   assert.equal(record.dispatch.decision.status, "dispatched");
   assert.equal(record.dispatch.assignments[0]?.node_id, "frontend-agent");
   assert.equal(record.dispatch.state.tasks.T1?.status, "assigned");
+});
+
+test("receiveAgentResult accepts assigned task result", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-agent-result-"));
+  await receiveNodeRegistration({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "frontend-agent",
+        node_type: "individual",
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message"]
+      }
+    ]
+  }, { rootDir });
+  const proposalRecord = await receivePlanProposal({
+    intent_id: "intent_007",
+    from: "develop-team",
+    plan: {
+      plan_id: "plan_site",
+      plan_type: "dag",
+      execution_policy: {},
+      tasks: [
+        {
+          id: "T1",
+          title: "Create homepage",
+          required_capabilities: ["frontend"],
+          preferred_agent: "frontend-agent"
+        }
+      ]
+    }
+  }, { rootDir });
+  await receiveWorkflowBootstrap({ proposal_id: proposalRecord.proposal.proposal_id, workflow_id: "wf_site" }, { rootDir });
+  await receiveWorkflowNextWave({ workflow_id: "wf_site" }, { rootDir });
+  await receiveWorkflowDispatch({ workflow_id: "wf_site" }, { rootDir });
+
+  const record = await receiveAgentResult({
+    workflow_id: "wf_site",
+    from: "frontend-agent",
+    result: {
+      task_id: "T1",
+      status: "completed",
+      summary: "Done."
+    }
+  }, { rootDir });
+
+  assert.equal(record.path, "/agent-results");
+  assert.equal(record.result_intake.decision.status, "accepted");
+  assert.equal(record.result_intake.state.tasks.T1?.status, "reviewing");
 });

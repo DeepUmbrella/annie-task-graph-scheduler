@@ -287,6 +287,66 @@ test("CLI workflow-dispatch sends assignment without starting task", async () =>
   assert.equal(inbox[0]?.type, "TASK_ASSIGNED");
 });
 
+test("CLI agent-result accepts assigned task result", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-agent-result-"));
+  const planPath = join(rootDir, "plan.json");
+  const resultPath = join(rootDir, "result.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_agent_result",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Frontend task",
+        required_capabilities: ["frontend"],
+        preferred_agent: "frontend-agent"
+      }
+    ]
+  }), "utf8");
+  await writeFile(resultPath, JSON.stringify({
+    task_id: "T1",
+    status: "completed",
+    summary: "Done."
+  }), "utf8");
+  await createNodeRegistry(rootDir).registerProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "frontend-agent",
+        node_type: "individual",
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message"]
+      }
+    ]
+  });
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_agent_result"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_agent_result"]);
+  await runCli(["workflow-dispatch", "--root", rootDir, "--workflow", "wf_agent_result"]);
+  const output = await runCli([
+    "agent-result",
+    "--root",
+    rootDir,
+    "--workflow",
+    "wf_agent_result",
+    "--from",
+    "frontend-agent",
+    "--result",
+    resultPath
+  ]) as { decision: { status: string; next_task_status: string } };
+
+  assert.equal(output.decision.status, "accepted");
+  assert.equal(output.decision.next_task_status, "reviewing");
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_agent_result", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string }>;
+    waves: Array<{ status: string }>;
+  };
+  assert.equal(state.tasks.T1?.status, "reviewing");
+  assert.equal(state.waves[0]?.status, "pending");
+});
+
 test("CLI submit-result collects worker output and persists task result", async () => {
   const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-submit-result-"));
   const planPath = join(rootDir, "plan.json");
