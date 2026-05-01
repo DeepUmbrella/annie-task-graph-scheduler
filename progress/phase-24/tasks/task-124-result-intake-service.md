@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,17 @@
 - `src/result_intake/intake_result.ts`
 - `src/execution/result_collector.ts`
 - `src/storage/state_store.ts`
+
+## 完成记录
+
+- 新增 `intakeAgentResult` service。
+- 校验 sender 必须等于 task `assigned_to`。
+- 支持 `assigned` task 隐式变为 `running` 后交给 ResultCollector。
+- 复用 ResultCollector 处理 completed / failed / retry。
+- 保存 workflow state 并写 intake / status / collection audit events。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```
