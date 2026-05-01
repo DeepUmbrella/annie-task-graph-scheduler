@@ -302,6 +302,13 @@ Phase 17 completed:
 - Runtime unavailable metadata handling
 - Runtime-neutral `GET /nodes/candidates`
 
+Phase 18 planned:
+
+- Node registration interview template
+- Runtime reply parser for `NodeRegistrationProposal`
+- Registration approval boundary
+- Registration semantics: requested actions are not automatically granted
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -370,6 +377,7 @@ Phase 14: done
 Phase 15: done
 Phase 16: done
 Phase 17: done
+Phase 18: planned, next T090
 npm run typecheck: pass
 npm run build: pass
 npm test: 169 passed

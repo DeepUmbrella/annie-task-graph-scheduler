@@ -46,10 +46,11 @@ progress/
 - [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - done
 - [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - done
 - [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
+- [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 18 Node Registration Interview 待规划。Phase 17 已完成 runtime discovery model、OpenClaw discovery adapter、candidate discovery persistence，以及 `GET /nodes/candidates`。
+Phase 18 Node Registration Interview 已规划。下一步进入 T090。
 
 ## 更新规则
 
