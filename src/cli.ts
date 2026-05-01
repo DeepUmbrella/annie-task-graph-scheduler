@@ -17,6 +17,7 @@ import { reviewWave } from "./execution/review_gate.js";
 import { assignWorkers } from "./execution/worker_pool.js";
 import { scheduleNextWorkflowWave } from "./workflow_scheduling/index.js";
 import { dispatchWorkflowWave } from "./workflow_dispatch/index.js";
+import { intakeAgentResult } from "./result_intake/index.js";
 import {
   buildGlobalAgentPool,
   buildGlobalTaskQueue,
@@ -45,6 +46,7 @@ Commands:
   init --plan <plan.json> [--workflow <workflow_id>]
   next-wave --workflow <workflow_id>
   workflow-dispatch --workflow <workflow_id> [--wave <wave_id>]
+  agent-result --workflow <workflow_id> --from <node_id> --result <result.json> [--wave <wave_id>]
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
@@ -81,6 +83,8 @@ if (command === "init") {
   await runNextWave();
 } else if (command === "workflow-dispatch") {
   await runWorkflowDispatch();
+} else if (command === "agent-result") {
+  await runAgentResult();
 } else if (command === "dispatch") {
   await runDispatch();
 } else if (command === "submit-result") {
@@ -236,6 +240,50 @@ async function runWorkflowDispatch(): Promise<void> {
       assignments: result.assignments,
       rejections: result.rejections,
       message_count: result.messages.length,
+      state_path: result.state_path,
+      audit_path: result.audit_path
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runAgentResult(): Promise<void> {
+  const workflowId = getArg("--workflow");
+  const from = getArg("--from");
+  const resultPath = getArg("--result");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+  if (!from) {
+    console.error("Missing required --from <node_id>.");
+    process.exit(1);
+  }
+  if (!resultPath) {
+    console.error("Missing required --result <result.json>.");
+    process.exit(1);
+  }
+
+  try {
+    const raw = await readFile(resultPath, "utf8");
+    const resultPayload = JSON.parse(raw) as Parameters<typeof intakeAgentResult>[0]["result"];
+    const result = await intakeAgentResult({
+      workflow_id: workflowId,
+      from,
+      wave_id: getArg("--wave") ?? undefined,
+      result: resultPayload
+    }, {
+      rootDir: getArg("--root") ?? ".annie"
+    });
+
+    console.log(JSON.stringify({
+      workflow_id: result.workflow_id,
+      task_id: result.task_id,
+      wave_id: result.wave_id,
+      from: result.from,
+      decision: result.decision,
       state_path: result.state_path,
       audit_path: result.audit_path
     }, null, 2));

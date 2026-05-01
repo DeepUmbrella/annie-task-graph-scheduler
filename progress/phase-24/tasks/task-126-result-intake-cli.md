@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,17 @@
 
 - `src/cli.ts`
 - `src/result_intake/intake_result.ts`
+
+## 完成记录
+
+- 新增 `agent-result --workflow <workflow_id> --from <node_id> --result <result.json> [--wave <wave_id>]`。
+- CLI 复用 `intakeAgentResult`。
+- 输出 decision、state path、audit path。
+- CLI 不自动 review。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+```
