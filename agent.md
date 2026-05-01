@@ -367,6 +367,15 @@ Phase 21 completed:
 - Bootstrap creates pending workflow state without waves
 - Bootstrap does not automatically dispatch or schedule the next wave
 
+Phase 22 planned:
+
+- Workflow scheduling model
+- Schedule next wave service
+- Runtime-neutral next-wave endpoint
+- Next-wave CLI command
+- Scheduling audit event
+- No dispatch and no OpenClaw call in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -439,6 +448,7 @@ Phase 18: done
 Phase 19: done
 Phase 20: done
 Phase 21: done
+Phase 22: planned, next T110
 npm run typecheck: pass
 npm run build: pass
 npm test: 200 passed

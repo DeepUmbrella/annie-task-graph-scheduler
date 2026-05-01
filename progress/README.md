@@ -50,10 +50,11 @@ progress/
 - [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - done
 - [Phase 20 Plan Proposal Intake](./phase-20/phase-summary.md) - done
 - [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
+- [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 21 Autonomous Workflow Bootstrap 已完成。下一阶段需要基于 PRD 继续规划 Phase 22，建议方向为 Workflow Scheduling Loop：从已 bootstrap 的 workflow state 显式生成下一波任务，但继续保持节点自路由和权限校验边界。
+Phase 22 Workflow Scheduling Loop 已规划。下一步进入 T110。
 
 ## 更新规则
 
