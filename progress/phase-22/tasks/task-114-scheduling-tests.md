@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,22 @@
 - `tests/workflow_scheduling.test.ts`
 - `tests/inbound_server.test.ts`
 - `tests/cli.test.ts`
+
+## 完成记录
+
+- 新增 `tests/workflow_scheduling.test.ts`。
+- 覆盖 first wave scheduling 不 dispatch。
+- 覆盖 active wave idempotency。
+- 覆盖 no-ready / completed decision。
+- 更新 inbound server 测试覆盖 `receiveWorkflowNextWave`。
+- 更新 CLI e2e 测试以兼容 scheduling audit event。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/workflow_scheduling.test.js: 4 passed
+node --test dist/tests/inbound_server.test.js: 9 passed
+node --test dist/tests/e2e_execution_cli.test.js: 9 passed
+```

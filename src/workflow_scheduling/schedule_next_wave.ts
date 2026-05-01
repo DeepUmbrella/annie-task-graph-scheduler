@@ -205,7 +205,8 @@ async function appendSchedulingAuditEvents(
       task_id: change.task_id,
       from: change.from,
       to: change.to,
-      reason: change.reason
+      reason: change.reason,
+      source: "dependency_resolver"
     }));
   }
 

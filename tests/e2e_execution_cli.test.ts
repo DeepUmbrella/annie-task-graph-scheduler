@@ -163,11 +163,13 @@ test("CLI next-wave resolves dependencies and persists generated wave", async ()
   assert.deepEqual(state.waves.map((wave) => wave.id), ["wave_001"]);
 
   const auditEvents = parseAuditEvents(await readFile(join(rootDir, "workflows", "wf_next_wave", "audit.jsonl"), "utf8"));
-  assert.deepEqual(auditEvents.map((event) => `${event.payload.task_id}:${event.payload.from}->${event.payload.to}`), [
+  const statusEvents = auditEvents.filter((event) => event.type === "TASK_STATUS_CHANGED");
+  assert.deepEqual(statusEvents.map((event) => `${event.payload.task_id}:${event.payload.from}->${event.payload.to}`), [
     "T1:pending->ready",
     "T2:pending->ready"
   ]);
-  assert.equal(auditEvents.every((event) => event.payload.source === "dependency_resolver"), true);
+  assert.equal(statusEvents.every((event) => event.payload.source === "dependency_resolver"), true);
+  assert.equal(auditEvents.some((event) => event.type === "WORKFLOW_WAVE_SCHEDULED"), true);
 });
 
 test("CLI dispatch assigns wave tasks and writes audit events", async () => {

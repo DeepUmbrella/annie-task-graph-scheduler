@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap, receiveWorkflowNextWave } from "../src/server/inbound_server.js";
 import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
@@ -297,4 +297,49 @@ test("receiveWorkflowBootstrap bootstraps a saved plan proposal", async () => {
   assert.equal(record.bootstrap.workflow_id, "wf_site");
   assert.equal(record.bootstrap.state.status, "pending");
   assert.equal(record.bootstrap.state.waves.length, 0);
+});
+
+test("receiveWorkflowNextWave schedules a bootstrapped workflow", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-workflow-next-wave-"));
+  const proposalRecord = await receivePlanProposal({
+    intent_id: "intent_005",
+    from: "develop-team",
+    plan: {
+      plan_id: "plan_site",
+      plan_type: "dag",
+      execution_policy: {},
+      tasks: [
+        {
+          id: "T1",
+          title: "Create homepage",
+          depends_on: [],
+          expected_files: ["src/home.ts"]
+        }
+      ]
+    }
+  }, {
+    rootDir,
+    now: () => "2026-05-01T08:00:00.000Z"
+  });
+
+  await receiveWorkflowBootstrap({
+    proposal_id: proposalRecord.proposal.proposal_id,
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T09:00:00.000Z"
+  });
+
+  const record = await receiveWorkflowNextWave({
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T10:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/workflow-next-wave");
+  assert.equal(record.scheduling.workflow_id, "wf_site");
+  assert.equal(record.scheduling.decision.status, "scheduled");
+  assert.equal(record.scheduling.next_wave?.wave?.id, "wave_001");
+  assert.equal(record.scheduling.state.current_wave, "wave_001");
 });

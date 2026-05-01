@@ -22,7 +22,7 @@
 | T111 | done | [Schedule next wave service](./tasks/task-111-schedule-next-wave-service.md) |
 | T112 | done | [Next-wave endpoint](./tasks/task-112-next-wave-endpoint.md) |
 | T113 | done | [Next-wave CLI](./tasks/task-113-next-wave-cli.md) |
-| T114 | todo | [Scheduling tests](./tasks/task-114-scheduling-tests.md) |
+| T114 | done | [Scheduling tests](./tasks/task-114-scheduling-tests.md) |
 | T115 | todo | [Phase 22 验收测试](./tasks/task-115-phase-22-acceptance.md) |
 
 ## 当前进度
@@ -32,7 +32,8 @@
 - T111：Schedule next wave service 已完成。
 - T112：Next-wave endpoint 已完成。
 - T113：Next-wave CLI 已完成。
-- 下一步：T114 Scheduling tests。
+- T114：Scheduling tests 已完成。
+- 下一步：T115 Phase 22 acceptance。
 
 ## 阶段完成标准
 
