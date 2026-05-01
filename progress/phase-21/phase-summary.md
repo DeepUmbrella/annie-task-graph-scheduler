@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -22,7 +22,7 @@
 | T106 | done | [Bootstrap from proposal](./tasks/task-106-bootstrap-from-proposal.md) |
 | T107 | done | [Bootstrap endpoint](./tasks/task-107-bootstrap-endpoint.md) |
 | T108 | done | [Bootstrap tests](./tasks/task-108-bootstrap-tests.md) |
-| T109 | todo | [Phase 21 验收测试](./tasks/task-109-phase-21-acceptance.md) |
+| T109 | done | [Phase 21 验收测试](./tasks/task-109-phase-21-acceptance.md) |
 
 ## 当前进度
 
@@ -31,7 +31,8 @@
 - T106：Bootstrap from proposal 已完成。
 - T107：Bootstrap endpoint 已完成。
 - T108：Bootstrap tests 已完成。
-- 下一步：T109 Phase 21 acceptance。
+- T109：Phase 21 acceptance 已完成。
+- Phase 21 已完成，当前验收基线为 200 passed。
 
 ## 阶段完成标准
 

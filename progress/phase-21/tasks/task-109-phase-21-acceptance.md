@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -28,3 +28,18 @@
 - `progress/phase-21/phase-summary.md`
 - `progress/README.md`
 - `agent.md`
+
+## 完成记录
+
+- Phase 21 所有 task 已标记为 done。
+- progress README 已更新 Phase 21 状态和当前测试基线。
+- agent handoff 已更新 Phase 21 completed 状态。
+- PRD 已记录 Phase 21 implementation status。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+npm test: 200 passed
+```

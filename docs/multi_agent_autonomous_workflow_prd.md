@@ -893,3 +893,25 @@ Implemented in Phase 20:
 4. `POST /plan-proposals` saves validated proposals.
 5. `GET /plan-proposals` returns proposal snapshots.
 6. Plan proposal intake does not initialize workflow state.
+
+Phase 21 should implement:
+
+1. Workflow bootstrap model.
+2. Bootstrap workflow from plan proposal.
+3. Runtime-neutral workflow bootstrap endpoint.
+4. Bootstrap audit event.
+5. No automatic next-wave or dispatch.
+
+Phase 21 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 21:
+
+1. `src/workflow_bootstrap/bootstrap.ts` bootstraps saved plan proposals into workflow state.
+2. `POST /workflow-bootstrap` explicitly triggers bootstrap.
+3. Bootstrap writes a `WORKFLOW_BOOTSTRAPPED` audit event.
+4. Bootstrap creates pending workflow state without waves.
+5. Bootstrap does not automatically dispatch or call OpenClaw.

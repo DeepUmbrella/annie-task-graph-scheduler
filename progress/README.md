@@ -49,11 +49,11 @@ progress/
 - [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - done
 - [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - done
 - [Phase 20 Plan Proposal Intake](./phase-20/phase-summary.md) - done
-- [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - planned
+- [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 21 Autonomous Workflow Bootstrap 已规划。下一步进入 T105。
+Phase 21 Autonomous Workflow Bootstrap 已完成。下一阶段需要基于 PRD 继续规划 Phase 22，建议方向为 Workflow Scheduling Loop：从已 bootstrap 的 workflow state 显式生成下一波任务，但继续保持节点自路由和权限校验边界。
 
 ## 更新规则
 
@@ -103,5 +103,5 @@ npm test
 当前基线：
 
 ```txt
-196 passed
+200 passed
 ```

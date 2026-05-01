@@ -358,6 +358,15 @@ Phase 21 planned:
 - Bootstrap audit event
 - No automatic next-wave / dispatch
 
+Phase 21 completed:
+
+- Workflow bootstrap model
+- Bootstrap workflow from saved plan proposal
+- Runtime-neutral `POST /workflow-bootstrap`
+- Bootstrap writes `WORKFLOW_BOOTSTRAPPED` audit event
+- Bootstrap creates pending workflow state without waves
+- Bootstrap does not automatically dispatch or schedule the next wave
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -429,9 +438,8 @@ Phase 17: done
 Phase 18: done
 Phase 19: done
 Phase 20: done
-Phase 21: in_progress, T105-T108 done, next T109
+Phase 21: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/workflow_bootstrap.test.js: 3 passed
-node --test dist/tests/inbound_server.test.js: 8 passed
+npm test: 200 passed
 ```
