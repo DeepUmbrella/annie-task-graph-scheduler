@@ -169,6 +169,7 @@ test("receiveNodeRegistration stores runtime-neutral node proposals", async () =
   assert.equal(record.registered_at, "2026-05-01T03:00:00.000Z");
   assert.equal(record.snapshot.nodes.length, 2);
   assert.equal(record.snapshot.team_compositions.length, 1);
+  assert.deepEqual(record.snapshot.nodes.find((node) => node.node_id === "develop-team")?.granted_actions, []);
 });
 
 test("listRegisteredNodes reads the snapshot used by GET /nodes", async () => {

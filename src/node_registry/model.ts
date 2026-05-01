@@ -100,7 +100,7 @@ export function normalizeNodeRegistrationProposal(
       runtime_ref: input.runtime_ref,
       declared_capabilities: uniqueStrings(input.declared_capabilities ?? []),
       requested_actions: input.requested_actions ?? [],
-      granted_actions: input.granted_actions ?? input.requested_actions ?? [],
+      granted_actions: input.granted_actions ?? [],
       status: input.status ?? "active",
       registered_at: previous?.registered_at ?? now,
       updated_at: now

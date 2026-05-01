@@ -151,7 +151,8 @@ test("intakeAgentMessage accepts policy derived from node registry", async () =>
       {
         node_id: "annie-dev",
         node_type: "individual",
-        requested_actions: ["send_message"]
+        requested_actions: ["send_message"],
+        granted_actions: ["send_message"]
       }
     ]
   }, "2026-05-01T00:00:00.000Z");
@@ -171,4 +172,33 @@ test("intakeAgentMessage accepts policy derived from node registry", async () =>
 
   assert.equal(result.message.from, "annie-dev");
   assert.equal(result.message.to, "annie");
+});
+
+test("intakeAgentMessage rejects unapproved node registry actions", async () => {
+  const snapshot = normalizeNodeRegistrationProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"]
+      }
+    ]
+  }, "2026-05-01T00:00:00.000Z");
+  const policy = buildAgentActionPolicyFromNodeRegistry(snapshot);
+
+  await assert.rejects(
+    () => intakeAgentMessage({
+      intent_id: "intent_003",
+      from: "annie-dev",
+      action: "send_message",
+      to: "annie",
+      message_type: "REQUIREMENT_CLARIFICATION_REQUEST",
+      message: replyText
+    }, {
+      actionPolicy: policy
+    }),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "AGENT_ACTION_NODE_NOT_FOUND"
+  );
 });

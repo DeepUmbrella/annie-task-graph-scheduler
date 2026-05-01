@@ -377,8 +377,10 @@ Phase 14: done
 Phase 15: done
 Phase 16: done
 Phase 17: done
-Phase 18: in_progress, T090-T092 done, next T093
+Phase 18: in_progress, T090-T093 done, next T094
 npm run typecheck: pass
 npm run build: pass
 node --test dist/tests/node_registration_interview.test.js: 7 passed
+node --test dist/tests/node_registry.test.js: 10 passed
+node --test dist/tests/agent_message_intake.test.js: 9 passed
 ```

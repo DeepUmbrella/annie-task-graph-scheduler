@@ -24,7 +24,8 @@ test("normalizes individual node registration proposals", () => {
   assert.equal(snapshot.nodes.length, 1);
   assert.equal(snapshot.nodes[0]?.node_id, "annie-dev");
   assert.equal(snapshot.nodes[0]?.node_type, "individual");
-  assert.deepEqual(snapshot.nodes[0]?.granted_actions, ["send_message"]);
+  assert.deepEqual(snapshot.nodes[0]?.requested_actions, ["send_message"]);
+  assert.deepEqual(snapshot.nodes[0]?.granted_actions, []);
 });
 
 test("normalizes single-member team registration proposals", () => {
@@ -212,6 +213,26 @@ test("node registry repeated registration updates existing node", async () => {
   assert.deepEqual(snapshot.nodes[0]?.declared_capabilities, ["backend"]);
   assert.equal(snapshot.nodes[0]?.registered_at, "2026-05-01T01:00:00.000Z");
   assert.equal(snapshot.nodes[0]?.updated_at, "2026-05-01T02:00:00.000Z");
+});
+
+test("node registry persists approved granted actions", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-node-registry-"));
+  const registry = createNodeRegistry(rootDir);
+
+  const snapshot = await registry.registerProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"],
+        granted_actions: ["send_message"]
+      }
+    ]
+  }, { now: "2026-05-01T03:00:00.000Z" });
+
+  assert.deepEqual(snapshot.nodes[0]?.requested_actions, ["send_message"]);
+  assert.deepEqual(snapshot.nodes[0]?.granted_actions, ["send_message"]);
 });
 
 test("validateTeamContext accepts registered team members", () => {
