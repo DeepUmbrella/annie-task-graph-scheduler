@@ -50,11 +50,11 @@ progress/
 - [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - done
 - [Phase 20 Plan Proposal Intake](./phase-20/phase-summary.md) - done
 - [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
-- [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - planned
+- [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 22 Workflow Scheduling Loop 已规划。下一步进入 T110。
+Phase 22 Workflow Scheduling Loop 已完成。下一阶段建议进入 Phase 23 Wave Task Dispatch：将 scheduled wave 的任务分发到已注册节点，但仍不接入真实 OpenClaw transport。
 
 ## 更新规则
 
@@ -104,5 +104,5 @@ npm test
 当前基线：
 
 ```txt
-200 passed
+205 passed
 ```

@@ -376,6 +376,16 @@ Phase 22 planned:
 - Scheduling audit event
 - No dispatch and no OpenClaw call in this phase
 
+Phase 22 completed:
+
+- Workflow scheduling model
+- `scheduleNextWorkflowWave` service
+- Runtime-neutral `POST /workflow-next-wave`
+- Existing `next-wave` CLI now uses workflow scheduling service
+- Scheduling audit event `WORKFLOW_WAVE_SCHEDULED`
+- Active wave idempotency
+- No dispatch and no OpenClaw call in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -448,8 +458,8 @@ Phase 18: done
 Phase 19: done
 Phase 20: done
 Phase 21: done
-Phase 22: planned, next T110
+Phase 22: done
 npm run typecheck: pass
 npm run build: pass
-npm test: 200 passed
+npm test: 205 passed
 ```

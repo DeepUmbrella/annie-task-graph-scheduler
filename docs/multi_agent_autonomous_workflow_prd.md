@@ -974,6 +974,21 @@ Acceptance:
 3. Scheduling is idempotent for an already active wave.
 4. Audit logs show when and why a wave was scheduled or skipped.
 
+Phase 22 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 22:
+
+1. `src/workflow_scheduling/model.ts` defines runtime-neutral scheduling decisions.
+2. `src/workflow_scheduling/schedule_next_wave.ts` schedules the next wave from workflow state.
+3. `POST /workflow-next-wave` triggers explicit next-wave scheduling.
+4. Existing `next-wave` CLI uses the workflow scheduling service.
+5. Scheduling writes `WORKFLOW_WAVE_SCHEDULED` or skipped scheduling audit events.
+6. Scheduling sets `current_wave` but does not dispatch tasks and does not call OpenClaw.
+
 ### 13.3 Phase 23: Wave Task Dispatch
 
 Phase 23 should dispatch scheduled wave tasks to registered nodes through the existing mailbox/action policy boundary.
