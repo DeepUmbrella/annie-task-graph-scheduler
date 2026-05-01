@@ -8,6 +8,7 @@ import { createWorkflowIntentFromInboundPayload, intentsDir, type WorkflowIntent
 import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/index.js";
 import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 import { createNodeRegistry, type NodeRegistrationProposal, type NodeRegistrySnapshot } from "../node_registry/index.js";
+import { createRuntimeDiscoveryStore, type RuntimeDiscoverySnapshot } from "../runtime_discovery/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -26,6 +27,7 @@ export interface StartedInboundServer {
   logPath: string;
   intentsDir: string;
   nodeRegistryPath: string;
+  runtimeDiscoveryPath: string;
 }
 
 export interface InboundMessageRecord {
@@ -100,7 +102,8 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
     url: `http://${host}:${actualPort}`,
     logPath,
     intentsDir: intentsDir(rootDir),
-    nodeRegistryPath: createNodeRegistry(rootDir).registryPath()
+    nodeRegistryPath: createNodeRegistry(rootDir).registryPath(),
+    runtimeDiscoveryPath: createRuntimeDiscoveryStore(rootDir).snapshotPath()
   };
 }
 
@@ -130,6 +133,17 @@ async function handleInboundRequest(
 
     if (request.method === "GET" && request.url === "/nodes") {
       const snapshot = await listRegisteredNodes({
+        rootDir: options.rootDir
+      });
+      writeJson(response, 200, {
+        ok: true,
+        ...snapshot
+      });
+      return;
+    }
+
+    if (request.method === "GET" && request.url === "/nodes/candidates") {
+      const snapshot = await listCandidateNodes({
         rootDir: options.rootDir
       });
       writeJson(response, 200, {
@@ -259,6 +273,12 @@ export async function listRegisteredNodes(options: {
   rootDir?: string;
 } = {}): Promise<NodeRegistrySnapshot> {
   return createNodeRegistry(options.rootDir).loadSnapshot();
+}
+
+export async function listCandidateNodes(options: {
+  rootDir?: string;
+} = {}): Promise<RuntimeDiscoverySnapshot> {
+  return createRuntimeDiscoveryStore(options.rootDir).loadSnapshot();
 }
 
 export async function receiveAgentMessage(

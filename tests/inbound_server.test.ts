@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration } from "../src/server/inbound_server.js";
+import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
 import type { Message } from "../src/models/message.js";
@@ -191,4 +192,38 @@ test("listRegisteredNodes reads the snapshot used by GET /nodes", async () => {
   assert.equal(snapshot.nodes.length, 1);
   assert.equal(snapshot.nodes[0]?.node_id, "annie-dev");
   assert.equal(snapshot.team_compositions.length, 0);
+});
+
+test("listCandidateNodes reads the snapshot used by GET /nodes/candidates", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-candidate-list-"));
+  const store = createRuntimeDiscoveryStore(rootDir);
+  await store.saveDiscovery({
+    runtimes: [
+      {
+        runtime: "openclaw",
+        status: "available",
+        discovered_at: "2026-05-01T05:00:00.000Z"
+      }
+    ],
+    candidates: [
+      {
+        candidate_id: "openclaw:annie-dev",
+        runtime: "openclaw",
+        runtime_ref: {
+          agent_id: "annie-dev"
+        },
+        node_id_hint: "annie-dev",
+        node_type_hint: "individual",
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message"],
+        discovered_at: "2026-05-01T05:00:00.000Z"
+      }
+    ]
+  }, { now: "2026-05-01T05:00:00.000Z" });
+
+  const snapshot = await listCandidateNodes({ rootDir });
+
+  assert.equal(snapshot.runtimes[0]?.runtime, "openclaw");
+  assert.equal(snapshot.candidates.length, 1);
+  assert.equal(snapshot.candidates[0]?.candidate_id, "openclaw:annie-dev");
 });

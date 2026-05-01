@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
 - `tests/inbound_server.test.ts`
+
+## 实施记录
+
+- 新增 `GET /nodes/candidates`。
+- 新增 `listCandidateNodes` helper。
+- `serve` 输出新增 `node_candidates` endpoint。
+- `serve` 输出新增 `runtime_discovery_path`。
+- endpoint 只读取 discovery snapshot，不触发注册。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/inbound_server.test.js` passed.
+- `node --test dist/tests/runtime_discovery.test.js` passed.
