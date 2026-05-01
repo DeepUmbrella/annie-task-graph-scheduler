@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap, receiveWorkflowNextWave } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap, receiveWorkflowDispatch, receiveWorkflowNextWave } from "../src/server/inbound_server.js";
 import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
@@ -342,4 +342,68 @@ test("receiveWorkflowNextWave schedules a bootstrapped workflow", async () => {
   assert.equal(record.scheduling.decision.status, "scheduled");
   assert.equal(record.scheduling.next_wave?.wave?.id, "wave_001");
   assert.equal(record.scheduling.state.current_wave, "wave_001");
+});
+
+test("receiveWorkflowDispatch dispatches a scheduled workflow", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-workflow-dispatch-"));
+  await receiveNodeRegistration({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "frontend-agent",
+        node_type: "individual",
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message"]
+      }
+    ]
+  }, {
+    rootDir,
+    now: () => "2026-05-01T07:30:00.000Z"
+  });
+  const proposalRecord = await receivePlanProposal({
+    intent_id: "intent_006",
+    from: "develop-team",
+    plan: {
+      plan_id: "plan_site",
+      plan_type: "dag",
+      execution_policy: {},
+      tasks: [
+        {
+          id: "T1",
+          title: "Create homepage",
+          depends_on: [],
+          required_capabilities: ["frontend"],
+          preferred_agent: "frontend-agent"
+        }
+      ]
+    }
+  }, {
+    rootDir,
+    now: () => "2026-05-01T08:00:00.000Z"
+  });
+  await receiveWorkflowBootstrap({
+    proposal_id: proposalRecord.proposal.proposal_id,
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T09:00:00.000Z"
+  });
+  await receiveWorkflowNextWave({
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T10:00:00.000Z"
+  });
+
+  const record = await receiveWorkflowDispatch({
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T11:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/workflow-dispatch");
+  assert.equal(record.dispatch.decision.status, "dispatched");
+  assert.equal(record.dispatch.assignments[0]?.node_id, "frontend-agent");
+  assert.equal(record.dispatch.state.tasks.T1?.status, "assigned");
 });

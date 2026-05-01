@@ -5,6 +5,7 @@ import { mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { promisify } from "node:util";
+import { createNodeRegistry } from "../src/node_registry/index.js";
 
 const execFileAsync = promisify(execFile);
 const cliPath = join(process.cwd(), "dist", "src", "cli.js");
@@ -229,6 +230,61 @@ test("CLI dispatch assigns wave tasks and writes audit events", async () => {
   const audit = await readFile(join(rootDir, "workflows", "wf_dispatch", "audit.jsonl"), "utf8");
   assert.match(audit, /WORKER_ASSIGNED/);
   assert.match(audit, /TASK_STATUS_CHANGED/);
+});
+
+test("CLI workflow-dispatch sends assignment without starting task", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-cli-workflow-dispatch-"));
+  const planPath = join(rootDir, "plan.json");
+  await writeFile(planPath, JSON.stringify({
+    plan_id: "plan_cli_workflow_dispatch",
+    plan_type: "dag",
+    execution_policy: {},
+    tasks: [
+      {
+        id: "T1",
+        title: "Frontend task",
+        required_capabilities: ["frontend"],
+        preferred_agent: "frontend-agent"
+      }
+    ]
+  }), "utf8");
+  await createNodeRegistry(rootDir).registerProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "frontend-agent",
+        node_type: "individual",
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message"]
+      }
+    ]
+  });
+
+  await runCli(["init", "--root", rootDir, "--plan", planPath, "--workflow", "wf_workflow_dispatch"]);
+  await runCli(["next-wave", "--root", rootDir, "--workflow", "wf_workflow_dispatch"]);
+  const output = await runCli(["workflow-dispatch", "--root", rootDir, "--workflow", "wf_workflow_dispatch"]) as {
+    decision: { status: string; dispatched_task_ids: string[] };
+    assignments: Array<{ task_id: string; node_id: string }>;
+  };
+
+  assert.equal(output.decision.status, "dispatched");
+  assert.deepEqual(output.decision.dispatched_task_ids, ["T1"]);
+  assert.deepEqual(output.assignments.map((assignment) => assignment.node_id), ["frontend-agent"]);
+
+  const state = JSON.parse(await readFile(join(rootDir, "workflows", "wf_workflow_dispatch", "state.json"), "utf8")) as {
+    tasks: Record<string, { status: string; assigned_to: string | null; started_at: string | null }>;
+  };
+  assert.equal(state.tasks.T1?.status, "assigned");
+  assert.equal(state.tasks.T1?.assigned_to, "frontend-agent");
+  assert.equal(state.tasks.T1?.started_at, null);
+
+  const inboxRaw = await readFile(join(rootDir, "workflows", "wf_workflow_dispatch", "mailboxes", "frontend-agent", "inbox.jsonl"), "utf8");
+  const inbox = inboxRaw
+    .split("\n")
+    .filter((line) => line.trim().length > 0)
+    .map((line) => JSON.parse(line) as { type: string; from: string; to: string });
+  assert.equal(inbox.length, 1);
+  assert.equal(inbox[0]?.type, "TASK_ASSIGNED");
 });
 
 test("CLI submit-result collects worker output and persists task result", async () => {

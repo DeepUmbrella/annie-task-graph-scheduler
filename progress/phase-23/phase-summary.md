@@ -23,7 +23,7 @@
 | T118 | done | [Dispatch mailbox delivery](./tasks/task-118-dispatch-mailbox-delivery.md) |
 | T119 | done | [Dispatch endpoint](./tasks/task-119-dispatch-endpoint.md) |
 | T120 | done | [Dispatch CLI](./tasks/task-120-dispatch-cli.md) |
-| T121 | todo | [Dispatch tests](./tasks/task-121-dispatch-tests.md) |
+| T121 | done | [Dispatch tests](./tasks/task-121-dispatch-tests.md) |
 | T122 | todo | [Phase 23 验收测试](./tasks/task-122-phase-23-acceptance.md) |
 
 ## 当前进度
@@ -34,7 +34,8 @@
 - T118：Dispatch mailbox delivery 已完成。
 - T119：Dispatch endpoint 已完成。
 - T120：Dispatch CLI 已完成。
-- 下一步：T121 Dispatch tests。
+- T121：Dispatch tests 已完成。
+- 下一步：T122 Phase 23 acceptance。
 
 ## 阶段完成标准
 

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,23 @@
 - `tests/workflow_dispatch.test.ts`
 - `tests/inbound_server.test.ts`
 - `tests/e2e_execution_cli.test.ts`
+
+## 完成记录
+
+- 新增 `tests/workflow_dispatch.test.ts`。
+- 覆盖 successful dispatch 到 node inbox。
+- 覆盖 retry idempotency。
+- 覆盖 no eligible node rejection。
+- 更新 inbound server 测试覆盖 `receiveWorkflowDispatch`。
+- 更新 CLI e2e 测试覆盖 `workflow-dispatch`。
+- 验证 dispatch 后 task 为 `assigned`，不是 `running`。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+npm run build: pass
+node --test dist/tests/workflow_dispatch.test.js: 3 passed
+node --test dist/tests/inbound_server.test.js: 10 passed
+node --test dist/tests/e2e_execution_cli.test.js: 10 passed
+```
