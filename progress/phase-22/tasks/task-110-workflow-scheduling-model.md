@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -23,3 +23,16 @@
 
 - `src/workflow_scheduling/model.ts`
 - `src/workflow_scheduling/index.ts`
+
+## 完成记录
+
+- 新增 `WorkflowSchedulingInput`。
+- 新增 `WorkflowSchedulingDecisionStatus` 和 `WorkflowSchedulingDecision`。
+- 新增 `WorkflowSchedulingResult`。
+- 新增 `workflow_scheduling` public export。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```

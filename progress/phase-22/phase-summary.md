@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T110 | todo | [Workflow scheduling model](./tasks/task-110-workflow-scheduling-model.md) |
+| T110 | done | [Workflow scheduling model](./tasks/task-110-workflow-scheduling-model.md) |
 | T111 | todo | [Schedule next wave service](./tasks/task-111-schedule-next-wave-service.md) |
 | T112 | todo | [Next-wave endpoint](./tasks/task-112-next-wave-endpoint.md) |
 | T113 | todo | [Next-wave CLI](./tasks/task-113-next-wave-cli.md) |
@@ -28,8 +28,8 @@
 ## 当前进度
 
 - Phase 01-21 已完成。
-- Phase 22 已规划。
-- 下一步：T110 Workflow scheduling model。
+- T110：Workflow scheduling model 已完成。
+- 下一步：T111 Schedule next wave service。
 
 ## 阶段完成标准
 
