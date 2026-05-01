@@ -31,6 +31,19 @@ export interface WorkflowDispatchRejection {
   code: string;
 }
 
+export interface WorkflowDispatchSelection {
+  task_id: string;
+  node_id: string;
+  decision: string;
+}
+
+export interface WorkflowDispatchSelectionResult {
+  workflow_id: string;
+  wave_id: string | null;
+  selections: WorkflowDispatchSelection[];
+  rejections: WorkflowDispatchRejection[];
+}
+
 export interface WorkflowDispatchDecision {
   status: WorkflowDispatchDecisionStatus;
   reason: string;

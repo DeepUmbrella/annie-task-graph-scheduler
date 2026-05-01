@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 
 - `src/workflow_dispatch/selection.ts`
 - `src/node_registry/index.ts`
+
+## 完成记录
+
+- 新增 `selectDispatchTargets`。
+- 支持通过 `current_wave` 或指定 `wave_id` 解析 dispatch wave。
+- 支持 preferred node 优先。
+- 支持 required capability 匹配。
+- 支持 missing task / non-ready task / no eligible node rejection。
+- Selection 阶段不写 mailbox、不修改 state。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```
