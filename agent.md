@@ -407,6 +407,16 @@ Phase 23 completed:
 - Dispatch writes `TASK_ASSIGNED` to node inbox and keeps task out of `running`
 - No OpenClaw transport call in this phase
 
+Phase 24 planned:
+
+- Agent result intake model
+- Runtime-neutral result intake service
+- Validate sender against task assignment
+- Accept assigned/running task results
+- Result intake endpoint
+- Result intake CLI command
+- No automatic review or next-wave in this phase
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -481,6 +491,7 @@ Phase 20: done
 Phase 21: done
 Phase 22: done
 Phase 23: done
+Phase 24: planned, next T123
 npm run typecheck: pass
 npm run build: pass
 npm test: 210 passed

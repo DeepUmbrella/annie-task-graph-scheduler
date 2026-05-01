@@ -52,10 +52,11 @@ progress/
 - [Phase 21 Autonomous Workflow Bootstrap](./phase-21/phase-summary.md) - done
 - [Phase 22 Workflow Scheduling Loop](./phase-22/phase-summary.md) - done
 - [Phase 23 Wave Task Dispatch](./phase-23/phase-summary.md) - done
+- [Phase 24 Agent Result Intake](./phase-24/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 23 Wave Task Dispatch 已完成。下一阶段建议进入 Phase 24 Agent Result Intake：接收 agent 结构化结果，并从 `assigned`/`running` 后续状态进入 review flow。
+Phase 24 Agent Result Intake 已规划。下一步进入 T123。
 
 ## 更新规则
 
