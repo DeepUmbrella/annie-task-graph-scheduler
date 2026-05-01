@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
 - `tests/inbound_server.test.ts`
+
+## 实施记录
+
+- 新增 `POST /plan-proposals`。
+- 新增 `GET /plan-proposals`。
+- 新增 `receivePlanProposal` helper。
+- 新增 `listPlanProposals` helper。
+- `serve` 输出新增 `plan_proposals` endpoint 和 `plan_proposals_path`。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/inbound_server.test.js` passed.
+- `node --test dist/tests/plan_proposal.test.js` passed.

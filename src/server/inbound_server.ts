@@ -9,6 +9,7 @@ import { handoffIntentToPlanner, type PlannerHandoffResult } from "../planning/i
 import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 import { createNodeRegistry, type NodeRegistrationProposal, type NodeRegistrySnapshot } from "../node_registry/index.js";
 import { createRuntimeDiscoveryStore, type RuntimeDiscoverySnapshot } from "../runtime_discovery/index.js";
+import { createPlanProposalStore, parsePlanProposalPayload, type PlanProposal, type PlanProposalSnapshot } from "../plan_proposal/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -28,6 +29,7 @@ export interface StartedInboundServer {
   intentsDir: string;
   nodeRegistryPath: string;
   runtimeDiscoveryPath: string;
+  planProposalsPath: string;
 }
 
 export interface InboundMessageRecord {
@@ -67,6 +69,14 @@ export interface NodeRegistrationResult {
   snapshot: NodeRegistrySnapshot;
 }
 
+export interface ReceivedPlanProposal {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  proposal: PlanProposal;
+  proposals_path: string;
+}
+
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
   const host = options.host ?? "127.0.0.1";
   const port = options.port ?? 4317;
@@ -103,7 +113,8 @@ export async function startInboundServer(options: InboundServerOptions = {}): Pr
     logPath,
     intentsDir: intentsDir(rootDir),
     nodeRegistryPath: createNodeRegistry(rootDir).registryPath(),
-    runtimeDiscoveryPath: createRuntimeDiscoveryStore(rootDir).snapshotPath()
+    runtimeDiscoveryPath: createRuntimeDiscoveryStore(rootDir).snapshotPath(),
+    planProposalsPath: createPlanProposalStore(rootDir).proposalsPath()
   };
 }
 
@@ -153,7 +164,39 @@ async function handleInboundRequest(
       return;
     }
 
+    if (request.method === "GET" && request.url === "/plan-proposals") {
+      const snapshot = await listPlanProposals({
+        rootDir: options.rootDir
+      });
+      writeJson(response, 200, {
+        ok: true,
+        ...snapshot
+      });
+      return;
+    }
+
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
+      if (request.method === "POST" && request.url === "/plan-proposals") {
+        const payload = await readJsonBody(request);
+        const record = await receivePlanProposal(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:plan-proposal] received proposal_id=${record.proposal.proposal_id} intent_id=${record.proposal.intent_id} from=${record.proposal.from} path=${record.proposals_path}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          proposal_id: record.proposal.proposal_id,
+          intent_id: record.proposal.intent_id,
+          from: record.proposal.from,
+          plan_id: record.proposal.plan.plan_id,
+          validation_status: record.proposal.validation_status,
+          proposals_path: record.proposals_path
+        });
+        return;
+      }
+
       if (request.method === "POST" && request.url === "/nodes/register") {
         const payload = await readJsonBody(request);
         const record = await receiveNodeRegistration(payload, {
@@ -243,6 +286,36 @@ async function handleInboundRequest(
       ...details
     });
   }
+}
+
+export async function receivePlanProposal(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedPlanProposal> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const store = createPlanProposalStore(options.rootDir);
+  const parsed = parsePlanProposalPayload(payload);
+  const proposal = await store.saveProposal(parsed, {
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/plan-proposals",
+    payload,
+    proposal,
+    proposals_path: store.proposalsPath()
+  };
+}
+
+export async function listPlanProposals(options: {
+  rootDir?: string;
+} = {}): Promise<PlanProposalSnapshot> {
+  return createPlanProposalStore(options.rootDir).loadSnapshot();
 }
 
 export async function receiveNodeRegistration(

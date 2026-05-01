@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listCandidateNodes, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal } from "../src/server/inbound_server.js";
 import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
@@ -227,4 +227,37 @@ test("listCandidateNodes reads the snapshot used by GET /nodes/candidates", asyn
   assert.equal(snapshot.runtimes[0]?.runtime, "openclaw");
   assert.equal(snapshot.candidates.length, 1);
   assert.equal(snapshot.candidates[0]?.candidate_id, "openclaw:annie-dev");
+});
+
+test("receivePlanProposal stores valid plan proposals", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-plan-proposal-"));
+  const record = await receivePlanProposal({
+    intent_id: "intent_003",
+    from: "develop-team",
+    plan: {
+      plan_id: "plan_site",
+      plan_type: "dag",
+      execution_policy: {},
+      tasks: [
+        {
+          id: "T1",
+          title: "Create homepage",
+          depends_on: [],
+          expected_files: ["src/home.ts"]
+        }
+      ]
+    }
+  }, {
+    rootDir,
+    now: () => "2026-05-01T06:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/plan-proposals");
+  assert.equal(record.proposal.intent_id, "intent_003");
+  assert.equal(record.proposal.plan.plan_id, "plan_site");
+  assert.equal(record.proposal.validation_status, "valid");
+
+  const snapshot = await listPlanProposals({ rootDir });
+  assert.equal(snapshot.proposals.length, 1);
+  assert.equal(snapshot.proposals[0]?.proposal_id, record.proposal.proposal_id);
 });

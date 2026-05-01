@@ -438,12 +438,14 @@ async function runServe(): Promise<void> {
         nodes_register: `${started.url}/nodes/register`,
         nodes: `${started.url}/nodes`,
         node_candidates: `${started.url}/nodes/candidates`,
+        plan_proposals: `${started.url}/plan-proposals`,
         agent_messages: `${started.url}/agent-messages`,
         annie_messages: `${started.url}/annie/messages`
       },
       inbound_log_path: started.logPath,
       node_registry_path: started.nodeRegistryPath,
       runtime_discovery_path: started.runtimeDiscoveryPath,
+      plan_proposals_path: started.planProposalsPath,
       openclaw_planner_agent: openClawPlannerAgent ?? null,
       planner_transport: openClawPlannerAgent ? "openclaw_cli" : "mock"
     }, null, 2));
