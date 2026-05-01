@@ -439,6 +439,7 @@ async function runServe(): Promise<void> {
         nodes: `${started.url}/nodes`,
         node_candidates: `${started.url}/nodes/candidates`,
         plan_proposals: `${started.url}/plan-proposals`,
+        workflow_bootstrap: `${started.url}/workflow-bootstrap`,
         agent_messages: `${started.url}/agent-messages`,
         annie_messages: `${started.url}/annie/messages`
       },

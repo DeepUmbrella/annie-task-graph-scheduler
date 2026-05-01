@@ -429,8 +429,9 @@ Phase 17: done
 Phase 18: done
 Phase 19: done
 Phase 20: done
-Phase 21: in_progress, T105-T106 done, next T107
+Phase 21: in_progress, T105-T107 done, T108 in_progress
 npm run typecheck: pass
 npm run build: pass
 node --test dist/tests/workflow_bootstrap.test.js: 3 passed
+node --test dist/tests/inbound_server.test.js: 8 passed
 ```

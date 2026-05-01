@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { mkdtemp, readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal } from "../src/server/inbound_server.js";
+import { inboundLogPath, listCandidateNodes, listPlanProposals, listRegisteredNodes, receiveAgentMessage, receiveInboundPayload, receiveNodeRegistration, receivePlanProposal, receiveWorkflowBootstrap } from "../src/server/inbound_server.js";
 import { createRuntimeDiscoveryStore } from "../src/runtime_discovery/index.js";
 import { createPlannerTeamSnapshot } from "../src/team/index.js";
 import type { TransportAdapter } from "../src/communication/openclaw_adapter.js";
@@ -260,4 +260,41 @@ test("receivePlanProposal stores valid plan proposals", async () => {
   const snapshot = await listPlanProposals({ rootDir });
   assert.equal(snapshot.proposals.length, 1);
   assert.equal(snapshot.proposals[0]?.proposal_id, record.proposal.proposal_id);
+});
+
+test("receiveWorkflowBootstrap bootstraps a saved plan proposal", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-workflow-bootstrap-"));
+  const proposalRecord = await receivePlanProposal({
+    intent_id: "intent_004",
+    from: "develop-team",
+    plan: {
+      plan_id: "plan_site",
+      plan_type: "dag",
+      execution_policy: {},
+      tasks: [
+        {
+          id: "T1",
+          title: "Create homepage",
+          depends_on: [],
+          expected_files: ["src/home.ts"]
+        }
+      ]
+    }
+  }, {
+    rootDir,
+    now: () => "2026-05-01T06:00:00.000Z"
+  });
+
+  const record = await receiveWorkflowBootstrap({
+    proposal_id: proposalRecord.proposal.proposal_id,
+    workflow_id: "wf_site"
+  }, {
+    rootDir,
+    now: () => "2026-05-01T07:00:00.000Z"
+  });
+
+  assert.equal(record.path, "/workflow-bootstrap");
+  assert.equal(record.bootstrap.workflow_id, "wf_site");
+  assert.equal(record.bootstrap.state.status, "pending");
+  assert.equal(record.bootstrap.state.waves.length, 0);
 });

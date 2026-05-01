@@ -10,6 +10,7 @@ import { createDefaultTeamSnapshot, type TeamSnapshot } from "../team/index.js";
 import { createNodeRegistry, type NodeRegistrationProposal, type NodeRegistrySnapshot } from "../node_registry/index.js";
 import { createRuntimeDiscoveryStore, type RuntimeDiscoverySnapshot } from "../runtime_discovery/index.js";
 import { createPlanProposalStore, parsePlanProposalPayload, type PlanProposal, type PlanProposalSnapshot } from "../plan_proposal/index.js";
+import { bootstrapWorkflowFromProposal, type WorkflowBootstrapResult } from "../workflow_bootstrap/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -75,6 +76,13 @@ export interface ReceivedPlanProposal {
   payload: unknown;
   proposal: PlanProposal;
   proposals_path: string;
+}
+
+export interface ReceivedWorkflowBootstrap {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  bootstrap: WorkflowBootstrapResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -176,6 +184,27 @@ async function handleInboundRequest(
     }
 
     if (request.method !== "POST" || (request.url !== "/openclaw/messages" && request.url !== "/annie/messages")) {
+      if (request.method === "POST" && request.url === "/workflow-bootstrap") {
+        const payload = await readJsonBody(request);
+        const record = await receiveWorkflowBootstrap(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:workflow-bootstrap] workflow_id=${record.bootstrap.workflow_id} proposal_id=${record.bootstrap.proposal.proposal_id} state=${record.bootstrap.state_path}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          workflow_id: record.bootstrap.workflow_id,
+          proposal_id: record.bootstrap.proposal.proposal_id,
+          plan_id: record.bootstrap.state.plan_id,
+          workflow_status: record.bootstrap.state.status,
+          state_path: record.bootstrap.state_path,
+          audit_path: record.bootstrap.audit_path
+        });
+        return;
+      }
+
       if (request.method === "POST" && request.url === "/plan-proposals") {
         const payload = await readJsonBody(request);
         const record = await receivePlanProposal(payload, {
@@ -286,6 +315,50 @@ async function handleInboundRequest(
       ...details
     });
   }
+}
+
+export async function receiveWorkflowBootstrap(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedWorkflowBootstrap> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const input = parseWorkflowBootstrapPayload(payload);
+  const bootstrap = await bootstrapWorkflowFromProposal(input, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/workflow-bootstrap",
+    payload,
+    bootstrap
+  };
+}
+
+function parseWorkflowBootstrapPayload(payload: unknown): { proposal_id: string; workflow_id?: string } {
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    throw new TaskGraphSchedulerError("Workflow bootstrap payload must be an object.", "WORKFLOW_BOOTSTRAP_PAYLOAD_INVALID");
+  }
+
+  const record = payload as Record<string, unknown>;
+  const proposalId = typeof record.proposal_id === "string" ? record.proposal_id.trim() : "";
+  const workflowId = typeof record.workflow_id === "string" && record.workflow_id.trim().length > 0
+    ? record.workflow_id.trim()
+    : undefined;
+
+  if (proposalId.length === 0) {
+    throw new TaskGraphSchedulerError("Workflow bootstrap payload requires proposal_id.", "WORKFLOW_BOOTSTRAP_PROPOSAL_REQUIRED");
+  }
+
+  return {
+    proposal_id: proposalId,
+    workflow_id: workflowId
+  };
 }
 
 export async function receivePlanProposal(

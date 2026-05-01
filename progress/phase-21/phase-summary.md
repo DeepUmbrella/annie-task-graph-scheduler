@@ -20,8 +20,8 @@
 |---|---|---|
 | T105 | done | [Workflow bootstrap model](./tasks/task-105-workflow-bootstrap-model.md) |
 | T106 | done | [Bootstrap from proposal](./tasks/task-106-bootstrap-from-proposal.md) |
-| T107 | todo | [Bootstrap endpoint](./tasks/task-107-bootstrap-endpoint.md) |
-| T108 | todo | [Bootstrap tests](./tasks/task-108-bootstrap-tests.md) |
+| T107 | done | [Bootstrap endpoint](./tasks/task-107-bootstrap-endpoint.md) |
+| T108 | in_progress | [Bootstrap tests](./tasks/task-108-bootstrap-tests.md) |
 | T109 | todo | [Phase 21 验收测试](./tasks/task-109-phase-21-acceptance.md) |
 
 ## 当前进度
@@ -29,7 +29,8 @@
 - Phase 01-20 已完成。
 - T105：Workflow bootstrap model 已完成。
 - T106：Bootstrap from proposal 已完成。
-- 下一步：T107 Bootstrap endpoint。
+- T107：Bootstrap endpoint 已完成。
+- T108：Bootstrap tests 正在收口。
 
 ## 阶段完成标准
 

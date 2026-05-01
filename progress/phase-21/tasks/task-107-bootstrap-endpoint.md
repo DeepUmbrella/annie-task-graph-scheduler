@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,17 @@
 - `src/server/inbound_server.ts`
 - `src/cli.ts`
 - `tests/inbound_server.test.ts`
+
+## 实施记录
+
+- 新增 `POST /workflow-bootstrap`。
+- 新增 `receiveWorkflowBootstrap` helper。
+- `serve` 输出新增 `workflow_bootstrap` endpoint。
+- response 返回 workflow id、state path、audit path。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/inbound_server.test.js` passed.
+- `node --test dist/tests/workflow_bootstrap.test.js` passed.
