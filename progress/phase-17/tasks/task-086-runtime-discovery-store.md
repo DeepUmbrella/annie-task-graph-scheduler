@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,17 @@
 
 - `src/runtime_discovery/store.ts`
 - `tests/runtime_discovery.test.ts`
+
+## 实施记录
+
+- 新增 `createRuntimeDiscoveryStore(rootDir)`。
+- 新增 `.annie/discovery/runtime-candidates.json` 持久化路径。
+- discovery 文件不存在时返回 empty snapshot。
+- 保存 discovery snapshot 时复用模型层 normalization。
+- 读取 candidates 不触碰 Node Registry。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/runtime_discovery.test.js` passed.
