@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,15 @@
 
 - `src/workflow_bootstrap/*`
 - `tests/workflow_bootstrap.test.ts`
+
+## 实施记录
+
+- 新增 `WorkflowBootstrapInput`。
+- 新增 `WorkflowBootstrapResult`。
+- 新增 `createWorkflowIdFromProposal`。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/workflow_bootstrap.test.js` passed.

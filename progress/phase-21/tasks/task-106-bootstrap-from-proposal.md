@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,18 @@
 
 - `src/workflow_bootstrap/bootstrap.ts`
 - `tests/workflow_bootstrap.test.ts`
+
+## 实施记录
+
+- 新增 `bootstrapWorkflowFromProposal`。
+- 从 proposal store 加载 proposal。
+- 使用 `createInitialWorkflowState` 创建 workflow state。
+- 保存 state。
+- 写入 `WORKFLOW_BOOTSTRAPPED` audit event。
+- missing proposal 返回 `PLAN_PROPOSAL_NOT_FOUND`。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/workflow_bootstrap.test.js` passed.

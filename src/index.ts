@@ -35,3 +35,4 @@ export * from "./runtime_discovery/index.js";
 export * from "./node_registration_interview/index.js";
 export * from "./team_delegation/index.js";
 export * from "./plan_proposal/index.js";
+export * from "./workflow_bootstrap/index.js";
