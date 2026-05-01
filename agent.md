@@ -317,6 +317,13 @@ Phase 18 completed:
 - Default deny-all approval policy
 - Explicit `granted_actions` registration semantics
 
+Phase 19 planned:
+
+- `delegate_to_member` action
+- Team-scoped delegation validation
+- Agent message `team_context` intake
+- Registry-derived delegation policy
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -386,6 +393,7 @@ Phase 15: done
 Phase 16: done
 Phase 17: done
 Phase 18: done
+Phase 19: planned, next T095
 npm run typecheck: pass
 npm run build: pass
 npm test: 178 passed

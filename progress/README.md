@@ -47,10 +47,11 @@ progress/
 - [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - done
 - [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
 - [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - done
+- [Phase 19 Team Delegation Actions](./phase-19/phase-summary.md) - planned
 
 当前下一阶段：
 
-Phase 19 Team Delegation Actions 待规划。Phase 18 已完成 registration interview template、proposal reply parser、registration approval boundary，以及显式 `granted_actions` 注册语义。
+Phase 19 Team Delegation Actions 已规划。下一步进入 T095。
 
 ## 更新规则
 
