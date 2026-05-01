@@ -439,19 +439,25 @@ Already implemented in this repository:
 - plan proposal intake for validated `TaskDagPlan`
 - local plan proposal persistence at `.annie/plans/proposals.json`
 - runtime-neutral `POST /plan-proposals` and `GET /plan-proposals`
+- workflow bootstrap from saved plan proposal
+- runtime-neutral `POST /workflow-bootstrap`
+- bootstrap audit event `WORKFLOW_BOOTSTRAPPED`
 
 Not yet implemented:
 
-- reading real OpenClaw config into a team snapshot
-- planner/team controller request flow
-- autonomous orchestration loop
-- real OpenClaw `sessions_spawn` / `sessions_send` integration
-- team-scoped permission-aware message validation
-- user approval/clarification loop
+- scheduling the next executable wave from a bootstrapped workflow through the autonomous workflow path
+- dispatching scheduled wave tasks to registered nodes through mailbox and runtime adapters
+- receiving structured task results through a runtime-neutral intake endpoint
+- review-agent / ReviewGate based wave approval flow in the autonomous path
+- automatic wave-to-wave advancement loop
+- workflow pause / resume states for clarification, approval, failure, or missing permissions
+- real OpenClaw session spawn / send / callback or polling integration for execution agents
+- node heartbeat, runtime online state, and capability refresh
+- dynamic re-planning or task creation from agents during an active workflow
 
 ## 10. Suggested Next Phase
 
-Recommended next phase:
+Historical recommendation before the Node Registry revision:
 
 ```txt
 Phase 10: Team Agent Directory And Collaboration Boundary
@@ -915,3 +921,237 @@ Implemented in Phase 21:
 3. Bootstrap writes a `WORKFLOW_BOOTSTRAPPED` audit event.
 4. Bootstrap creates pending workflow state without waves.
 5. Bootstrap does not automatically dispatch or call OpenClaw.
+
+## 13. Autonomous Execution Roadmap
+
+### 13.1 Roadmap Goal
+
+The remaining product work should turn the current intake/bootstrap foundation into a full autonomous execution loop:
+
+```txt
+bootstrapped workflow
+  -> schedule next executable wave
+  -> dispatch tasks to registered nodes
+  -> receive task results
+  -> run review gate
+  -> advance next wave
+  -> pause when human input or permissions are needed
+  -> complete with report and memory candidates
+```
+
+The loop must preserve the architectural rules already agreed:
+
+1. Nodes decide their own outbound messages and targets.
+2. The scheduler validates actions, permissions, and state transitions.
+3. Runtime-specific behavior stays behind adapters.
+4. OpenClaw is one runtime adapter, not the core collaboration protocol.
+5. Agent messages do not directly mutate workflow state.
+6. State changes must be persisted and audited.
+
+### 13.2 Phase 22: Workflow Scheduling Loop
+
+Phase 22 should implement the first post-bootstrap step: explicitly schedule the next executable wave from a workflow state.
+
+Scope:
+
+1. Add an autonomous workflow scheduling service that loads workflow state by `workflow_id`.
+2. Reuse the existing scheduler to compute the next wave.
+3. Persist the generated wave to workflow state.
+4. Write an audit event when a wave is scheduled.
+5. Return a structured scheduling decision, including no-ready-task and completed-workflow outcomes.
+6. Expose a runtime-neutral endpoint or CLI command for explicit next-wave scheduling.
+
+Non-goals:
+
+1. Do not dispatch tasks to agents yet.
+2. Do not call OpenClaw yet.
+3. Do not run as a daemon yet.
+
+Acceptance:
+
+1. A bootstrapped workflow can produce its first wave.
+2. A workflow with blocked tasks returns a blocked/no-ready decision without corrupting state.
+3. Scheduling is idempotent for an already active wave.
+4. Audit logs show when and why a wave was scheduled or skipped.
+
+### 13.3 Phase 23: Wave Task Dispatch
+
+Phase 23 should dispatch scheduled wave tasks to registered nodes through the existing mailbox/action policy boundary.
+
+Scope:
+
+1. Load the current active wave.
+2. Resolve candidate nodes from Node Registry and task capability requirements.
+3. Apply granted action policy and team membership validation.
+4. Create `TASK_ASSIGNED` mailbox messages for selected target nodes.
+5. Mark dispatched tasks as `running` through orchestrator-owned state transition.
+6. Audit each dispatch decision and rejection.
+
+Non-goals:
+
+1. Do not require OpenClaw transport delivery yet.
+2. Do not let mailbox delivery directly mutate task state.
+3. Do not implement dynamic task creation.
+
+Acceptance:
+
+1. A scheduled wave can be dispatched into node inboxes.
+2. Ineligible nodes are rejected with explainable reasons.
+3. Tasks without eligible nodes remain pending/blocked with audit evidence.
+4. Dispatch can be retried without duplicate task assignment messages.
+
+### 13.4 Phase 24: Agent Result Intake
+
+Phase 24 should provide the runtime-neutral path for execution agents to submit structured task results.
+
+Scope:
+
+1. Add task result intake payload parsing.
+2. Validate sender node, team context, task assignment, and result schema.
+3. Reuse ResultCollector to move tasks to `reviewing`, `failed`, or retry-ready state.
+4. Persist submitted result payloads for auditability.
+5. Add endpoint or CLI command for result submission.
+
+Non-goals:
+
+1. Do not automatically approve waves.
+2. Do not let agents choose final task state directly.
+3. Do not add OpenClaw callback integration yet.
+
+Acceptance:
+
+1. A dispatched task can be completed through result intake.
+2. A failed task follows existing retry policy.
+3. Unauthorized result submissions are rejected.
+4. Result intake writes state and audit records.
+
+### 13.5 Phase 25: Review And Wave Advancement
+
+Phase 25 should connect completed wave results to ReviewGate and controlled next-wave progression.
+
+Scope:
+
+1. Detect when all tasks in a wave are ready for review.
+2. Run ReviewGate for the active wave.
+3. Support reviewer-agent submitted review messages where needed.
+4. Mark reviewed tasks done when review passes.
+5. Pause workflow when review fails, requirements are unclear, or human approval is required.
+6. Allow explicit resume after correction or approval.
+
+Non-goals:
+
+1. Do not implement continuous daemon mode yet.
+2. Do not add dynamic replanning yet.
+
+Acceptance:
+
+1. Passing review advances workflow state safely.
+2. Failing review pauses workflow with a clear reason.
+3. Review decisions are audited.
+4. A passed wave can be followed by scheduling the next wave.
+
+### 13.6 Phase 26: Runtime Transport Integration
+
+Phase 26 should connect dispatch and result intake to real runtime adapters, starting with OpenClaw.
+
+Scope:
+
+1. Define a runtime transport interface for starting/sending agent work.
+2. Implement OpenClaw session spawn/send integration behind the adapter.
+3. Add callback or polling adapter for runtime replies.
+4. Normalize runtime replies into agent messages or task result submissions.
+5. Preserve local/mock transports for tests.
+6. Record runtime delivery metadata and failures.
+
+Non-goals:
+
+1. Do not make OpenClaw a required dependency for local tests.
+2. Do not hard-code OpenClaw route names into the core workflow.
+
+Acceptance:
+
+1. Dispatch can send work to a real OpenClaw-backed node when configured.
+2. Runtime reply can be converted into a mailbox message or task result.
+3. Runtime failure pauses or retries according to policy.
+4. Tests cover adapter behavior through injected runners.
+
+### 13.7 Phase 27: Autonomous Runner
+
+Phase 27 should add the controlled loop that repeatedly advances the workflow until it completes or reaches a pause condition.
+
+Scope:
+
+1. Add a workflow runner service.
+2. Runner steps: schedule, dispatch, wait for results, review, advance.
+3. Add loop stop conditions: completed, blocked, waiting_for_user, waiting_for_review, failed, missing_permission.
+4. Add explicit start/stop/resume controls.
+5. Add bounded polling or event-driven wakeup.
+6. Persist runner status and audit each loop decision.
+
+Non-goals:
+
+1. Do not silently bypass human clarification.
+2. Do not auto-grant missing permissions.
+3. Do not auto-create new tasks without an approved replanning path.
+
+Acceptance:
+
+1. A simple multi-wave workflow can run to completion with mock agents.
+2. Runner pauses instead of guessing when input is missing.
+3. Runner can resume after user approval or new result intake.
+4. Runner state survives process restart.
+
+### 13.8 Phase 28: Dynamic Replanning And Human Clarification
+
+Phase 28 should support controlled changes to the plan while a workflow is active.
+
+Scope:
+
+1. Add a replanning request message type.
+2. Allow authorized nodes to propose task additions or plan revisions.
+3. Validate proposed changes against DAG and workflow state constraints.
+4. Require explicit approval before mutating an active plan.
+5. Add user clarification request/response state.
+6. Audit old plan, proposed plan, approval, and applied plan.
+
+Non-goals:
+
+1. Do not allow arbitrary agents to rewrite active workflow state.
+2. Do not hide plan changes inside normal chat messages.
+
+Acceptance:
+
+1. A blocked workflow can request clarification and pause.
+2. User clarification can resume the workflow.
+3. Authorized replanning proposals can be validated and approved.
+4. Rejected proposals leave the active plan unchanged.
+
+### 13.9 Phase 29: Observability, Reports, And Memory
+
+Phase 29 should make the autonomous loop inspectable and useful after completion.
+
+Scope:
+
+1. Add workflow run timeline projection.
+2. Add node-level activity and failure summaries.
+3. Extend final report for autonomous runs.
+4. Extract memory candidates from successful autonomous workflows.
+5. Add diagnostics for stuck workflows.
+6. Add operational docs for local and OpenClaw-backed runs.
+
+Acceptance:
+
+1. A user can see what happened, who did what, and why the workflow paused or completed.
+2. Reports include task, wave, node, message, review, and runtime transport summaries.
+3. Memory extraction works for autonomous workflow outcomes.
+
+### 13.10 Open Decisions Before Implementation
+
+The following decisions affect product semantics and should be confirmed before implementation work that depends on them:
+
+1. Whether Phase 22 should expose scheduling as `POST /workflows/:workflow_id/next-wave`, `POST /workflow-next-wave`, CLI only, or both endpoint and CLI.
+2. Whether dispatch should immediately mark tasks as `running`, or only mark them `running` after the target node acknowledges the assignment.
+3. Whether review must involve a reviewer node message, or whether ReviewGate can approve automatically when local checks pass.
+4. Whether the first autonomous runner should be event-driven, polling-based, or explicit step-by-step only.
+5. What exact OpenClaw execution API should be used for task dispatch and result collection in the target environment.
+6. Whether dynamic replanning is allowed before the first complete autonomous happy path exists.
