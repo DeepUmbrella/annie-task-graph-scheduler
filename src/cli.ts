@@ -434,6 +434,7 @@ async function runServe(): Promise<void> {
         plan_proposals: `${started.url}/plan-proposals`,
         workflow_bootstrap: `${started.url}/workflow-bootstrap`,
         workflow_next_wave: `${started.url}/workflow-next-wave`,
+        workflow_dispatch: `${started.url}/workflow-dispatch`,
         agent_messages: `${started.url}/agent-messages`,
         annie_messages: `${started.url}/annie/messages`
       },

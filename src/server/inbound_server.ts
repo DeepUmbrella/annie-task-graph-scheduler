@@ -12,6 +12,7 @@ import { createRuntimeDiscoveryStore, type RuntimeDiscoverySnapshot } from "../r
 import { createPlanProposalStore, parsePlanProposalPayload, type PlanProposal, type PlanProposalSnapshot } from "../plan_proposal/index.js";
 import { bootstrapWorkflowFromProposal, type WorkflowBootstrapResult } from "../workflow_bootstrap/index.js";
 import { scheduleNextWorkflowWave, type WorkflowSchedulingResult } from "../workflow_scheduling/index.js";
+import { dispatchWorkflowWave, type WorkflowDispatchResult } from "../workflow_dispatch/index.js";
 
 export interface InboundServerOptions {
   host?: string;
@@ -91,6 +92,13 @@ export interface ReceivedWorkflowNextWave {
   path: string;
   payload: unknown;
   scheduling: WorkflowSchedulingResult;
+}
+
+export interface ReceivedWorkflowDispatch {
+  received_at: string;
+  path: string;
+  payload: unknown;
+  dispatch: WorkflowDispatchResult;
 }
 
 export async function startInboundServer(options: InboundServerOptions = {}): Promise<StartedInboundServer> {
@@ -229,6 +237,28 @@ async function handleInboundRequest(
           wave: record.scheduling.next_wave?.wave ?? null,
           state_path: record.scheduling.state_path,
           audit_path: record.scheduling.audit_path
+        });
+        return;
+      }
+
+      if (request.method === "POST" && request.url === "/workflow-dispatch") {
+        const payload = await readJsonBody(request);
+        const record = await receiveWorkflowDispatch(payload, {
+          rootDir: options.rootDir,
+          path: request.url,
+          now: options.now
+        });
+        console.info(`[annie-tgs:workflow-dispatch] workflow_id=${record.dispatch.workflow_id} decision=${record.dispatch.decision.status} wave_id=${record.dispatch.wave_id ?? "none"} assignments=${record.dispatch.assignments.length}`);
+        writeJson(response, 202, {
+          ok: true,
+          received_at: record.received_at,
+          workflow_id: record.dispatch.workflow_id,
+          wave_id: record.dispatch.wave_id,
+          decision: record.dispatch.decision,
+          assignments: record.dispatch.assignments,
+          rejections: record.dispatch.rejections,
+          state_path: record.dispatch.state_path,
+          audit_path: record.dispatch.audit_path
         });
         return;
       }
@@ -388,6 +418,50 @@ export async function receiveWorkflowNextWave(
     path: options.path ?? "/workflow-next-wave",
     payload,
     scheduling
+  };
+}
+
+export async function receiveWorkflowDispatch(
+  payload: unknown,
+  options: {
+    rootDir?: string;
+    path?: string;
+    now?: () => string;
+  } = {}
+): Promise<ReceivedWorkflowDispatch> {
+  const receivedAt = (options.now ?? (() => new Date().toISOString()))();
+  const input = parseWorkflowDispatchPayload(payload);
+  const dispatch = await dispatchWorkflowWave(input, {
+    rootDir: options.rootDir,
+    now: receivedAt
+  });
+
+  return {
+    received_at: receivedAt,
+    path: options.path ?? "/workflow-dispatch",
+    payload,
+    dispatch
+  };
+}
+
+function parseWorkflowDispatchPayload(payload: unknown): { workflow_id: string; wave_id?: string } {
+  if (typeof payload !== "object" || payload === null || Array.isArray(payload)) {
+    throw new TaskGraphSchedulerError("Workflow dispatch payload must be an object.", "WORKFLOW_DISPATCH_PAYLOAD_INVALID");
+  }
+
+  const record = payload as Record<string, unknown>;
+  const workflowId = typeof record.workflow_id === "string" ? record.workflow_id.trim() : "";
+  const waveId = typeof record.wave_id === "string" && record.wave_id.trim().length > 0
+    ? record.wave_id.trim()
+    : undefined;
+
+  if (workflowId.length === 0) {
+    throw new TaskGraphSchedulerError("Workflow dispatch payload requires workflow_id.", "WORKFLOW_DISPATCH_WORKFLOW_REQUIRED");
+  }
+
+  return {
+    workflow_id: workflowId,
+    wave_id: waveId
   };
 }
 
