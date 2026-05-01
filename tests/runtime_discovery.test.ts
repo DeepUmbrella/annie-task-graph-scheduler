@@ -5,8 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   createRuntimeDiscoveryStore,
+  discoverOpenClawCandidates,
   emptyRuntimeDiscoverySnapshot,
-  normalizeRuntimeDiscoverySnapshot
+  normalizeRuntimeDiscoverySnapshot,
+  parseOpenClawAgentsList
 } from "../src/runtime_discovery/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
 
@@ -140,4 +142,61 @@ test("runtime discovery store saves and reads candidates", async () => {
   assert.equal(snapshot.runtimes[0]?.runtime, "openclaw");
   assert.equal(snapshot.candidates[0]?.candidate_id, "openclaw:annie-dev");
   assert.equal(snapshot.updated_at, "2026-05-01T01:00:00.000Z");
+});
+
+test("parseOpenClawAgentsList accepts array and object payloads", () => {
+  assert.equal(parseOpenClawAgentsList(JSON.stringify([{ id: "dev" }])).length, 1);
+  assert.equal(parseOpenClawAgentsList(JSON.stringify({ agents: [{ agent_id: "review" }] })).length, 1);
+});
+
+test("discoverOpenClawCandidates converts agents list to candidate nodes", async () => {
+  const calls: Array<{ command: string; args: string[] }> = [];
+  const snapshot = await discoverOpenClawCandidates({
+    command: "openclaw-test",
+    now: "2026-05-01T02:00:00.000Z",
+    runner: async (command, args) => {
+      calls.push({ command, args });
+      return {
+        stdout: JSON.stringify({
+          agents: [
+            {
+              agent_id: "develop-team",
+              display_name: "Develop Team",
+              node_type: "team",
+              declared_capabilities: ["planning", "delivery"]
+            },
+            {
+              agent_id: "annie-dev",
+              capabilities: ["frontend"]
+            }
+          ]
+        }),
+        stderr: ""
+      };
+    }
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0]?.command, "openclaw-test");
+  assert.deepEqual(calls[0]?.args, ["agents", "list", "--json"]);
+  assert.equal(snapshot.runtimes[0]?.status, "available");
+  assert.equal(snapshot.candidates.length, 2);
+  assert.equal(snapshot.candidates[0]?.candidate_id, "openclaw:annie-dev");
+  assert.equal(snapshot.candidates[1]?.node_type_hint, "team");
+  assert.equal("granted_actions" in (snapshot.candidates[0] ?? {}), false);
+});
+
+test("discoverOpenClawCandidates returns unavailable metadata on runner failure", async () => {
+  const snapshot = await discoverOpenClawCandidates({
+    command: "openclaw-missing",
+    now: "2026-05-01T02:00:00.000Z",
+    runner: async () => {
+      throw new Error("command not found");
+    }
+  });
+
+  assert.equal(snapshot.runtimes[0]?.runtime, "openclaw");
+  assert.equal(snapshot.runtimes[0]?.status, "unavailable");
+  assert.equal(snapshot.runtimes[0]?.error, "command not found");
+  assert.equal(snapshot.candidates.length, 0);
 });

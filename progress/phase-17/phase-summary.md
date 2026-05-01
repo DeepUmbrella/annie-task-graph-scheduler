@@ -20,7 +20,7 @@
 |---|---|---|
 | T085 | done | [Runtime discovery models](./tasks/task-085-runtime-discovery-models.md) |
 | T086 | done | [Runtime discovery store](./tasks/task-086-runtime-discovery-store.md) |
-| T087 | todo | [OpenClaw discovery adapter](./tasks/task-087-openclaw-discovery-adapter.md) |
+| T087 | done | [OpenClaw discovery adapter](./tasks/task-087-openclaw-discovery-adapter.md) |
 | T088 | todo | [Candidate nodes endpoint and CLI surface](./tasks/task-088-candidate-nodes-endpoint-and-cli-surface.md) |
 | T089 | todo | [Phase 17 验收测试](./tasks/task-089-phase-17-acceptance.md) |
 
@@ -29,7 +29,8 @@
 - Phase 01-16 已完成。
 - T085：Runtime discovery models 已完成，CandidateNode 与 RegisteredNode 边界已拆开。
 - T086：Runtime discovery store 已完成，snapshot 保存到 `.annie/discovery/runtime-candidates.json`。
-- 下一步：T087 OpenClaw discovery adapter。
+- T087：OpenClaw discovery adapter 已完成，可将 `openclaw agents list --json` 转换为 candidate nodes。
+- 下一步：T088 Candidate nodes endpoint and CLI surface。
 
 ## 阶段完成标准
 
