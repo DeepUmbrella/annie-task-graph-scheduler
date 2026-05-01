@@ -16,6 +16,7 @@ import { collectResult } from "./execution/result_collector.js";
 import { reviewWave } from "./execution/review_gate.js";
 import { assignWorkers } from "./execution/worker_pool.js";
 import { scheduleNextWorkflowWave } from "./workflow_scheduling/index.js";
+import { dispatchWorkflowWave } from "./workflow_dispatch/index.js";
 import {
   buildGlobalAgentPool,
   buildGlobalTaskQueue,
@@ -43,6 +44,7 @@ if (!command || command === "--help" || command === "-h") {
 Commands:
   init --plan <plan.json> [--workflow <workflow_id>]
   next-wave --workflow <workflow_id>
+  workflow-dispatch --workflow <workflow_id> [--wave <wave_id>]
   dispatch --workflow <workflow_id> --wave <wave_id>
   submit-result --workflow <workflow_id> --result <result.json>
   review-wave --workflow <workflow_id> --wave <wave_id>
@@ -77,6 +79,8 @@ if (command === "init") {
   await runStatus();
 } else if (command === "next-wave") {
   await runNextWave();
+} else if (command === "workflow-dispatch") {
+  await runWorkflowDispatch();
 } else if (command === "dispatch") {
   await runDispatch();
 } else if (command === "submit-result") {
@@ -203,6 +207,37 @@ async function runNextWave(): Promise<void> {
       scheduler_decision: scheduling.next_wave?.decision ?? null,
       state_path: scheduling.state_path,
       audit_path: scheduling.audit_path
+    }, null, 2));
+  } catch (error) {
+    printCliError(error);
+  }
+}
+
+async function runWorkflowDispatch(): Promise<void> {
+  const workflowId = getArg("--workflow");
+
+  if (!workflowId) {
+    console.error("Missing required --workflow <workflow_id>.");
+    process.exit(1);
+  }
+
+  try {
+    const result = await dispatchWorkflowWave({
+      workflow_id: workflowId,
+      wave_id: getArg("--wave") ?? undefined
+    }, {
+      rootDir: getArg("--root") ?? ".annie"
+    });
+
+    console.log(JSON.stringify({
+      workflow_id: result.workflow_id,
+      wave_id: result.wave_id,
+      decision: result.decision,
+      assignments: result.assignments,
+      rejections: result.rejections,
+      message_count: result.messages.length,
+      state_path: result.state_path,
+      audit_path: result.audit_path
     }, null, 2));
   } catch (error) {
     printCliError(error);
