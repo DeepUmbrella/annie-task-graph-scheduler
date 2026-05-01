@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -27,3 +27,18 @@
 - `src/workflow_scheduling/schedule_next_wave.ts`
 - `src/storage/state_store.ts`
 - `src/scheduler/scheduler.ts`
+
+## 完成记录
+
+- 新增 `scheduleNextWorkflowWave` service。
+- 支持 active wave idempotency。
+- 支持 completed / failed / no-ready decision。
+- 复用 `resolveDependencies` 和 `generateNextWave`。
+- 生成 wave 时只设置 `current_wave`，不 dispatch、不修改 task 为 running。
+- 写入 scheduling audit event 和依赖状态变更 audit event。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```
