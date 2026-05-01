@@ -20,7 +20,7 @@
 |---|---|---|
 | T116 | done | [Dispatch model and assigned task status](./tasks/task-116-dispatch-model-and-assigned-task-status.md) |
 | T117 | done | [Dispatch selection service](./tasks/task-117-dispatch-selection-service.md) |
-| T118 | todo | [Dispatch mailbox delivery](./tasks/task-118-dispatch-mailbox-delivery.md) |
+| T118 | done | [Dispatch mailbox delivery](./tasks/task-118-dispatch-mailbox-delivery.md) |
 | T119 | todo | [Dispatch endpoint](./tasks/task-119-dispatch-endpoint.md) |
 | T120 | todo | [Dispatch CLI](./tasks/task-120-dispatch-cli.md) |
 | T121 | todo | [Dispatch tests](./tasks/task-121-dispatch-tests.md) |
@@ -31,7 +31,8 @@
 - Phase 01-22 已完成。
 - T116：Dispatch model and assigned task status 已完成。
 - T117：Dispatch selection service 已完成。
-- 下一步：T118 Dispatch mailbox delivery。
+- T118：Dispatch mailbox delivery 已完成。
+- 下一步：T119 Dispatch endpoint。
 
 ## 阶段完成标准
 

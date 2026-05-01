@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,19 @@
 - `src/workflow_dispatch/dispatch_wave.ts`
 - `src/communication/mailbox_store.ts`
 - `src/storage/state_store.ts`
+
+## 完成记录
+
+- 新增 `dispatchWorkflowWave` service。
+- 通过 MessageBus 创建 `TASK_ASSIGNED` message。
+- 写入 orchestrator outbox 和 target node inbox。
+- 将 task 从 `ready` 标记为 `assigned`，不进入 `running`。
+- 写 dispatch / status / decision audit events。
+- 支持 already assigned idempotency。
+- ReviewGate 将 `assigned` 视为 incomplete task。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```

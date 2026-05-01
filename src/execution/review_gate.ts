@@ -30,7 +30,12 @@ export function reviewWave(
     });
   }
 
-  const incompleteTasks = tasks.filter((task) => task.status === "running" || task.status === "ready" || task.status === "pending");
+  const incompleteTasks = tasks.filter((task) =>
+    task.status === "assigned"
+    || task.status === "running"
+    || task.status === "ready"
+    || task.status === "pending"
+  );
 
   if (incompleteTasks.length > 0) {
     throw new TaskGraphSchedulerError("Wave still has incomplete tasks.", "WAVE_NOT_READY_FOR_REVIEW", {
