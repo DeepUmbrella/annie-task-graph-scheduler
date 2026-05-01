@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T116 | todo | [Dispatch model and assigned task status](./tasks/task-116-dispatch-model-and-assigned-task-status.md) |
+| T116 | done | [Dispatch model and assigned task status](./tasks/task-116-dispatch-model-and-assigned-task-status.md) |
 | T117 | todo | [Dispatch selection service](./tasks/task-117-dispatch-selection-service.md) |
 | T118 | todo | [Dispatch mailbox delivery](./tasks/task-118-dispatch-mailbox-delivery.md) |
 | T119 | todo | [Dispatch endpoint](./tasks/task-119-dispatch-endpoint.md) |
@@ -29,8 +29,8 @@
 ## 当前进度
 
 - Phase 01-22 已完成。
-- Phase 23 已规划。
-- 下一步：T116 Dispatch model and assigned task status。
+- T116：Dispatch model and assigned task status 已完成。
+- 下一步：T117 Dispatch selection service。
 
 ## 阶段完成标准
 

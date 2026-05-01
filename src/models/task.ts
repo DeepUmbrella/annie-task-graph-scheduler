@@ -1,6 +1,7 @@
 export const taskStatuses = [
   "pending",
   "ready",
+  "assigned",
   "running",
   "reviewing",
   "done",

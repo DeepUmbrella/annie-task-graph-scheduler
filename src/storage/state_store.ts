@@ -28,7 +28,8 @@ export interface TransitionOptions {
 
 const allowedTaskTransitions: Record<TaskStatus, TaskStatus[]> = {
   pending: ["ready", "blocked", "cancelled"],
-  ready: ["running", "blocked", "cancelled"],
+  ready: ["assigned", "running", "blocked", "cancelled"],
+  assigned: ["running", "ready", "blocked", "cancelled"],
   running: ["reviewing", "failed", "cancelled"],
   reviewing: ["done", "failed"],
   done: [],

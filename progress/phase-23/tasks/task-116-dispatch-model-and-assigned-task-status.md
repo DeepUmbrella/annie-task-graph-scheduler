@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,18 @@
 - `src/workflow_dispatch/model.ts`
 - `src/models/task.ts`
 - `src/storage/state_store.ts`
+
+## 完成记录
+
+- 新增 workflow dispatch model。
+- 新增 `assigned` task status。
+- 更新 task transition：`ready -> assigned -> running`。
+- 保留旧 `ready -> running` 路径供既有 execution CLI 兼容。
+- 更新 execution report task status ordering。
+- 新增 `workflow_dispatch` public export。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```

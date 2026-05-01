@@ -62,7 +62,7 @@ export interface WorkflowExecutionReport {
   };
 }
 
-const taskStatuses: TaskStatus[] = ["pending", "ready", "running", "reviewing", "done", "failed", "blocked", "cancelled"];
+const taskStatuses: TaskStatus[] = ["pending", "ready", "assigned", "running", "reviewing", "done", "failed", "blocked", "cancelled"];
 const waveStatuses: WaveStatus[] = ["pending", "running", "reviewing", "done", "failed", "blocked"];
 
 export function createWorkflowExecutionReport(
