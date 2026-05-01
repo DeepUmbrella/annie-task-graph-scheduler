@@ -2,7 +2,8 @@ import { TaskGraphSchedulerError } from "../errors.js";
 import type { MessageType } from "../models/message.js";
 
 export const agentActionTypes = [
-  "send_message"
+  "send_message",
+  "delegate_to_member"
 ] as const;
 
 export type AgentActionType = (typeof agentActionTypes)[number];
@@ -36,6 +37,10 @@ export const sendMessageActionMessageTypes: MessageType[] = [
   "ANSWER_PROVIDED",
   "HELP_REQUESTED",
   "BLOCKER_REPORTED"
+];
+
+export const delegateToMemberActionMessageTypes: MessageType[] = [
+  "TASK_ASSIGNED"
 ];
 
 export function createDefaultAgentActionPolicy(): AgentActionPolicy {
@@ -87,6 +92,13 @@ export function createSendMessagePermission(): AgentActionPermission {
   return {
     action: "send_message",
     message_types: sendMessageActionMessageTypes
+  };
+}
+
+export function createDelegateToMemberPermission(): AgentActionPermission {
+  return {
+    action: "delegate_to_member",
+    message_types: delegateToMemberActionMessageTypes
   };
 }
 

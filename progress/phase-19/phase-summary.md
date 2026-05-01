@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T095 | todo | [Delegation action model](./tasks/task-095-delegation-action-model.md) |
+| T095 | done | [Delegation action model](./tasks/task-095-delegation-action-model.md) |
 | T096 | todo | [Team delegation validator](./tasks/task-096-team-delegation-validator.md) |
 | T097 | todo | [Agent message team context intake](./tasks/task-097-agent-message-team-context-intake.md) |
 | T098 | todo | [Registry-derived delegation policy](./tasks/task-098-registry-derived-delegation-policy.md) |
@@ -27,8 +27,8 @@
 ## 当前进度
 
 - Phase 01-18 已完成。
-- Phase 19 已规划。
-- 下一步：T095 Delegation action model。
+- T095：Delegation action model 已完成。
+- 下一步：T096 Team delegation validator。
 
 ## 阶段完成标准
 

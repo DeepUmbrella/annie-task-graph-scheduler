@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,17 @@
 
 - `src/agent_action/policy.ts`
 - `tests/agent_action.test.ts`
+
+## 实施记录
+
+- 新增 `delegate_to_member` action。
+- 新增 `delegateToMemberActionMessageTypes`。
+- 新增 `createDelegateToMemberPermission()`。
+- delegation permission 只允许 `TASK_ASSIGNED`。
+- 未显式授权 delegation 时继续拒绝。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/agent_action.test.js` passed.
