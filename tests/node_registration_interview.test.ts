@@ -1,6 +1,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createNodeRegistrationInterviewRequest, parseNodeRegistrationProposalReply } from "../src/node_registration_interview/index.js";
+import {
+  approveNodeRegistrationProposal,
+  createDenyAllRegistrationApprovalPolicy,
+  createNodeRegistrationInterviewRequest,
+  parseNodeRegistrationProposalReply
+} from "../src/node_registration_interview/index.js";
 import type { CandidateNode } from "../src/runtime_discovery/index.js";
 import { TaskGraphSchedulerError } from "../src/errors.js";
 
@@ -89,4 +94,52 @@ test("parseNodeRegistrationProposalReply rejects invalid proposal schema", () =>
     (error) => error instanceof TaskGraphSchedulerError
       && error.code === "NODE_REGISTRATION_SCHEMA_INVALID"
   );
+});
+
+test("approveNodeRegistrationProposal denies actions by default", () => {
+  const proposal = {
+    schema_version: "node-registration.v1" as const,
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual" as const,
+        declared_capabilities: ["frontend"],
+        requested_actions: ["send_message" as const]
+      }
+    ]
+  };
+
+  const approved = approveNodeRegistrationProposal(proposal, createDenyAllRegistrationApprovalPolicy());
+
+  assert.deepEqual(approved.nodes[0]?.declared_capabilities, ["frontend"]);
+  assert.deepEqual(approved.nodes[0]?.requested_actions, ["send_message"]);
+  assert.deepEqual(approved.nodes[0]?.granted_actions, []);
+});
+
+test("approveNodeRegistrationProposal grants only allowed requested actions", () => {
+  const proposal = {
+    schema_version: "node-registration.v1" as const,
+    nodes: [
+      {
+        node_id: "develop-team",
+        node_type: "team" as const,
+        requested_actions: ["send_message" as const]
+      },
+      {
+        node_id: "review-agent",
+        node_type: "individual" as const,
+        requested_actions: ["send_message" as const]
+      }
+    ]
+  };
+
+  const approved = approveNodeRegistrationProposal(proposal, {
+    default_granted_actions: [],
+    node_grants: {
+      "develop-team": ["send_message"]
+    }
+  });
+
+  assert.deepEqual(approved.nodes.find((node) => node.node_id === "develop-team")?.granted_actions, ["send_message"]);
+  assert.deepEqual(approved.nodes.find((node) => node.node_id === "review-agent")?.granted_actions, []);
 });

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -24,3 +24,18 @@
 
 - `src/node_registration_interview/approval.ts`
 - `tests/node_registration_interview.test.ts`
+
+## 实施记录
+
+- 新增 `NodeRegistrationApprovalPolicy`。
+- 新增 `createDenyAllRegistrationApprovalPolicy()`。
+- 新增 `approveNodeRegistrationProposal(proposal, policy)`。
+- 默认 policy 不授予 action。
+- allowlist policy 只授予 node 已请求且被允许的 action。
+- approval 不修改 declared capabilities。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/node_registration_interview.test.js` passed.
