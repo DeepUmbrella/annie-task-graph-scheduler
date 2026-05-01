@@ -429,6 +429,9 @@ Already implemented in this repository:
 - action policy derivation from registered nodes
 - runtime discovery candidate model and local discovery snapshot persistence
 - OpenClaw discovery adapter for `openclaw agents list --json`
+- node registration interview template
+- runtime reply parser for `NodeRegistrationProposal`
+- registration approval boundary for `granted_actions`
 
 Not yet implemented:
 
@@ -438,7 +441,6 @@ Not yet implemented:
 - real OpenClaw `sessions_spawn` / `sessions_send` integration
 - team-scoped permission-aware message validation
 - user approval/clarification loop
-- candidate node interview flow
 
 ## 10. Suggested Next Phase
 
@@ -825,3 +827,18 @@ Phase 18 should implement:
 2. Candidate interview flow.
 3. Proposal parsing from runtime replies.
 4. User/system approval boundary for granted actions.
+
+Phase 18 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 18:
+
+1. `src/node_registration_interview/template.ts` creates registration interview requests.
+2. `src/node_registration_interview/parser.ts` parses object, text, and fenced JSON replies into `NodeRegistrationProposal`.
+3. `src/node_registration_interview/approval.ts` applies explicit approval policy.
+4. Default registration approval grants no actions.
+5. Node Registry no longer copies `requested_actions` into `granted_actions`.
+6. Registry-derived action policy only allows explicitly granted actions.

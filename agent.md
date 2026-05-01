@@ -309,6 +309,14 @@ Phase 18 planned:
 - Registration approval boundary
 - Registration semantics: requested actions are not automatically granted
 
+Phase 18 completed:
+
+- Node registration interview template
+- Runtime reply parser for `NodeRegistrationProposal`
+- Registration approval boundary
+- Default deny-all approval policy
+- Explicit `granted_actions` registration semantics
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -377,10 +385,8 @@ Phase 14: done
 Phase 15: done
 Phase 16: done
 Phase 17: done
-Phase 18: in_progress, T090-T093 done, next T094
+Phase 18: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/node_registration_interview.test.js: 7 passed
-node --test dist/tests/node_registry.test.js: 10 passed
-node --test dist/tests/agent_message_intake.test.js: 9 passed
+npm test: 178 passed
 ```

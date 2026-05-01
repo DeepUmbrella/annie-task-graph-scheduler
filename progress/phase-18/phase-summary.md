@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -22,7 +22,7 @@
 | T091 | done | [Proposal reply parser](./tasks/task-091-proposal-reply-parser.md) |
 | T092 | done | [Registration approval boundary](./tasks/task-092-registration-approval-boundary.md) |
 | T093 | done | [Registration intake semantics](./tasks/task-093-registration-intake-semantics.md) |
-| T094 | todo | [Phase 18 验收测试](./tasks/task-094-phase-18-acceptance.md) |
+| T094 | done | [Phase 18 验收测试](./tasks/task-094-phase-18-acceptance.md) |
 
 ## 当前进度
 
@@ -31,7 +31,8 @@
 - T091：Proposal reply parser 已完成。
 - T092：Registration approval boundary 已完成，默认不授予任何 action。
 - T093：Registration intake semantics 已完成，缺少 `granted_actions` 时不会自动授权。
-- 下一步：T094 Phase 18 acceptance。
+- T094：Phase 18 acceptance 已完成。
+- Phase 18 已完成。
 
 ## 阶段完成标准
 

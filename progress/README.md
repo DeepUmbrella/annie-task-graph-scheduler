@@ -46,11 +46,11 @@ progress/
 - [Phase 15 Agent Action Policy And Self-Routed Messages](./phase-15/phase-summary.md) - done
 - [Phase 16 Node Registry And Team Composition](./phase-16/phase-summary.md) - done
 - [Phase 17 Runtime Discovery And Candidate Nodes](./phase-17/phase-summary.md) - done
-- [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - planned
+- [Phase 18 Node Registration Interview](./phase-18/phase-summary.md) - done
 
 当前下一阶段：
 
-Phase 18 Node Registration Interview 已规划。下一步进入 T090。
+Phase 19 Team Delegation Actions 待规划。Phase 18 已完成 registration interview template、proposal reply parser、registration approval boundary，以及显式 `granted_actions` 注册语义。
 
 ## 更新规则
 
@@ -100,5 +100,5 @@ npm test
 当前基线：
 
 ```txt
-169 passed
+178 passed
 ```
