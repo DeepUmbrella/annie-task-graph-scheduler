@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`in_progress`
+`done`
 
 ## 关联文档
 
@@ -22,7 +22,7 @@
 | T101 | done | [Plan proposal store](./tasks/task-101-plan-proposal-store.md) |
 | T102 | done | [Plan proposal endpoint](./tasks/task-102-plan-proposal-endpoint.md) |
 | T103 | done | [Plan proposal intake tests](./tasks/task-103-plan-proposal-intake-tests.md) |
-| T104 | todo | [Phase 20 验收测试](./tasks/task-104-phase-20-acceptance.md) |
+| T104 | done | [Phase 20 验收测试](./tasks/task-104-phase-20-acceptance.md) |
 
 ## 当前进度
 
@@ -31,7 +31,8 @@
 - T101：Plan proposal store 已完成。
 - T102：Plan proposal endpoint 已完成。
 - T103：Plan proposal intake tests 已完成。
-- 下一步：T104 Phase 20 acceptance。
+- T104：Phase 20 acceptance 已完成。
+- Phase 20 已完成。
 
 ## 阶段完成标准
 

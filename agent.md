@@ -341,6 +341,15 @@ Phase 20 planned:
 - `GET /plan-proposals`
 - No automatic workflow initialization from proposal intake
 
+Phase 20 completed:
+
+- Plan proposal model and parser
+- TaskDagPlan validation through existing `loadPlan`
+- Local `.annie/plans/proposals.json` persistence
+- Runtime-neutral `POST /plan-proposals`
+- Runtime-neutral `GET /plan-proposals`
+- Proposal intake does not initialize workflow state
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -411,9 +420,8 @@ Phase 16: done
 Phase 17: done
 Phase 18: done
 Phase 19: done
-Phase 20: in_progress, T100-T103 done, next T104
+Phase 20: done
 npm run typecheck: pass
 npm run build: pass
-node --test dist/tests/plan_proposal.test.js: 6 passed
-node --test dist/tests/inbound_server.test.js: 7 passed
+npm test: 196 passed
 ```

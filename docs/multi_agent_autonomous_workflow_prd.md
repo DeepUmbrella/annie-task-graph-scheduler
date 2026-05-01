@@ -436,6 +436,9 @@ Already implemented in this repository:
 - team-scoped delegation validation
 - agent message `team_context` intake
 - registry-derived delegation policy for `TASK_ASSIGNED`
+- plan proposal intake for validated `TaskDagPlan`
+- local plan proposal persistence at `.annie/plans/proposals.json`
+- runtime-neutral `POST /plan-proposals` and `GET /plan-proposals`
 
 Not yet implemented:
 
@@ -868,3 +871,25 @@ Implemented in Phase 19:
 4. `intakeAgentMessage` can deliver delegation messages to member inboxes.
 5. Delegation messages preserve `team_context` in payload.
 6. Delegation intake writes mailbox messages and does not mutate workflow state.
+
+Phase 20 should implement:
+
+1. Plan proposal model and parser.
+2. TaskDagPlan validation.
+3. Plan proposal persistence.
+4. Runtime-neutral plan proposal endpoints.
+
+Phase 20 implementation status:
+
+```txt
+done
+```
+
+Implemented in Phase 20:
+
+1. `src/plan_proposal/parser.ts` parses object, text, and fenced JSON plan proposals.
+2. Plan proposal intake reuses existing `loadPlan` / DAG validation.
+3. `src/plan_proposal/store.ts` persists `.annie/plans/proposals.json`.
+4. `POST /plan-proposals` saves validated proposals.
+5. `GET /plan-proposals` returns proposal snapshots.
+6. Plan proposal intake does not initialize workflow state.
