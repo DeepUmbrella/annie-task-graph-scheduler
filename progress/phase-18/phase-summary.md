@@ -19,7 +19,7 @@
 | ID | 状态 | 任务 |
 |---|---|---|
 | T090 | done | [Registration interview template](./tasks/task-090-registration-interview-template.md) |
-| T091 | todo | [Proposal reply parser](./tasks/task-091-proposal-reply-parser.md) |
+| T091 | done | [Proposal reply parser](./tasks/task-091-proposal-reply-parser.md) |
 | T092 | todo | [Registration approval boundary](./tasks/task-092-registration-approval-boundary.md) |
 | T093 | todo | [Registration intake semantics](./tasks/task-093-registration-intake-semantics.md) |
 | T094 | todo | [Phase 18 验收测试](./tasks/task-094-phase-18-acceptance.md) |
@@ -28,7 +28,8 @@
 
 - Phase 01-17 已完成。
 - T090：Registration interview template 已完成。
-- 下一步：T091 Proposal reply parser。
+- T091：Proposal reply parser 已完成。
+- 下一步：T092 Registration approval boundary。
 
 ## 阶段完成标准
 

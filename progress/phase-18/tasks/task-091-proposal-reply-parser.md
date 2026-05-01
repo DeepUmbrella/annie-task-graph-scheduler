@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -26,3 +26,17 @@
 
 - `src/node_registration_interview/parser.ts`
 - `tests/node_registration_interview.test.ts`
+
+## 实施记录
+
+- 新增 `parseNodeRegistrationProposalReply`。
+- 支持直接 object proposal。
+- 支持 `proposal` / `content` / `reply` / `message` / `text` 字段。
+- 支持 fenced JSON。
+- 解析后复用 `normalizeNodeRegistrationProposal` 做 schema validation。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/node_registration_interview.test.js` passed.

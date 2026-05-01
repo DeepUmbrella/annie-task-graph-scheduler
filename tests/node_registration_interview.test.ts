@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { createNodeRegistrationInterviewRequest } from "../src/node_registration_interview/index.js";
+import { createNodeRegistrationInterviewRequest, parseNodeRegistrationProposalReply } from "../src/node_registration_interview/index.js";
 import type { CandidateNode } from "../src/runtime_discovery/index.js";
+import { TaskGraphSchedulerError } from "../src/errors.js";
 
 function createCandidate(overrides: Partial<CandidateNode> = {}): CandidateNode {
   return {
@@ -32,4 +33,60 @@ test("createNodeRegistrationInterviewRequest builds a stable schema request", ()
   assert.match(request.prompt, /node-registration\.v1/);
   assert.match(request.prompt, /requested_actions/);
   assert.match(request.requested_actions_note, /granted_actions/);
+});
+
+test("parseNodeRegistrationProposalReply accepts object replies", () => {
+  const parsed = parseNodeRegistrationProposalReply({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "annie-dev",
+        node_type: "individual",
+        requested_actions: ["send_message"]
+      }
+    ]
+  });
+
+  assert.equal(parsed.proposal.nodes[0]?.node_id, "annie-dev");
+});
+
+test("parseNodeRegistrationProposalReply accepts fenced json text", () => {
+  const parsed = parseNodeRegistrationProposalReply({
+    content: [
+      "```json",
+      JSON.stringify({
+        schema_version: "node-registration.v1",
+        nodes: [
+          {
+            node_id: "annie-dev",
+            node_type: "individual",
+            requested_actions: ["send_message"]
+          }
+        ]
+      }),
+      "```"
+    ].join("\n")
+  });
+
+  assert.equal(parsed.proposal.schema_version, "node-registration.v1");
+  assert.equal(parsed.proposal.nodes[0]?.node_id, "annie-dev");
+});
+
+test("parseNodeRegistrationProposalReply rejects invalid json", () => {
+  assert.throws(
+    () => parseNodeRegistrationProposalReply("```json\n{bad-json}\n```"),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "NODE_REGISTRATION_REPLY_JSON_INVALID"
+  );
+});
+
+test("parseNodeRegistrationProposalReply rejects invalid proposal schema", () => {
+  assert.throws(
+    () => parseNodeRegistrationProposalReply({
+      schema_version: "node-registration.v2",
+      nodes: []
+    }),
+    (error) => error instanceof TaskGraphSchedulerError
+      && error.code === "NODE_REGISTRATION_SCHEMA_INVALID"
+  );
 });
