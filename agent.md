@@ -350,6 +350,14 @@ Phase 20 completed:
 - Runtime-neutral `GET /plan-proposals`
 - Proposal intake does not initialize workflow state
 
+Phase 21 planned:
+
+- Workflow bootstrap model
+- Bootstrap workflow from plan proposal
+- `POST /workflow-bootstrap`
+- Bootstrap audit event
+- No automatic next-wave / dispatch
+
 Next product direction:
 
 - Multi-agent autonomous workflow PRD captured in `docs/multi_agent_autonomous_workflow_prd.md`
@@ -421,6 +429,7 @@ Phase 17: done
 Phase 18: done
 Phase 19: done
 Phase 20: done
+Phase 21: planned, next T105
 npm run typecheck: pass
 npm run build: pass
 npm test: 196 passed
