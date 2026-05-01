@@ -32,3 +32,4 @@ export * from "./team/index.js";
 export * from "./planning/index.js";
 export * from "./node_registry/index.js";
 export * from "./runtime_discovery/index.js";
+export * from "./node_registration_interview/index.js";

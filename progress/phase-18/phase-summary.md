@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T090 | todo | [Registration interview template](./tasks/task-090-registration-interview-template.md) |
+| T090 | done | [Registration interview template](./tasks/task-090-registration-interview-template.md) |
 | T091 | todo | [Proposal reply parser](./tasks/task-091-proposal-reply-parser.md) |
 | T092 | todo | [Registration approval boundary](./tasks/task-092-registration-approval-boundary.md) |
 | T093 | todo | [Registration intake semantics](./tasks/task-093-registration-intake-semantics.md) |
@@ -27,8 +27,8 @@
 ## 当前进度
 
 - Phase 01-17 已完成。
-- Phase 18 已规划。
-- 下一步：T090 Registration interview template。
+- T090：Registration interview template 已完成。
+- 下一步：T091 Proposal reply parser。
 
 ## 阶段完成标准
 

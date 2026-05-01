@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -25,3 +25,16 @@
 
 - `src/node_registration_interview/*`
 - `tests/node_registration_interview.test.ts`
+
+## 实施记录
+
+- 新增 `NodeRegistrationInterviewRequest`。
+- 新增 `createNodeRegistrationInterviewRequest(candidate)`。
+- 生成稳定 prompt，要求回复 `node-registration.v1` JSON。
+- prompt 明确 requested actions 不等于 granted actions。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/node_registration_interview.test.js` passed.
