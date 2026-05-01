@@ -959,7 +959,7 @@ Scope:
 3. Persist the generated wave to workflow state.
 4. Write an audit event when a wave is scheduled.
 5. Return a structured scheduling decision, including no-ready-task and completed-workflow outcomes.
-6. Expose a runtime-neutral endpoint or CLI command for explicit next-wave scheduling.
+6. Expose both a runtime-neutral endpoint and a CLI command for explicit next-wave scheduling.
 
 Non-goals:
 
@@ -984,8 +984,8 @@ Scope:
 2. Resolve candidate nodes from Node Registry and task capability requirements.
 3. Apply granted action policy and team membership validation.
 4. Create `TASK_ASSIGNED` mailbox messages for selected target nodes.
-5. Mark dispatched tasks as `running` through orchestrator-owned state transition.
-6. Audit each dispatch decision and rejection.
+5. Mark dispatched tasks as `assigned` or equivalent dispatch-pending state first, then mark them `running` only after the target node acknowledges the assignment.
+6. Audit each dispatch, acknowledgement, state transition, and rejection.
 
 Non-goals:
 
@@ -999,6 +999,7 @@ Acceptance:
 2. Ineligible nodes are rejected with explainable reasons.
 3. Tasks without eligible nodes remain pending/blocked with audit evidence.
 4. Dispatch can be retried without duplicate task assignment messages.
+5. Tasks do not become `running` until assignment acknowledgement is received.
 
 ### 13.4 Phase 24: Agent Result Intake
 
@@ -1034,9 +1035,10 @@ Scope:
 1. Detect when all tasks in a wave are ready for review.
 2. Run ReviewGate for the active wave.
 3. Support reviewer-agent submitted review messages where needed.
-4. Mark reviewed tasks done when review passes.
-5. Pause workflow when review fails, requirements are unclear, or human approval is required.
-6. Allow explicit resume after correction or approval.
+4. Allow automatic ReviewGate pass only for purely local deterministic checks; require reviewer-agent review when the wave policy, task risk, changed files, or plan metadata asks for human/agent review.
+5. Mark reviewed tasks done when review passes.
+6. Pause workflow when review fails, requirements are unclear, or human approval is required.
+7. Allow explicit resume after correction or approval.
 
 Non-goals:
 
@@ -1084,9 +1086,10 @@ Scope:
 1. Add a workflow runner service.
 2. Runner steps: schedule, dispatch, wait for results, review, advance.
 3. Add loop stop conditions: completed, blocked, waiting_for_user, waiting_for_review, failed, missing_permission.
-4. Add explicit start/stop/resume controls.
-5. Add bounded polling or event-driven wakeup.
-6. Persist runner status and audit each loop decision.
+4. Start with explicit step-by-step runner controls for the first implementation.
+5. Add start/stop/resume controls after step execution is stable.
+6. Add bounded polling or event-driven wakeup after the explicit runner proves the happy path.
+7. Persist runner status and audit each loop decision.
 
 Non-goals:
 
@@ -1100,10 +1103,11 @@ Acceptance:
 2. Runner pauses instead of guessing when input is missing.
 3. Runner can resume after user approval or new result intake.
 4. Runner state survives process restart.
+5. The first runner implementation can execute one explicit step at a time for debugging and auditability.
 
 ### 13.8 Phase 28: Dynamic Replanning And Human Clarification
 
-Phase 28 should support controlled changes to the plan while a workflow is active.
+Phase 28 should support controlled changes to the plan while a workflow is active. Dynamic replanning should wait until the basic autonomous happy path is working through scheduling, dispatch, result intake, review, and runner steps.
 
 Scope:
 
@@ -1147,11 +1151,14 @@ Acceptance:
 
 ### 13.10 Open Decisions Before Implementation
 
-The following decisions affect product semantics and should be confirmed before implementation work that depends on them:
+The following product decisions have been confirmed:
 
-1. Whether Phase 22 should expose scheduling as `POST /workflows/:workflow_id/next-wave`, `POST /workflow-next-wave`, CLI only, or both endpoint and CLI.
-2. Whether dispatch should immediately mark tasks as `running`, or only mark them `running` after the target node acknowledges the assignment.
-3. Whether review must involve a reviewer node message, or whether ReviewGate can approve automatically when local checks pass.
-4. Whether the first autonomous runner should be event-driven, polling-based, or explicit step-by-step only.
-5. What exact OpenClaw execution API should be used for task dispatch and result collection in the target environment.
-6. Whether dynamic replanning is allowed before the first complete autonomous happy path exists.
+1. Phase 22 should expose both an endpoint and a CLI command.
+2. Dispatch should not immediately mark a task as `running`; it should wait for target node acknowledgement.
+3. ReviewGate may automatically pass only deterministic local checks; reviewer-agent review is required when policy or risk calls for it.
+4. The first runner should be explicit step-by-step. Polling or event-driven loop should come after the happy path is debuggable.
+5. Dynamic replanning should wait until the first complete autonomous happy path exists.
+
+The following decision remains intentionally deferred until implementation reaches Phase 26:
+
+1. What exact OpenClaw execution API should be used for task dispatch and result collection in the target environment.
