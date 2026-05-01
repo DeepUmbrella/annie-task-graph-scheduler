@@ -345,3 +345,63 @@ test("intakeAgentMessage rejects delegation without team context", async () => {
       && error.code === "AGENT_MESSAGE_TEAM_CONTEXT_REQUIRED"
   );
 });
+
+test("intakeAgentMessage accepts registry-derived delegation policy", async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), "annie-tgs-agent-message-registry-delegation-"));
+  const snapshot = normalizeNodeRegistrationProposal({
+    schema_version: "node-registration.v1",
+    nodes: [
+      {
+        node_id: "develop-team",
+        node_type: "team"
+      },
+      {
+        node_id: "annie-pm",
+        node_type: "individual",
+        requested_actions: ["delegate_to_member"],
+        granted_actions: ["delegate_to_member"]
+      },
+      {
+        node_id: "annie-dev",
+        node_type: "individual"
+      }
+    ],
+    team_compositions: [
+      {
+        team_node_id: "develop-team",
+        lead_node_id: "annie-pm",
+        members: [
+          {
+            node_id: "annie-pm",
+            team_role: "lead"
+          },
+          {
+            node_id: "annie-dev",
+            team_role: "developer"
+          }
+        ]
+      }
+    ]
+  }, "2026-05-01T00:00:00.000Z");
+  const policy = buildAgentActionPolicyFromNodeRegistry(snapshot);
+
+  const result = await intakeAgentMessage({
+    intent_id: "intent_005",
+    from: "annie-pm",
+    action: "delegate_to_member",
+    to: "annie-dev",
+    message_type: "TASK_ASSIGNED",
+    message: "Please implement the homepage.",
+    team_context: {
+      team_node_id: "develop-team",
+      role: "lead"
+    }
+  }, {
+    rootDir,
+    actionPolicy: policy,
+    nodeRegistrySnapshot: snapshot
+  });
+
+  assert.equal(result.message.type, "TASK_ASSIGNED");
+  assert.equal(result.classification, "team_delegation");
+});

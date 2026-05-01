@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -23,3 +23,17 @@
 
 - `src/node_registry/policy.ts`
 - `tests/agent_message_intake.test.ts`
+
+## 实施记录
+
+- `buildAgentActionPolicyFromNodeRegistry` 支持 `delegate_to_member`。
+- `granted_actions: ["delegate_to_member"]` 派生 `TASK_ASSIGNED` permission。
+- 缺少 grant 时不派生 delegation permission。
+
+## 验证
+
+- `npm run typecheck` passed.
+- `npm run build` passed.
+- `node --test dist/tests/agent_message_intake.test.js` passed.
+- `node --test dist/tests/agent_action.test.js` passed.
+- `node --test dist/tests/team_delegation.test.js` passed.

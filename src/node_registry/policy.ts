@@ -1,4 +1,5 @@
 import {
+  createDelegateToMemberPermission,
   createSendMessagePermission,
   type AgentActionNodePolicy,
   type AgentActionPolicy
@@ -23,6 +24,9 @@ function toNodePolicy(node: RegisteredNode): AgentActionNodePolicy {
     permissions: node.granted_actions.map((action) => {
       if (action === "send_message") {
         return createSendMessagePermission();
+      }
+      if (action === "delegate_to_member") {
+        return createDelegateToMemberPermission();
       }
 
       return null;
