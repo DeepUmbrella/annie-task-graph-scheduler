@@ -6,7 +6,7 @@
 
 ## 阶段状态
 
-`planned`
+`in_progress`
 
 ## 关联文档
 
@@ -18,7 +18,7 @@
 
 | ID | 状态 | 任务 |
 |---|---|---|
-| T123 | todo | [Result intake model](./tasks/task-123-result-intake-model.md) |
+| T123 | done | [Result intake model](./tasks/task-123-result-intake-model.md) |
 | T124 | todo | [Result intake service](./tasks/task-124-result-intake-service.md) |
 | T125 | todo | [Result intake endpoint](./tasks/task-125-result-intake-endpoint.md) |
 | T126 | todo | [Result intake CLI](./tasks/task-126-result-intake-cli.md) |
@@ -28,8 +28,8 @@
 ## 当前进度
 
 - Phase 01-23 已完成。
-- Phase 24 已规划。
-- 下一步：T123 Result intake model。
+- T123：Result intake model 已完成。
+- 下一步：T124 Result intake service。
 
 ## 阶段完成标准
 

@@ -2,7 +2,7 @@
 
 ## 状态
 
-`todo`
+`done`
 
 ## 目标
 
@@ -23,3 +23,16 @@
 
 - `src/result_intake/model.ts`
 - `src/result_intake/index.ts`
+
+## 完成记录
+
+- 新增 `ResultIntakeInput`。
+- 新增 `ResultIntakeDecision`。
+- 新增 `ResultIntakeResult`。
+- 新增 `result_intake` public export。
+
+## 验证结果
+
+```txt
+npm run typecheck: pass
+```

@@ -38,3 +38,4 @@ export * from "./plan_proposal/index.js";
 export * from "./workflow_bootstrap/index.js";
 export * from "./workflow_scheduling/index.js";
 export * from "./workflow_dispatch/index.js";
+export * from "./result_intake/index.js";
